@@ -1,47 +1,60 @@
 # ILSpy MCP Server - Connection Guide
 
-This guide explains how to connect the ILSpy MCP server to Cursor.
+This guide explains how to connect the ILSpy MCP server to various MCP clients.
 
 ## Prerequisites
 
-- .NET 8.0 SDK installed
-- Cursor IDE with MCP support
+- .NET 9.0 SDK installed
+- An MCP-compatible client (Claude Code, Cursor, Claude Desktop)
 
-## Building the Server
+## Installation
 
-1. Navigate to the project directory:
-   ```bash
-   cd C:\Users\Admin\Desktop\Dev\ILSpy-Mcp
-   ```
+Install as a global dotnet tool:
 
-2. Build the project in Release mode:
-   ```bash
-   dotnet build -c Release
-   ```
+```bash
+dotnet tool install -g ILSpyMcp.Server
+```
 
-3. The compiled executable will be located at:
-   ```
-   bin\Release\net8.0\ILSpy.Mcp.dll
-   ```
+Verify the installation:
 
-## Adding to Cursor MCP Configuration
+```bash
+ilspy-mcp --help
+```
 
-1. Open your Cursor MCP configuration file:
-   ```
-   C:\Users\Admin\.cursor\mcp.json
-   ```
+## Client Configuration
 
-2. Add the following entry to the `mcpServers` object:
+### Claude Code
+
+Register the server globally:
+
+```bash
+claude mcp add ilspy-mcp --command "ilspy-mcp" --scope user
+```
+
+Or per-project — create/update `.mcp.json` in the repo root:
 
 ```json
 {
   "mcpServers": {
-    "ilspy": {
-      "command": "dotnet",
-      "args": [
-        "C:\\Users\\Admin\\Desktop\\Dev\\ILSpy-Mcp\\bin\\Release\\net8.0\\ILSpy.Mcp.dll"
-      ],
-      "cwd": "C:\\Users\\Admin\\Desktop\\Dev\\ILSpy-Mcp",
+    "ilspy-mcp": {
+      "type": "stdio",
+      "command": "ilspy-mcp",
+      "args": []
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to your Cursor MCP configuration (`~/.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "ilspy-mcp": {
+      "command": "ilspy-mcp",
+      "args": [],
       "env": {
         "ILSpy__MaxDecompilationSize": "1048576",
         "ILSpy__DefaultTimeoutSeconds": "30",
@@ -63,35 +76,28 @@ This guide explains how to connect the ILSpy MCP server to Cursor.
 }
 ```
 
+### Claude Desktop
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "ilspy-mcp": {
+      "command": "ilspy-mcp",
+      "args": []
+    }
+  }
+}
+```
+
 ## Configuration Options
 
-The server can be configured via environment variables (as shown above) or via `appsettings.json`:
+The server can be configured via environment variables:
 
 - `ILSpy__MaxDecompilationSize`: Maximum size of decompiled code in bytes (default: 1048576 = 1 MB)
 - `ILSpy__DefaultTimeoutSeconds`: Default timeout for operations in seconds (default: 30)
 - `ILSpy__MaxConcurrentOperations`: Maximum number of concurrent operations (default: 10)
-
-## Alternative: Using Executable (Self-Contained)
-
-If you prefer to publish as a self-contained executable:
-
-1. Publish the application:
-   ```bash
-   dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
-   ```
-
-2. Use the executable path in `mcp.json`:
-   ```json
-   {
-     "mcpServers": {
-       "ilspy": {
-         "command": "C:\\Users\\Admin\\Desktop\\Dev\\ILSpy-Mcp\\bin\\Release\\net8.0\\win-x64\\publish\\ILSpy.Mcp.exe",
-         "args": [],
-         "env": {}
-       }
-     }
-   }
-   ```
 
 ## Available Tools
 
@@ -108,32 +114,28 @@ Once connected, the following tools will be available:
 
 ## Usage Example
 
-After adding the server to your configuration:
+After configuring, the server is available immediately. You can use tools like:
 
-1. Restart Cursor to load the new MCP server
-2. The server will be available in the MCP tools panel
-3. You can use tools like:
-   ```
-   decompile_type(
-     assemblyPath: "C:\\path\\to\\assembly.dll",
-     typeName: "System.String",
-     query: "What methods are available?"
-   )
-   ```
+```
+decompile_type(
+  assemblyPath: "/path/to/assembly.dll",
+  typeName: "System.String",
+  query: "What methods are available?"
+)
+```
 
 ## Troubleshooting
 
 ### Server Not Starting
 
-- Verify .NET 8.0 SDK is installed: `dotnet --version`
-- Check the build output directory exists
-- Review Cursor's MCP logs for error messages
+- Verify .NET 9.0 SDK is installed: `dotnet --version`
+- Verify the tool is installed: `dotnet tool list -g | grep ILSpyMcp`
+- Try reinstalling: `dotnet tool uninstall -g ILSpyMcp.Server && dotnet tool install -g ILSpyMcp.Server`
 
 ### Tools Not Available
 
-- Ensure the server is not disabled in `mcp.json`
-- Check that `autoApprove` includes the tool names
-- Verify the server started successfully in Cursor's MCP panel
+- Check that the MCP server is registered: run `/mcp` in Claude Code
+- Verify the server started successfully in your client's MCP panel
 
 ### Timeout Errors
 
@@ -145,9 +147,18 @@ After adding the server to your configuration:
 - All operations are **read-only** (no file modifications)
 - Assembly paths are validated before processing
 - Operations have timeout protection to prevent resource exhaustion
-- Consider restricting access to specific assembly directories if needed
+
+## Updating
+
+```bash
+dotnet tool update -g ILSpyMcp.Server
+```
 
 ## Logging
 
-Logs are written to stderr and can be viewed in Cursor's MCP server logs. To adjust log levels, you can modify the logging configuration in `appsettings.json` or via environment variables.
+Logs are written to stderr. To adjust log levels, set environment variables:
 
+```bash
+Logging__LogLevel__Default=Information
+Logging__LogLevel__ILSpy.Mcp=Debug
+```
