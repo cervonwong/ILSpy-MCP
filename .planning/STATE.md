@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to plan
-stopped_at: Phase 2 context gathered
-last_updated: "2026-04-07T07:16:11.350Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-04-07T08:07:41.257Z"
 progress:
   total_phases: 7
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  completed_phases: 2
+  total_plans: 5
+  completed_plans: 5
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-07)
 
 **Core value:** AI assistants can perform complete .NET static analysis workflows — trace execution, find usages, search strings, and navigate across types and assemblies.
-**Current focus:** Phase 01 — test-infrastructure-baseline
+**Current focus:** Phase 02 — sdk-upgrades-bug-fixes
 
 ## Current Position
 
-Phase: 2
+Phase: 3
 Plan: Not started
 
 ## Performance Metrics
@@ -48,6 +48,9 @@ Plan: Not started
 *Updated after each plan completion*
 | Phase 01 P01 | 3m | 2 tasks | 18 files |
 | Phase 01 P02 | 4m | 2 tasks | 10 files |
+| Phase 02 P01 | 1m | 1 tasks | 2 files |
+| Phase 02 P02 | 5m | 2 tasks | 14 files |
+| Phase 02 P03 | 3m | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -64,6 +67,9 @@ Recent decisions affecting current work:
 - [Phase 01]: Excluded TestTargets from main project compilation to prevent source file leakage
 - [Phase 01]: Invalid assembly path returns INTERNAL_ERROR (FileNotFoundException from validation) not ASSEMBLY_LOAD_FAILED
 - [Phase 01]: Generic types listed without backtick arity notation by decompiler
+- [Phase 02]: Big bang decompiler upgrade validated - zero removed API usage, 31 tests green
+- [Phase 02]: TimeoutToken always creates linked CTS for correctness; ConcurrencyLimiter singleton shares semaphore; timeout starts after semaphore acquisition
+- [Phase 02]: Constructors listed before Methods in get_type_members output to match typical C# class layout
 
 ### Pending Todos
 
@@ -85,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-07T07:16:11.346Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-sdk-upgrades-bug-fixes/02-CONTEXT.md
+Last session: 2026-04-07T08:04:53.611Z
+Stopped at: Completed 02-03-PLAN.md
+Resume file: None
