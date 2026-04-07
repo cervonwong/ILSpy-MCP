@@ -53,10 +53,8 @@ jobs:
 
       - name: Package (zip)
         if: matrix.archive == 'zip'
-        shell: bash
-        run: |
-          cd ./publish/${{ matrix.rid }}
-          zip -r ../../ilspy-mcp-${{ matrix.rid }}.zip .
+        shell: pwsh
+        run: Compress-Archive -Path ./publish/${{ matrix.rid }}/* -DestinationPath ilspy-mcp-${{ matrix.rid }}.zip
 
       - name: Package (tar.gz)
         if: matrix.archive == 'tar.gz'
