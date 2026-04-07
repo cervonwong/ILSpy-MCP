@@ -62,10 +62,10 @@ Plans:
   1. User can request CIL disassembly of a type and receive complete IL output including all methods
   2. User can request CIL disassembly of a specific method and receive its IL instruction listing
   3. IL disassembly output is structurally correct (valid IL mnemonics, proper metadata token references)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 03-01-PLAN.md — Domain interface, infrastructure service, and use cases for IL disassembly
+- [x] 03-01-PLAN.md — Domain interface, infrastructure service, and use cases for IL disassembly
 - [ ] 03-02-PLAN.md — MCP transport tools, DI wiring, and integration tests for disassemble_type and disassemble_method
 
 ### Phase 4: Cross-Reference Analysis
@@ -138,7 +138,7 @@ Note: Phase 5 depends only on Phase 2 (not Phase 3/4), so it could run in parall
 |-------|----------------|--------|-----------|
 | 1. Test Infrastructure & Baseline | 0/2 | Planning complete | - |
 | 2. SDK Upgrades & Bug Fixes | 0/3 | Planned    |  |
-| 3. IL Infrastructure & Disassembly | 0/2 | Planned | - |
+| 3. IL Infrastructure & Disassembly | 1/2 | In Progress|  |
 | 4. Cross-Reference Analysis | 0/TBD | Not started | - |
 | 5. Assembly Inspection | 0/TBD | Not started | - |
 | 6. Search & Cross-Assembly | 0/TBD | Not started | - |

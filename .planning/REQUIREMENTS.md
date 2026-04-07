@@ -24,8 +24,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### IL & Disassembly
 
-- [ ] **IL-01**: User can get raw CIL/MSIL disassembly output for a type
-- [ ] **IL-02**: User can get raw CIL/MSIL disassembly output for a specific method
+- [x] **IL-01**: User can get raw CIL/MSIL disassembly output for a type
+- [x] **IL-02**: User can get raw CIL/MSIL disassembly output for a specific method
 
 ### Assembly Metadata
 
@@ -63,7 +63,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 - [x] **TEST-01**: All existing tools have regression tests that pass after SDK upgrades
 - [ ] **TEST-02**: Cross-reference analysis tools (XREF-01 through XREF-04) have integration tests against real assemblies
-- [ ] **TEST-03**: IL disassembly output (IL-01, IL-02) has integration tests verifying structural correctness
+- [x] **TEST-03**: IL disassembly output (IL-01, IL-02) has integration tests verifying structural correctness
 - [x] **TEST-04**: Bug fixes (SDK-03, SDK-04, SDK-05) each have regression tests proving the fix
 
 ### Documentation
@@ -105,9 +105,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SDK-04 | Phase 2 | Complete |
 | SDK-05 | Phase 2 | Complete |
 | TEST-04 | Phase 2 | Complete |
-| IL-01 | Phase 3 | Pending |
-| IL-02 | Phase 3 | Pending |
-| TEST-03 | Phase 3 | Pending |
+| IL-01 | Phase 3 | Complete |
+| IL-02 | Phase 3 | Complete |
+| TEST-03 | Phase 3 | Complete |
 | XREF-01 | Phase 4 | Pending |
 | XREF-02 | Phase 4 | Pending |
 | XREF-03 | Phase 4 | Pending |
