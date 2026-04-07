@@ -5,6 +5,25 @@ MCP server that gives AI assistants .NET decompilation and static analysis capab
 Ask your favourite AI Chatbot to explain how to use ILSpy MCP Server: [![ChatGPT](https://img.shields.io/badge/ChatGPT-Read%20README-74aa9c?logo=openai&logoColor=white)](https://chatgpt.com/?q=Read%20https%3A%2F%2Fgithub.com%2Fcervonwong%2FILSpy-MCP%2Fblob%2Fmain%2FREADME.md)
 [![Claude](https://img.shields.io/badge/Claude-Read%20README-d4a27f?logo=claude&logoColor=white)](https://claude.ai/new?q=Read%20https%3A%2F%2Fgithub.com%2Fcervonwong%2FILSpy-MCP%2Fblob%2Fmain%2FREADME.md)
 
+---
+
+- [What is this?](#what-is-this)
+- [Install](#install)
+  - [Option A: Pre-built Binary](#option-a-pre-built-binary-recommended----no-net-required)
+  - [Option B: dotnet tool](#option-b-dotnet-tool)
+  - [Option C: Build from Source](#option-c-build-from-source)
+- [Configure Your MCP Client](#configure-your-mcp-client)
+- [How It Works](#how-it-works)
+- [Usage Examples](#usage-examples)
+- [Available Tools](#available-tools)
+- [Running as an HTTP Server](#running-as-an-http-server-remote--vm)
+- [Architecture](#architecture)
+- [Comparison with Other Servers](#comparison-with-other-net-decompilation-mcp-servers)
+- [Acknowledgements](#acknowledgements)
+- [License](#license)
+
+---
+
 ## What is this?
 
 ILSpy MCP Server lets AI assistants decompile, inspect, and analyze .NET assemblies through natural language. It wraps [ICSharpCode.Decompiler](https://github.com/icsharpcode/ILSpy/tree/master/ICSharpCode.Decompiler) — the same decompilation engine that powers ILSpy — as a [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server. No GUI needed. Your AI assistant calls the decompiler directly and gets back structured results it can reason over.
@@ -339,3 +358,16 @@ Forked from [bivex/ILSpy-Mcp](https://github.com/bivex/ILSpy-Mcp).
 ## License
 
 MIT -- see [LICENSE](LICENSE) for details.
+
+---
+
+```
+ ________________________________________
+< Built with love by a fellow analyst :) 💖 >
+ ----------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+```
