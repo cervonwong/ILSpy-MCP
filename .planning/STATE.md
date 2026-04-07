@@ -81,9 +81,10 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260407-hz7 | Switch MCP server from stdio to HTTP server transport | 2026-04-07 | e38806a | [260407-hz7-switch-mcp-server-from-stdio-to-http-ser](./quick/260407-hz7-switch-mcp-server-from-stdio-to-http-ser/) |
 | 260407-kbk | GitHub Actions release workflow for self-contained binaries | 2026-04-07 | pending | [260407-kbk-create-github-actions-workflow-for-publi](./quick/260407-kbk-create-github-actions-workflow-for-publi/) |
+| 260407-kzu | Rewrite README with clear numbered install/use instructions | 2026-04-07 | adc7e52 | [260407-kzu-rewrite-readme-with-clear-numbered-insta](./quick/260407-kzu-rewrite-readme-with-clear-numbered-insta/) |
 
 ## Session Continuity
 
-Last session: 2026-04-07T05:44:06.172Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-04-07T07:11:33Z
+Stopped at: Completed quick task 260407-kzu
 Resume file: None
