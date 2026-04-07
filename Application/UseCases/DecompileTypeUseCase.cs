@@ -13,15 +13,18 @@ public sealed class DecompileTypeUseCase
 {
     private readonly IDecompilerService _decompiler;
     private readonly ITimeoutService _timeout;
+    private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<DecompileTypeUseCase> _logger;
 
     public DecompileTypeUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
+        IConcurrencyLimiter limiter,
         ILogger<DecompileTypeUseCase> logger)
     {
         _decompiler = decompiler;
         _timeout = timeout;
+        _limiter = limiter;
         _logger = logger;
     }
 
@@ -38,12 +41,12 @@ public sealed class DecompileTypeUseCase
 
             _logger.LogInformation("Decompiling type {TypeName} from {Assembly}", typeName, assemblyPath);
 
-            // Apply timeout
-            using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
-
-            var decompilation = await _decompiler.DecompileTypeAsync(assembly, type, timeout.Token);
-
-            return decompilation.SourceCode;
+            return await _limiter.ExecuteAsync(async () =>
+            {
+                using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
+                var decompilation = await _decompiler.DecompileTypeAsync(assembly, type, timeout.Token);
+                return decompilation.SourceCode;
+            }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

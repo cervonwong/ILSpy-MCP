@@ -10,15 +10,18 @@ public sealed class DecompileMethodUseCase
 {
     private readonly IDecompilerService _decompiler;
     private readonly ITimeoutService _timeout;
+    private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<DecompileMethodUseCase> _logger;
 
     public DecompileMethodUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
+        IConcurrencyLimiter limiter,
         ILogger<DecompileMethodUseCase> logger)
     {
         _decompiler = decompiler;
         _timeout = timeout;
+        _limiter = limiter;
         _logger = logger;
     }
 
@@ -34,14 +37,15 @@ public sealed class DecompileMethodUseCase
             var assembly = AssemblyPath.Create(assemblyPath);
             var type = TypeName.Create(typeName);
 
-            _logger.LogInformation("Decompiling method {MethodName} from {TypeName} in {Assembly}", 
+            _logger.LogInformation("Decompiling method {MethodName} from {TypeName} in {Assembly}",
                 methodName, typeName, assemblyPath);
 
-            using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
-
-            var methodCode = await _decompiler.DecompileMethodAsync(assembly, type, methodName, timeout.Token);
-
-            return methodCode;
+            return await _limiter.ExecuteAsync(async () =>
+            {
+                using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
+                var methodCode = await _decompiler.DecompileMethodAsync(assembly, type, methodName, timeout.Token);
+                return methodCode;
+            }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

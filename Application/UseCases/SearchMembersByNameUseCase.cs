@@ -10,15 +10,18 @@ public sealed class SearchMembersByNameUseCase
 {
     private readonly IDecompilerService _decompiler;
     private readonly ITimeoutService _timeout;
+    private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<SearchMembersByNameUseCase> _logger;
 
     public SearchMembersByNameUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
+        IConcurrencyLimiter limiter,
         ILogger<SearchMembersByNameUseCase> logger)
     {
         _decompiler = decompiler;
         _timeout = timeout;
+        _limiter = limiter;
         _logger = logger;
     }
 
@@ -32,32 +35,34 @@ public sealed class SearchMembersByNameUseCase
         {
             var assembly = AssemblyPath.Create(assemblyPath);
 
-            _logger.LogInformation("Searching members in {Assembly} for '{SearchTerm}' (kind: {Kind})", 
+            _logger.LogInformation("Searching members in {Assembly} for '{SearchTerm}' (kind: {Kind})",
                 assemblyPath, searchTerm, memberKind ?? "any");
 
-            using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
-
-            var results = await _decompiler.SearchMembersAsync(assembly, searchTerm, memberKind, timeout.Token);
-
-            var result = new System.Text.StringBuilder();
-            result.AppendLine($"Search results for '{searchTerm}' in {assembly.FileName}");
-            result.AppendLine();
-
-            result.AppendLine($"Found {results.Count} matching members:");
-            result.AppendLine();
-
-            var grouped = results.GroupBy(m => m.TypeFullName);
-            foreach (var group in grouped)
+            return await _limiter.ExecuteAsync(async () =>
             {
-                result.AppendLine($"In type: {group.Key}");
-                foreach (var member in group)
-                {
-                    result.AppendLine($"  [{member.Kind}] {member.Signature}");
-                }
-                result.AppendLine();
-            }
+                using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
+                var results = await _decompiler.SearchMembersAsync(assembly, searchTerm, memberKind, timeout.Token);
 
-            return result.ToString();
+                var result = new System.Text.StringBuilder();
+                result.AppendLine($"Search results for '{searchTerm}' in {assembly.FileName}");
+                result.AppendLine();
+
+                result.AppendLine($"Found {results.Count} matching members:");
+                result.AppendLine();
+
+                var grouped = results.GroupBy(m => m.TypeFullName);
+                foreach (var group in grouped)
+                {
+                    result.AppendLine($"In type: {group.Key}");
+                    foreach (var member in group)
+                    {
+                        result.AppendLine($"  [{member.Kind}] {member.Signature}");
+                    }
+                    result.AppendLine();
+                }
+
+                return result.ToString();
+            }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

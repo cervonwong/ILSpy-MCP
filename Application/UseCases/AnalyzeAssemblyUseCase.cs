@@ -11,15 +11,18 @@ public sealed class AnalyzeAssemblyUseCase
 {
     private readonly IDecompilerService _decompiler;
     private readonly ITimeoutService _timeout;
+    private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<AnalyzeAssemblyUseCase> _logger;
 
     public AnalyzeAssemblyUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
+        IConcurrencyLimiter limiter,
         ILogger<AnalyzeAssemblyUseCase> logger)
     {
         _decompiler = decompiler;
         _timeout = timeout;
+        _limiter = limiter;
         _logger = logger;
     }
 
@@ -34,37 +37,39 @@ public sealed class AnalyzeAssemblyUseCase
 
             _logger.LogInformation("Analyzing assembly {Assembly}", assemblyPath);
 
-            using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
-
-            var assemblyInfo = await _decompiler.GetAssemblyInfoAsync(assembly, timeout.Token);
-
-            // Build a summary of the assembly
-            var result = new StringBuilder();
-            result.AppendLine($"Assembly: {assemblyInfo.FileName}");
-            result.AppendLine($"Total Types: {assemblyInfo.TotalTypeCount}");
-            result.AppendLine($"Public Types: {assemblyInfo.PublicTypes.Count}");
-            result.AppendLine();
-
-            if (assemblyInfo.NamespaceCounts.Any())
+            return await _limiter.ExecuteAsync(async () =>
             {
-                result.AppendLine("Namespaces:");
-                foreach (var ns in assemblyInfo.NamespaceCounts.OrderByDescending(kvp => kvp.Value))
-                {
-                    result.AppendLine($"  {ns.Key}: {ns.Value} types");
-                }
+                using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
+                var assemblyInfo = await _decompiler.GetAssemblyInfoAsync(assembly, timeout.Token);
+
+                // Build a summary of the assembly
+                var result = new StringBuilder();
+                result.AppendLine($"Assembly: {assemblyInfo.FileName}");
+                result.AppendLine($"Total Types: {assemblyInfo.TotalTypeCount}");
+                result.AppendLine($"Public Types: {assemblyInfo.PublicTypes.Count}");
                 result.AppendLine();
-            }
 
-            if (assemblyInfo.PublicTypes.Any())
-            {
-                result.AppendLine("Key Public Types:");
-                foreach (var type in assemblyInfo.PublicTypes)
+                if (assemblyInfo.NamespaceCounts.Any())
                 {
-                    result.AppendLine($"  {type.Kind} {type.FullName}");
+                    result.AppendLine("Namespaces:");
+                    foreach (var ns in assemblyInfo.NamespaceCounts.OrderByDescending(kvp => kvp.Value))
+                    {
+                        result.AppendLine($"  {ns.Key}: {ns.Value} types");
+                    }
+                    result.AppendLine();
                 }
-            }
 
-            return result.ToString();
+                if (assemblyInfo.PublicTypes.Any())
+                {
+                    result.AppendLine("Key Public Types:");
+                    foreach (var type in assemblyInfo.PublicTypes)
+                    {
+                        result.AppendLine($"  {type.Kind} {type.FullName}");
+                    }
+                }
+
+                return result.ToString();
+            }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

@@ -10,15 +10,18 @@ public sealed class ListAssemblyTypesUseCase
 {
     private readonly IDecompilerService _decompiler;
     private readonly ITimeoutService _timeout;
+    private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<ListAssemblyTypesUseCase> _logger;
 
     public ListAssemblyTypesUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
+        IConcurrencyLimiter limiter,
         ILogger<ListAssemblyTypesUseCase> logger)
     {
         _decompiler = decompiler;
         _timeout = timeout;
+        _limiter = limiter;
         _logger = logger;
     }
 
@@ -31,25 +34,27 @@ public sealed class ListAssemblyTypesUseCase
         {
             var assembly = AssemblyPath.Create(assemblyPath);
 
-            _logger.LogInformation("Listing types from {Assembly} with filter: {Filter}", 
+            _logger.LogInformation("Listing types from {Assembly} with filter: {Filter}",
                 assemblyPath, namespaceFilter ?? "none");
 
-            using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
-
-            var types = await _decompiler.ListTypesAsync(assembly, namespaceFilter, timeout.Token);
-
-            var result = new System.Text.StringBuilder();
-            result.AppendLine($"Assembly: {assembly.FileName}");
-            result.AppendLine($"Types found: {types.Count}");
-            result.AppendLine();
-
-            foreach (var type in types)
+            return await _limiter.ExecuteAsync(async () =>
             {
-                var kind = type.Kind.ToString().ToLower();
-                result.AppendLine($"  {kind,-10} {type.FullName}");
-            }
+                using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
+                var types = await _decompiler.ListTypesAsync(assembly, namespaceFilter, timeout.Token);
 
-            return result.ToString();
+                var result = new System.Text.StringBuilder();
+                result.AppendLine($"Assembly: {assembly.FileName}");
+                result.AppendLine($"Types found: {types.Count}");
+                result.AppendLine();
+
+                foreach (var type in types)
+                {
+                    var kind = type.Kind.ToString().ToLower();
+                    result.AppendLine($"  {kind,-10} {type.FullName}");
+                }
+
+                return result.ToString();
+            }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

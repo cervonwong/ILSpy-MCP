@@ -34,6 +34,7 @@ public sealed class ToolTestFixture : IDisposable
         });
 
         services.AddSingleton<ITimeoutService, TimeoutService>();
+        services.AddSingleton<IConcurrencyLimiter, ConcurrencyLimiter>();
         services.AddScoped<IDecompilerService, ILSpyDecompilerService>();
 
         services.AddScoped<DecompileTypeUseCase>();

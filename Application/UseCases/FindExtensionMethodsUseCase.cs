@@ -10,15 +10,18 @@ public sealed class FindExtensionMethodsUseCase
 {
     private readonly IDecompilerService _decompiler;
     private readonly ITimeoutService _timeout;
+    private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<FindExtensionMethodsUseCase> _logger;
 
     public FindExtensionMethodsUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
+        IConcurrencyLimiter limiter,
         ILogger<FindExtensionMethodsUseCase> logger)
     {
         _decompiler = decompiler;
         _timeout = timeout;
+        _limiter = limiter;
         _logger = logger;
     }
 
@@ -32,45 +35,47 @@ public sealed class FindExtensionMethodsUseCase
             var assembly = AssemblyPath.Create(assemblyPath);
             var targetType = TypeName.Create(targetTypeName);
 
-            _logger.LogInformation("Finding extension methods for {TypeName} in {Assembly}", 
+            _logger.LogInformation("Finding extension methods for {TypeName} in {Assembly}",
                 targetTypeName, assemblyPath);
 
-            using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
-
-            var extensionMethods = await _decompiler.FindExtensionMethodsAsync(assembly, targetType, timeout.Token);
-
-            var result = new System.Text.StringBuilder();
-            result.AppendLine($"Extension methods for type: {targetTypeName}");
-            result.AppendLine($"Assembly: {assembly.FileName}");
-            result.AppendLine();
-
-            if (extensionMethods.Any())
+            return await _limiter.ExecuteAsync(async () =>
             {
-                result.AppendLine($"Found {extensionMethods.Count} extension methods:");
+                using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
+                var extensionMethods = await _decompiler.FindExtensionMethodsAsync(assembly, targetType, timeout.Token);
+
+                var result = new System.Text.StringBuilder();
+                result.AppendLine($"Extension methods for type: {targetTypeName}");
+                result.AppendLine($"Assembly: {assembly.FileName}");
                 result.AppendLine();
 
-                var grouped = extensionMethods.GroupBy(m => m.Name);
-                foreach (var group in grouped)
+                if (extensionMethods.Any())
                 {
-                    result.AppendLine($"Method: {group.Key}");
-                    foreach (var method in group)
-                    {
-                        var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
-                        result.AppendLine($"  {method.ReturnType} {method.Name}({parameters})");
-                    }
+                    result.AppendLine($"Found {extensionMethods.Count} extension methods:");
                     result.AppendLine();
+
+                    var grouped = extensionMethods.GroupBy(m => m.Name);
+                    foreach (var group in grouped)
+                    {
+                        result.AppendLine($"Method: {group.Key}");
+                        foreach (var method in group)
+                        {
+                            var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
+                            result.AppendLine($"  {method.ReturnType} {method.Name}({parameters})");
+                        }
+                        result.AppendLine();
+                    }
+
+                    result.AppendLine("Usage: these methods can be called as if they were instance methods on the target type.");
+                }
+                else
+                {
+                    result.AppendLine("No extension methods found for this type in the assembly.");
+                    result.AppendLine();
+                    result.AppendLine("Note: Extension methods are defined in static classes and marked with the 'this' keyword on their first parameter.");
                 }
 
-                result.AppendLine("Usage: these methods can be called as if they were instance methods on the target type.");
-            }
-            else
-            {
-                result.AppendLine("No extension methods found for this type in the assembly.");
-                result.AppendLine();
-                result.AppendLine("Note: Extension methods are defined in static classes and marked with the 'this' keyword on their first parameter.");
-            }
-
-            return result.ToString();
+                return result.ToString();
+            }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

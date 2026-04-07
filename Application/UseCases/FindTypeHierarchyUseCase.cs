@@ -10,15 +10,18 @@ public sealed class FindTypeHierarchyUseCase
 {
     private readonly IDecompilerService _decompiler;
     private readonly ITimeoutService _timeout;
+    private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<FindTypeHierarchyUseCase> _logger;
 
     public FindTypeHierarchyUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
+        IConcurrencyLimiter limiter,
         ILogger<FindTypeHierarchyUseCase> logger)
     {
         _decompiler = decompiler;
         _timeout = timeout;
+        _limiter = limiter;
         _logger = logger;
     }
 
@@ -34,43 +37,45 @@ public sealed class FindTypeHierarchyUseCase
 
             _logger.LogInformation("Finding hierarchy for type {TypeName} in {Assembly}", typeName, assemblyPath);
 
-            using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
-
-            var typeInfo = await _decompiler.GetTypeInfoAsync(assembly, type, timeout.Token);
-
-            var result = new System.Text.StringBuilder();
-            result.AppendLine($"Type Hierarchy: {typeInfo.FullName}");
-            result.AppendLine($"Kind: {typeInfo.Kind}");
-            result.AppendLine();
-
-            result.AppendLine("Inherits from:");
-            if (typeInfo.BaseTypes.Any())
+            return await _limiter.ExecuteAsync(async () =>
             {
-                foreach (var baseType in typeInfo.BaseTypes)
+                using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
+                var typeInfo = await _decompiler.GetTypeInfoAsync(assembly, type, timeout.Token);
+
+                var result = new System.Text.StringBuilder();
+                result.AppendLine($"Type Hierarchy: {typeInfo.FullName}");
+                result.AppendLine($"Kind: {typeInfo.Kind}");
+                result.AppendLine();
+
+                result.AppendLine("Inherits from:");
+                if (typeInfo.BaseTypes.Any())
                 {
-                    result.AppendLine($"  ↑ {baseType}");
+                    foreach (var baseType in typeInfo.BaseTypes)
+                    {
+                        result.AppendLine($"  \u2191 {baseType}");
+                    }
                 }
-            }
-            else
-            {
-                result.AppendLine("  (none, inherits from System.Object)");
-            }
-            result.AppendLine();
-
-            result.AppendLine("Implements interfaces:");
-            if (typeInfo.Interfaces.Any())
-            {
-                foreach (var iface in typeInfo.Interfaces)
+                else
                 {
-                    result.AppendLine($"  • {iface}");
+                    result.AppendLine("  (none, inherits from System.Object)");
                 }
-            }
-            else
-            {
-                result.AppendLine("  (none)");
-            }
+                result.AppendLine();
 
-            return result.ToString();
+                result.AppendLine("Implements interfaces:");
+                if (typeInfo.Interfaces.Any())
+                {
+                    foreach (var iface in typeInfo.Interfaces)
+                    {
+                        result.AppendLine($"  \u2022 {iface}");
+                    }
+                }
+                else
+                {
+                    result.AppendLine("  (none)");
+                }
+
+                return result.ToString();
+            }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

@@ -10,15 +10,18 @@ public sealed class GetTypeMembersUseCase
 {
     private readonly IDecompilerService _decompiler;
     private readonly ITimeoutService _timeout;
+    private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<GetTypeMembersUseCase> _logger;
 
     public GetTypeMembersUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
+        IConcurrencyLimiter limiter,
         ILogger<GetTypeMembersUseCase> logger)
     {
         _decompiler = decompiler;
         _timeout = timeout;
+        _limiter = limiter;
         _logger = logger;
     }
 
@@ -34,11 +37,12 @@ public sealed class GetTypeMembersUseCase
 
             _logger.LogInformation("Getting members for type {TypeName} from {Assembly}", typeName, assemblyPath);
 
-            using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
+            return await _limiter.ExecuteAsync(async () =>
+            {
+                using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
+                var typeInfo = await _decompiler.GetTypeInfoAsync(assembly, type, timeout.Token);
 
-            var typeInfo = await _decompiler.GetTypeInfoAsync(assembly, type, timeout.Token);
-
-            var result = new System.Text.StringBuilder();
+                var result = new System.Text.StringBuilder();
             result.AppendLine($"╔═══ Type Members: {typeInfo.FullName}");
             result.AppendLine($"║ Assembly: {assembly.FileName}");
             result.AppendLine($"║ Kind: {typeInfo.Kind}");
@@ -99,7 +103,8 @@ public sealed class GetTypeMembersUseCase
                 }
             }
 
-            return result.ToString();
+                return result.ToString();
+            }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

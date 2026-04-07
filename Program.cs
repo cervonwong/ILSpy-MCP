@@ -91,6 +91,7 @@ static void RegisterServices(IServiceCollection services)
 {
     // Application services
     services.AddSingleton<ITimeoutService, TimeoutService>();
+    services.AddSingleton<IConcurrencyLimiter, ConcurrencyLimiter>();
 
     // Domain services (ports)
     services.AddScoped<IDecompilerService, ILSpyDecompilerService>();
