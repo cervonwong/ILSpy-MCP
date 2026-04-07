@@ -1,19 +1,23 @@
 # ILSpy MCP Server Tests
 
-This directory contains integration tests for all MCP tools in the ILSpy MCP server.
+Integration tests for all 8 MCP tools using a deterministic custom test assembly.
 
 ## Test Coverage
 
-The test suite covers all 8 MCP tools:
+Each tool has a dedicated test class in `Tests/Tools/` with 3-5 regression tests:
 
-1. ✅ **decompile_type** - Decompile and analyze types
-2. ✅ **decompile_method** - Decompile and analyze methods  
-3. ✅ **list_assembly_types** - List types in an assembly
-4. ✅ **analyze_assembly** - Analyze assembly architecture (skipped - requires AI)
-5. ✅ **get_type_members** - Get complete API surface of a type
-6. ✅ **find_type_hierarchy** - Find inheritance relationships
-7. ✅ **search_members_by_name** - Search for members by name
-8. ✅ **find_extension_methods** - Find extension methods
+| Tool | Test Class | Tests |
+|------|-----------|-------|
+| `decompile_type` | `DecompileTypeToolTests` | 4 |
+| `decompile_method` | `DecompileMethodToolTests` | 4 |
+| `list_assembly_types` | `ListAssemblyTypesToolTests` | 5 |
+| `analyze_assembly` | `AnalyzeAssemblyToolTests` | 3 |
+| `get_type_members` | `GetTypeMembersToolTests` | 4 |
+| `find_type_hierarchy` | `FindTypeHierarchyToolTests` | 4 |
+| `search_members_by_name` | `SearchMembersByNameToolTests` | 4 |
+| `find_extension_methods` | `FindExtensionMethodsToolTests` | 3 |
+
+**Total: 31 tests, all passing.**
 
 ## Running Tests
 
@@ -24,42 +28,31 @@ dotnet test
 # Run with verbose output
 dotnet test --verbosity normal
 
-# Run specific test class
-dotnet test --filter "FullyQualifiedName~ToolsIntegrationTests"
+# Run a specific tool's tests
+dotnet test --filter "FullyQualifiedName~DecompileTypeToolTests"
 ```
-
-## Test Results
-
-- **Total Tests**: 15
-- **Passed**: 12
-- **Skipped**: 3 (tests requiring AI analysis or with known decompilation limitations)
-- **Failed**: 0
 
 ## Test Assembly
 
-Tests use `System.Private.CoreLib.dll` as the test assembly, which contains core .NET types like `System.String`. This assembly is located in the .NET runtime directory.
+Tests use a custom **TestTargets** class library (`ILSpy.Mcp.TestTargets.dll`) instead of runtime assemblies. This provides deterministic, version-stable types for assertions.
 
-## Skipped Tests
+The TestTargets project contains 15+ types across 5 namespaces:
 
-Some tests are skipped for the following reasons:
+- `ILSpy.Mcp.TestTargets` — classes, enums, delegates, nested types, attributes
+- `ILSpy.Mcp.TestTargets.Animals` — interfaces and implementations
+- `ILSpy.Mcp.TestTargets.Shapes` — abstract classes, structs
+- `ILSpy.Mcp.TestTargets.Generics` — generic types with constraints
+- `ILSpy.Mcp.TestTargets.Services` — service classes for cross-reference testing
 
-1. **AI Analysis Tests**: Tests that require the MCP server's AI sampling capabilities are skipped in unit tests since they require a full MCP server instance.
+## Test Infrastructure
 
-2. **Decompilation Limitations**: Some types in `System.Private.CoreLib.dll` have decompilation limitations. These are tested via `GetTypeMembers` instead, which works reliably.
+- **`Fixtures/ToolTestFixture.cs`** — Shared DI container with all 8 tools registered. Resolves the TestTargets DLL path via `AppContext.BaseDirectory`.
+- **`Fixtures/ToolTestCollection.cs`** — xUnit `ICollectionFixture` definition. All test classes share the same fixture instance via `[Collection("ToolTests")]`.
 
-## Test Structure
-
-- **ToolsIntegrationTests.cs**: Main test class with integration tests for all tools
-- Tests verify:
-  - Successful tool execution
-  - Error handling (invalid paths, types, methods)
-  - Filtering and search functionality
-  - Proper exception mapping from domain to MCP errors
+Each test creates its own DI scope via `_fixture.CreateScope()` to avoid cross-test contamination.
 
 ## Dependencies
 
-- xUnit - Test framework
-- FluentAssertions - Assertion library
-- Microsoft.Extensions.Hosting - Dependency injection
-- ModelContextProtocol - MCP SDK
-
+- xUnit — Test framework
+- FluentAssertions — Assertion library
+- ILSpy.Mcp.TestTargets — Custom test assembly (ProjectReference)
