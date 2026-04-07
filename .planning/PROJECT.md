@@ -27,7 +27,7 @@ AI assistants can perform complete .NET static analysis workflows — not just r
 
 ### Active
 - [ ] Cross-reference analysis: find_usages, find_implementors, find_instantiations, find_dependencies
-- [ ] IL/CIL output for types and methods
+- [x] IL/CIL output for types and methods — Validated in Phase 3: IL Infrastructure & Disassembly
 - [ ] List assembly references (name, version, culture, public key token)
 - [ ] Resolve type across assemblies in a directory
 - [ ] Load all assemblies from a folder for cross-assembly analysis
@@ -38,7 +38,7 @@ AI assistants can perform complete .NET static analysis workflows — not just r
 - [ ] List and extract embedded resources
 - [ ] List nested types and find compiler-generated types
 - [ ] Bulk decompilation: decompile_namespace, export_project
-- [~] Critical-path test coverage for P0 features and bug fixes — Phase 1 baseline (31 tests), Phase 2 added 11 bug fix regression tests (42 total)
+- [~] Critical-path test coverage for P0 features and bug fixes — Phase 1 baseline (31 tests), Phase 2 added 11 (42), Phase 3 added 16 (58 total)
 
 ### Out of Scope
 
@@ -71,6 +71,7 @@ AI assistants can perform complete .NET static analysis workflows — not just r
 | Fix bugs before new features | Stable baseline for tests to validate against | ✓ Done (Phase 2) |
 | P0-P2 this milestone, P3 deferred | Session management is architectural change, separable | — Pending |
 | Critical-path tests (not exhaustive) | P0 + bug fixes get thorough tests, lighter elsewhere | — Pending |
+| Separate IDisassemblyService from IDecompilerService | Disassembly is a distinct concern with different output format | ✓ Done (Phase 3) |
 | Reusable ILScanner for IL-based features | Cross-refs, string search, constant search share scanning logic | — Pending |
 
 ## Evolution
@@ -91,4 +92,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-07 after Phase 2 completion — SDK upgrades, bug fixes (CTS leak, concurrency, constructors), 42 tests total*
+*Last updated: 2026-04-07 after Phase 3 completion — IL disassembly tools (disassemble_type, disassemble_method), 10 MCP tools total, 58 tests*
