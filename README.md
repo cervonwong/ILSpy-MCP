@@ -195,7 +195,9 @@ From the machine running your AI assistant, point the MCP client at the server's
 
 **Claude Code:**
 ```bash
-claude mcp add ilspy-mcp --transport http --url http://analysis-vm:3001/mcp --scope user
+claude mcp add ilspy-mcp --transport http http://<analysis-vm>:3001/mcp --scope user    # available across all your projects
+claude mcp add ilspy-mcp --transport http http://<analysis-vm>:3001/mcp --scope project # shared with team via .mcp.json in repo
+claude mcp add ilspy-mcp --transport http http://<analysis-vm>:3001/mcp --scope local   # current project only (default)
 ```
 
 **Claude Desktop / Cursor (MCP settings JSON):**
@@ -204,7 +206,7 @@ claude mcp add ilspy-mcp --transport http --url http://analysis-vm:3001/mcp --sc
   "mcpServers": {
     "ilspy-mcp": {
       "type": "http",
-      "url": "http://analysis-vm:3001/mcp"
+      "url": "http://<analysis-vm>:3001/mcp"
     }
   }
 }
