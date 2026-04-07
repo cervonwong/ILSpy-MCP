@@ -11,10 +11,10 @@
     <ToolCommandName>ilspy-mcp</ToolCommandName>
     <PackageId>ILSpyMcp.Server</PackageId>
     <Version>1.0.0</Version>
-    <Authors>Gentledepp</Authors>
+    <Authors>Cervon</Authors>
     <Description>MCP server for .NET assembly decompilation and analysis using ILSpy. Enables AI assistants to decompile types, methods, list assembly types, analyze architecture, find type hierarchies, and search members in compiled .NET assemblies.</Description>
-    <PackageProjectUrl>https://github.com/gentledepp/ILSpy-Mcp</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/gentledepp/ILSpy-Mcp.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/cervonwong/ILSpy-MCP</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/cervonwong/ILSpy-MCP.git</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>mcp;ilspy;decompiler;dotnet;analysis;ai</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>

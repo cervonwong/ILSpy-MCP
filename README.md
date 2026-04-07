@@ -10,7 +10,7 @@ ILSpy MCP Server lets AI assistants decompile, inspect, and analyze .NET assembl
 
 ### Option A: Pre-built Binary (Recommended -- no .NET required)
 
-1. Download the latest release for your platform from [Releases](https://github.com/gentledepp/ILSpy-Mcp/releases):
+1. Download the latest release for your platform from [Releases](https://github.com/cervonwong/ILSpy-MCP/releases):
 
    | Platform | File |
    |----------|------|
@@ -61,7 +61,7 @@ ILSpy MCP Server lets AI assistants decompile, inspect, and analyze .NET assembl
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/gentledepp/ILSpy-Mcp.git
+   git clone https://github.com/cervonwong/ILSpy-MCP.git
    cd ILSpy-Mcp
    ```
 
