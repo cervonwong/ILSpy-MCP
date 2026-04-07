@@ -292,6 +292,10 @@ The server can be configured via environment variables:
 
 The server follows a clean layered architecture: **Domain** (core entities), **Application** (use cases), **Infrastructure** (ILSpy and file system adapters), and **Transport** (MCP protocol layer). All operations are read-only -- the server never modifies files on disk.
 
+## Acknowledgements
+
+Forked from [bivex/ILSpy-Mcp](https://github.com/bivex/ILSpy-Mcp).
+
 ## License
 
 MIT -- see [LICENSE](LICENSE) for details.
