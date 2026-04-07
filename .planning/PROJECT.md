@@ -39,7 +39,7 @@ AI assistants can perform complete .NET static analysis workflows — not just r
 - [ ] List and extract embedded resources
 - [ ] List nested types and find compiler-generated types
 - [ ] Bulk decompilation: decompile_namespace, export_project
-- [ ] Critical-path test coverage for P0 features and bug fixes
+- [~] Critical-path test coverage for P0 features and bug fixes — Phase 1 established regression baseline (31 tests for all 8 tools)
 
 ### Out of Scope
 
@@ -92,4 +92,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-07 after initialization*
+*Last updated: 2026-04-07 after Phase 1 completion — test infrastructure and regression baseline established*
