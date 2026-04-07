@@ -47,11 +47,12 @@ Plans:
   3. MaxConcurrentOperations semaphore actually limits concurrent operations (observable under load)
   4. Repeated rapid tool calls do not leak CancellationTokenSource objects
   5. Constructors (.ctor/.cctor) appear in get_type_members output and can be decompiled via decompile_method
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Upgrade ICSharpCode.Decompiler to 10.0.0.8330 and validate MCP SDK 1.2.0
+- [ ] 02-02-PLAN.md — Fix CancellationTokenSource leak and implement concurrency limiter
+- [ ] 02-03-PLAN.md — Expose constructors in get_type_members and decompile_method with regression tests
 
 ### Phase 3: IL Infrastructure & Disassembly
 **Goal**: Users can view raw CIL disassembly for any type or method, and the IL scanning foundation is in place for downstream features
@@ -135,7 +136,7 @@ Note: Phase 5 depends only on Phase 2 (not Phase 3/4), so it could run in parall
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Test Infrastructure & Baseline | 0/2 | Planning complete | - |
-| 2. SDK Upgrades & Bug Fixes | 0/TBD | Not started | - |
+| 2. SDK Upgrades & Bug Fixes | 0/3 | Planning complete | - |
 | 3. IL Infrastructure & Disassembly | 0/TBD | Not started | - |
 | 4. Cross-Reference Analysis | 0/TBD | Not started | - |
 | 5. Assembly Inspection | 0/TBD | Not started | - |
