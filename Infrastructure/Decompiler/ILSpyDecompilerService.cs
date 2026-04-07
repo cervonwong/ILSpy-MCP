@@ -354,6 +354,7 @@ public sealed class ILSpyDecompilerService : IDecompilerService
             ShortName = type.Name,
             Kind = MapTypeKind(type.Kind),
             Accessibility = MapAccessibility(type.Accessibility),
+            Constructors = type.Methods.Where(m => m.IsConstructor).Select(MapToMethodInfo).ToList(),
             Methods = type.Methods.Where(m => !m.IsConstructor).Select(MapToMethodInfo).ToList(),
             Properties = type.Properties.Select(MapToPropertyInfo).ToList(),
             Fields = type.Fields.Select(MapToFieldInfo).ToList(),

@@ -10,6 +10,7 @@ public sealed record TypeInfo
     public required string ShortName { get; init; }
     public TypeKind Kind { get; init; }
     public Accessibility Accessibility { get; init; }
+    public IReadOnlyList<MethodInfo> Constructors { get; init; } = Array.Empty<MethodInfo>();
     public IReadOnlyList<MethodInfo> Methods { get; init; } = Array.Empty<MethodInfo>();
     public IReadOnlyList<PropertyInfo> Properties { get; init; } = Array.Empty<PropertyInfo>();
     public IReadOnlyList<FieldInfo> Fields { get; init; } = Array.Empty<FieldInfo>();

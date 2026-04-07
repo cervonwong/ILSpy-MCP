@@ -50,6 +50,21 @@ public sealed class GetTypeMembersUseCase
             result.AppendLine($"╚═══");
             result.AppendLine();
 
+            if (typeInfo.Constructors.Any())
+            {
+                result.AppendLine("Constructors:");
+                foreach (var ctor in typeInfo.Constructors)
+                {
+                    var accessibility = ctor.Accessibility.ToString().ToLower();
+                    var modifiers = new List<string>();
+                    if (ctor.IsStatic) modifiers.Add("static");
+                    var parameters = string.Join(", ", ctor.Parameters.Select(p => $"{p.Type} {p.Name}"));
+                    var mods = modifiers.Any() ? string.Join(" ", modifiers) + " " : "";
+                    result.AppendLine($"  {accessibility} {mods}{ctor.Name}({parameters})");
+                }
+                result.AppendLine();
+            }
+
             if (typeInfo.Methods.Any())
             {
                 result.AppendLine("Methods:");
