@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ILSpy.Mcp.csproj" />
+    <ProjectReference Include="..\TestTargets\ILSpy.Mcp.TestTargets.csproj" />
   </ItemGroup>
 
 </Project>

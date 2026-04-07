@@ -25,6 +25,10 @@
     <Content Remove="Tests/**" />
     <EmbeddedResource Remove="Tests/**" />
     <None Remove="Tests/**" />
+    <Compile Remove="TestTargets/**" />
+    <Content Remove="TestTargets/**" />
+    <EmbeddedResource Remove="TestTargets/**" />
+    <None Remove="TestTargets/**" />
   </ItemGroup>
 
   <ItemGroup>
