@@ -10,7 +10,7 @@ ILSpy MCP Server enables AI assistants (like Claude Code, Cursor) to decompile a
 
 ### Prerequisites
 
-- .NET 9.0 SDK or higher
+- .NET 9.0 SDK or higher (not needed for pre-built binaries)
 - MCP-compatible client (Claude Code, Cursor, Claude Desktop, etc.)
 
 ### Installation
@@ -25,6 +25,57 @@ To update to the latest version:
 
 ```bash
 dotnet tool update -g ILSpyMcp.Server
+```
+
+### Pre-built Binaries (No .NET Required)
+
+Self-contained binaries are available for airgapped environments or systems without a .NET runtime. Download the latest release from the [GitHub Releases page](https://github.com/gentledepp/ILSpy-Mcp/releases).
+
+| Platform | File |
+|----------|------|
+| Windows x64 | `ilspy-mcp-win-x64.zip` |
+| Linux x64 | `ilspy-mcp-linux-x64.tar.gz` |
+| Linux ARM64 | `ilspy-mcp-linux-arm64.tar.gz` |
+| macOS x64 | `ilspy-mcp-osx-x64.zip` |
+| macOS ARM64 | `ilspy-mcp-osx-arm64.zip` |
+
+Each release includes SHA256 checksums (`.sha256` files) for verifying download integrity.
+
+**Windows:**
+
+```powershell
+Expand-Archive ilspy-mcp-win-x64.zip -DestinationPath ilspy-mcp
+.\ilspy-mcp\ILSpy.Mcp.exe
+```
+
+**Linux:**
+
+```bash
+tar -xzf ilspy-mcp-linux-x64.tar.gz -C ilspy-mcp
+chmod +x ilspy-mcp/ILSpy.Mcp
+./ilspy-mcp/ILSpy.Mcp
+```
+
+**macOS:**
+
+```bash
+unzip ilspy-mcp-osx-arm64.zip -d ilspy-mcp
+chmod +x ilspy-mcp/ILSpy.Mcp
+./ilspy-mcp/ILSpy.Mcp
+```
+
+To configure an MCP client with the pre-built binary, point the command to the extracted path:
+
+```json
+{
+  "mcpServers": {
+    "ilspy-mcp": {
+      "type": "stdio",
+      "command": "/path/to/ilspy-mcp/ILSpy.Mcp",
+      "args": []
+    }
+  }
+}
 ```
 
 ### Configure MCP Client
