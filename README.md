@@ -22,6 +22,7 @@ Ask your favourite AI Chatbot to explain how to use ILSpy MCP Server: [![ChatGPT
 ---
 
 - [What is this?](#what-is-this)
+- [Supported MCP Clients](#supported-mcp-clients)
 - [Install](#install)
   - [Option A: Pre-built Binary](#option-a-pre-built-binary-recommended----no-net-required)
   - [Option B: Build from Source](#option-b-build-from-source)
@@ -47,7 +48,13 @@ This means you can do things the ILSpy GUI can't:
 - **Chain analysis across multiple assemblies** in a single conversation — trace a call from your app through framework code and into a NuGet package
 - **Get AI-powered explanations** alongside raw decompiled code — the assistant reads the output and explains patterns, potential bugs, or architectural decisions
 - **Automate bulk analysis** — decompile entire namespaces, search across types, and map dependency graphs without manual navigation
-- **Integrate into any MCP client** — Claude Code, Cursor, Claude Desktop, or any tool that speaks MCP
+- **Integrate into any MCP client** — Claude Code, Cursor, VS Code, or any tool that speaks MCP
+
+## Supported MCP Clients
+
+Works with any MCP-compatible client. We recommend **Claude Code**.
+
+Amazon Q Developer CLI, Augment Code, Claude, **Claude Code** (recommended), Cline, Codex, Copilot CLI, Crush, Cursor, Gemini CLI, Kilo Code, Kiro, LM Studio, Opencode, Qodo Gen, Qwen Coder, Roo Code, Trae, VS Code, VS Code Insiders, Warp, Windsurf, Zed, and more.
 
 ## Install
 
