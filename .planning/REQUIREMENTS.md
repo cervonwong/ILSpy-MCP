@@ -1,0 +1,110 @@
+# Requirements: ILSpy MCP — Feature Parity
+
+**Defined:** 2026-04-07
+**Core Value:** AI assistants can perform complete .NET static analysis workflows — trace execution, find usages, search strings, and navigate across types and assemblies.
+
+## v1 Requirements
+
+Requirements for this milestone. Each maps to roadmap phases.
+
+### SDK & Stability
+
+- [ ] **SDK-01**: Upgrade ModelContextProtocol SDK from 0.4.0-preview.3 to 1.2.0 stable without breaking existing tools
+- [ ] **SDK-02**: Upgrade ICSharpCode.Decompiler from 9.1.0.7988 to 10.x without breaking existing tools
+- [ ] **SDK-03**: MaxConcurrentOperations semaphore is enforced (configured value actually limits concurrent operations)
+- [ ] **SDK-04**: CancellationTokenSource in TimeoutService is properly disposed (no leak under repeated calls)
+- [ ] **SDK-05**: Constructors (.ctor and .cctor) are included in get_type_members output and can be decompiled via decompile_method
+
+### Cross-Reference Analysis
+
+- [ ] **XREF-01**: User can find all usages of a type member (method, field, property) across an assembly via IL scanning
+- [ ] **XREF-02**: User can find all types implementing a given interface or extending a given base class
+- [ ] **XREF-03**: User can find all outward dependencies of a method or type (what it calls/references)
+- [ ] **XREF-04**: User can find all instantiation sites (newobj) of a given type
+
+### IL & Disassembly
+
+- [ ] **IL-01**: User can get raw CIL/MSIL disassembly output for a type
+- [ ] **IL-02**: User can get raw CIL/MSIL disassembly output for a specific method
+
+### Assembly Metadata
+
+- [ ] **META-01**: User can retrieve assembly metadata (target framework, runtime version, PE bitness, strong name, entry point)
+- [ ] **META-02**: User can list all referenced assemblies with name, version, culture, and public key token
+- [ ] **META-03**: User can inspect assembly-level custom attributes with their arguments
+- [ ] **META-04**: User can inspect custom attributes on types and members (Serializable, DataContract, Route, etc.)
+
+### Search
+
+- [ ] **SRCH-01**: User can search for string literals (ldstr operands) matching a regex pattern across an assembly
+- [ ] **SRCH-02**: User can search for numeric and enum constants across an assembly
+
+### Cross-Assembly
+
+- [ ] **XASM-01**: User can resolve which assembly in a directory defines a given type
+- [ ] **XASM-02**: User can load all assemblies from a directory for cross-assembly analysis
+
+### Resources
+
+- [ ] **RES-01**: User can list all embedded resources in an assembly with type and size
+- [ ] **RES-02**: User can extract embedded resource content (text inline, binary as base64)
+
+### Compiler-Generated & Nested Types
+
+- [ ] **TYPE-01**: User can list nested types within a type (or see them in list_assembly_types)
+- [ ] **TYPE-02**: User can find compiler-generated types (DisplayClass, async state machines, closures) filtered by CompilerGenerated attribute
+
+### Bulk Operations
+
+- [ ] **BULK-01**: User can decompile all types in a namespace at once
+- [ ] **BULK-02**: User can export a complete .csproj with all decompiled source files to disk
+
+### Testing
+
+- [ ] **TEST-01**: All existing tools have regression tests that pass after SDK upgrades
+- [ ] **TEST-02**: Cross-reference analysis tools (XREF-01 through XREF-04) have integration tests against real assemblies
+- [ ] **TEST-03**: IL disassembly output (IL-01, IL-02) has integration tests verifying structural correctness
+- [ ] **TEST-04**: Bug fixes (SDK-03, SDK-04, SDK-05) each have regression tests proving the fix
+
+### Documentation
+
+- [ ] **DOC-01**: README.md updated with all new tools, usage examples, and current feature list
+
+## v2 Requirements
+
+Deferred to next milestone.
+
+### Session Management
+
+- **SESS-01**: Persistent loaded assembly set across tool calls
+- **SESS-02**: Automatic resolution of type references across loaded assemblies
+- **SESS-03**: "Open folder" semantics for loading entire application directories with session lifetime
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Multi-assembly session state (P3) | Architectural change — deferred to next milestone |
+| Dynamic/runtime analysis | ILSpy is a static analysis tool — debugging, memory inspection, hooking are out |
+| VB.NET output | Low value for reverse engineering workflows |
+| Assembly editing/patching | dnSpy feature — not aligned with read-only static analysis scope |
+| PDB/source matching | Source-level debugging is separate concern |
+| Cross-request caching | Premature optimization — defer until performance data exists |
+| xUnit v3 migration | Not worth churn during feature milestone — stay on v2.9.x |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| (populated by roadmapper) | | |
+
+**Coverage:**
+- v1 requirements: 27 total
+- Mapped to phases: 0
+- Unmapped: 27 ⚠️
+
+---
+*Requirements defined: 2026-04-07*
+*Last updated: 2026-04-07 after initial definition*
