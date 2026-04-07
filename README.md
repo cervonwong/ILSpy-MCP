@@ -2,6 +2,16 @@
   <img src="docs/banner.png" alt="ILSpy MCP Server Banner" />
 </p>
 
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/cervonwong/ILSpy-MCP" alt="License: MIT"></a>
+  <a href="https://github.com/cervonwong/ILSpy-MCP/stargazers"><img src="https://img.shields.io/github/stars/cervonwong/ILSpy-MCP" alt="GitHub stars"></a>
+  <a href="https://github.com/cervonwong/ILSpy-MCP/releases"><img src="https://img.shields.io/github/v/release/cervonwong/ILSpy-MCP" alt="GitHub release"></a>
+  <img src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white" alt=".NET 10.0">
+  <img src="https://img.shields.io/badge/C%23-latest-239120?logo=csharp&logoColor=white" alt="C#">
+  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey" alt="Platform">
+  <img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build: passing">
+</p>
+
 # ILSpy MCP Server
 
 MCP server that gives AI assistants .NET decompilation and static analysis capabilities via [ILSpy](https://github.com/icsharpcode/ILSpy).
@@ -14,8 +24,7 @@ Ask your favourite AI Chatbot to explain how to use ILSpy MCP Server: [![ChatGPT
 - [What is this?](#what-is-this)
 - [Install](#install)
   - [Option A: Pre-built Binary](#option-a-pre-built-binary-recommended----no-net-required)
-  - [Option B: dotnet tool](#option-b-dotnet-tool)
-  - [Option C: Build from Source](#option-c-build-from-source)
+  - [Option B: Build from Source](#option-b-build-from-source)
 - [Configure Your MCP Client](#configure-your-mcp-client)
 - [How It Works](#how-it-works)
 - [Usage Examples](#usage-examples)
@@ -77,21 +86,7 @@ This means you can do things the ILSpy GUI can't:
 
 3. Continue to [Configure Your MCP Client](#configure-your-mcp-client) below.
 
-### Option B: dotnet tool
-
-1. Install as a global tool:
-   ```bash
-   dotnet tool install -g ILSpyMcp.Server
-   ```
-
-2. To update later:
-   ```bash
-   dotnet tool update -g ILSpyMcp.Server
-   ```
-
-3. Continue to [Configure Your MCP Client](#configure-your-mcp-client) below.
-
-### Option C: Build from Source
+### Option B: Build from Source
 
 1. Clone the repository:
    ```bash
@@ -114,10 +109,6 @@ Pick your client and follow the steps.
 
 1. Run:
    ```bash
-   claude mcp add ilspy-mcp --command "ilspy-mcp" --scope user
-   ```
-   If using a pre-built binary, use the full path instead:
-   ```bash
    claude mcp add ilspy-mcp --command "/path/to/ilspy-mcp/ILSpy.Mcp" --scope user
    ```
 
@@ -130,13 +121,12 @@ Pick your client and follow the steps.
    {
      "mcpServers": {
        "ilspy-mcp": {
-         "command": "ilspy-mcp",
+         "command": "/path/to/ilspy-mcp/ILSpy.Mcp",
          "args": []
        }
      }
    }
    ```
-   For pre-built binary, replace `"ilspy-mcp"` with the full path to the `ILSpy.Mcp` executable.
 
 2. Restart Cursor.
 
@@ -147,13 +137,12 @@ Pick your client and follow the steps.
    {
      "mcpServers": {
        "ilspy-mcp": {
-         "command": "ilspy-mcp",
+         "command": "/path/to/ilspy-mcp/ILSpy.Mcp",
          "args": []
        }
      }
    }
    ```
-   For pre-built binary, replace `"ilspy-mcp"` with the full path to the `ILSpy.Mcp` executable.
 
 2. Restart Claude Desktop.
 
@@ -200,11 +189,6 @@ Pick whichever matches how you installed it:
 # From the directory where you extracted the release archive
 ./ILSpy.Mcp --transport http        # Linux / macOS
 .\ILSpy.Mcp.exe --transport http    # Windows
-```
-
-**dotnet tool:**
-```bash
-ilspy-mcp --transport http
 ```
 
 **From source:**
@@ -332,8 +316,8 @@ Several projects expose .NET decompilation over MCP. Here's how ILSpy MCP Server
 | | **ILSpy MCP Server** | [DnSpy-MCPserver-Extension](https://github.com/AgentSmithers/DnSpy-MCPserver-Extension) | [DecompilerServer](https://github.com/pardeike/DecompilerServer) | [ilspy-mcp-server](https://github.com/Borealin/ilspy-mcp-server) | [@iffrce/mcp-dotnetdc](https://www.npmjs.com/package/@iffrce/mcp-dotnetdc) |
 |---|---|---|---|---|---|
 | **Engine** | ICSharpCode.Decompiler (actively maintained) | dnSpyEx (community fork of abandoned dnSpy) | ICSharpCode.Decompiler | ILSpy CLI (`ilspycmd`) | ILSpy CLI (`ilspycmd`) |
-| **Runtime required** | None (self-contained binary) or .NET | .NET + dnSpyEx install | .NET 10 | Python 3.8+ and ILSpy CLI | Node.js and ILSpy CLI |
-| **Install options** | Pre-built binary, `dotnet tool`, or source | Clone + build | Clone + build | `pip install` | `npm install` |
+| **Runtime required** | None (self-contained binary) | .NET + dnSpyEx install | .NET 10 | Python 3.8+ and ILSpy CLI | Node.js and ILSpy CLI |
+| **Install options** | Pre-built binary or source | Clone + build | Clone + build | `pip install` | `npm install` |
 | **Transport** | stdio + HTTP (remote/VM support) | SSE or stdio | stdio | stdio | stdio |
 | **Cross-platform** | Windows, Linux, macOS (x64 + ARM64) | Windows only (dnSpyEx dependency) | Windows, Linux, macOS | Depends on ILSpy CLI availability | Depends on ILSpy CLI availability |
 | **Architecture** | Clean layered (Domain/Application/Infrastructure/Transport) | dnSpyEx plugin | Single project | Python wrapper around CLI | Node.js wrapper around CLI |
