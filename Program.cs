@@ -108,10 +108,13 @@ static void RegisterServices(IServiceCollection services)
 
     // Domain services (ports)
     services.AddScoped<IDecompilerService, ILSpyDecompilerService>();
+    services.AddScoped<IDisassemblyService, ILSpyDisassemblyService>();
 
     // Application use cases
     services.AddScoped<DecompileTypeUseCase>();
     services.AddScoped<DecompileMethodUseCase>();
+    services.AddScoped<DisassembleTypeUseCase>();
+    services.AddScoped<DisassembleMethodUseCase>();
     services.AddScoped<ListAssemblyTypesUseCase>();
     services.AddScoped<AnalyzeAssemblyUseCase>();
     services.AddScoped<GetTypeMembersUseCase>();
@@ -122,6 +125,8 @@ static void RegisterServices(IServiceCollection services)
     // MCP tool handlers
     services.AddScoped<DecompileTypeTool>();
     services.AddScoped<DecompileMethodTool>();
+    services.AddScoped<DisassembleTypeTool>();
+    services.AddScoped<DisassembleMethodTool>();
     services.AddScoped<ListAssemblyTypesTool>();
     services.AddScoped<AnalyzeAssemblyTool>();
     services.AddScoped<GetTypeMembersTool>();

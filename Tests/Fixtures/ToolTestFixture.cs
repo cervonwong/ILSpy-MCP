@@ -36,9 +36,12 @@ public sealed class ToolTestFixture : IDisposable
         services.AddSingleton<ITimeoutService, TimeoutService>();
         services.AddSingleton<IConcurrencyLimiter, ConcurrencyLimiter>();
         services.AddScoped<IDecompilerService, ILSpyDecompilerService>();
+        services.AddScoped<IDisassemblyService, ILSpyDisassemblyService>();
 
         services.AddScoped<DecompileTypeUseCase>();
         services.AddScoped<DecompileMethodUseCase>();
+        services.AddScoped<DisassembleTypeUseCase>();
+        services.AddScoped<DisassembleMethodUseCase>();
         services.AddScoped<ListAssemblyTypesUseCase>();
         services.AddScoped<AnalyzeAssemblyUseCase>();
         services.AddScoped<GetTypeMembersUseCase>();
@@ -48,6 +51,8 @@ public sealed class ToolTestFixture : IDisposable
 
         services.AddScoped<DecompileTypeTool>();
         services.AddScoped<DecompileMethodTool>();
+        services.AddScoped<DisassembleTypeTool>();
+        services.AddScoped<DisassembleMethodTool>();
         services.AddScoped<ListAssemblyTypesTool>();
         services.AddScoped<AnalyzeAssemblyTool>();
         services.AddScoped<GetTypeMembersTool>();
