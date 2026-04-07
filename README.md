@@ -75,6 +75,60 @@ For **Claude Desktop**, add to `claude_desktop_config.json`:
 }
 ```
 
+## Transport Modes
+
+ILSpy MCP Server supports two transport modes:
+
+### Stdio (Default)
+
+The default mode. The MCP client launches and communicates with the server process via stdin/stdout. This is the standard mode for local usage.
+
+```bash
+ilspy-mcp
+```
+
+### HTTP
+
+HTTP mode runs the server as a standalone HTTP service, useful for remote access (e.g., running in a VM and connecting from the host machine).
+
+```bash
+ilspy-mcp --transport http
+```
+
+By default, the HTTP server listens on `http://0.0.0.0:3001`.
+
+#### Configuration
+
+The transport mode can be set through three layers (highest priority first):
+
+1. **CLI argument**: `--transport http`
+2. **Environment variable**: `ILSPY_TRANSPORT=http`
+3. **appsettings.json**: Set `"Transport": { "Type": "http" }`
+
+Port and host are configurable:
+
+| Setting | Default | Env Variable | appsettings.json Path |
+|---------|---------|--------------|----------------------|
+| Port | 3001 | `Transport__Http__Port` | `Transport:Http:Port` |
+| Host | 0.0.0.0 | `Transport__Http__Host` | `Transport:Http:Host` |
+
+#### MCP Client Configuration (HTTP)
+
+To connect an MCP client to the HTTP server, configure it to use the Streamable HTTP endpoint:
+
+```json
+{
+  "mcpServers": {
+    "ilspy-mcp": {
+      "type": "http",
+      "url": "http://localhost:3001/"
+    }
+  }
+}
+```
+
+> **Note:** No authentication is applied. Rely on network-level security (firewall rules, VM networking) to control access.
+
 ## Usage Examples
 
 ### Decompile a Type
@@ -122,6 +176,9 @@ The server can be configured via environment variables:
 - `ILSpy__MaxDecompilationSize`: Maximum size of decompiled code in bytes (default: 1048576 = 1 MB)
 - `ILSpy__DefaultTimeoutSeconds`: Default timeout for operations in seconds (default: 30)
 - `ILSpy__MaxConcurrentOperations`: Maximum number of concurrent operations (default: 10)
+- `ILSPY_TRANSPORT`: Transport mode — `stdio` (default) or `http`
+- `Transport__Http__Port`: HTTP server port (default: 3001)
+- `Transport__Http__Host`: HTTP server bind address (default: 0.0.0.0)
 
 ## Architecture
 
