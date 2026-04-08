@@ -78,10 +78,10 @@ Plans:
   3. User can find all outward dependencies (calls, field refs) of a method or type
   4. User can find all instantiation sites (newobj) of a given type
   5. Cross-reference results are validated by integration tests against known assemblies
-**Plans:** 2 plans
+**Plans:** 0/2 plans executed
 
 Plans:
-- [ ] 04-01-PLAN.md — Domain contracts, ICrossReferenceService infrastructure, and TestTargets cross-reference types
+- [x] 04-01-PLAN.md — Domain contracts, ICrossReferenceService infrastructure, and TestTargets cross-reference types
 - [ ] 04-02-PLAN.md — Use cases, MCP tools, DI wiring, and integration tests
 
 ### Phase 5: Assembly Inspection
@@ -139,7 +139,7 @@ Note: Phase 5 depends only on Phase 2 (not Phase 3/4), so it could run in parall
 | 1. Test Infrastructure & Baseline | 0/2 | Planning complete | - |
 | 2. SDK Upgrades & Bug Fixes | 0/3 | Planned    |  |
 | 3. IL Infrastructure & Disassembly | 1/2 | In Progress|  |
-| 4. Cross-Reference Analysis | 0/TBD | Not started | - |
+| 4. Cross-Reference Analysis | 0/2 | Planned    |  |
 | 5. Assembly Inspection | 0/TBD | Not started | - |
 | 6. Search & Cross-Assembly | 0/TBD | Not started | - |
 | 7. Bulk Operations & Documentation | 0/TBD | Not started | - |

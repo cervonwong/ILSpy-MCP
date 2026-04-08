@@ -17,10 +17,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Cross-Reference Analysis
 
-- [ ] **XREF-01**: User can find all usages of a type member (method, field, property) across an assembly via IL scanning
-- [ ] **XREF-02**: User can find all types implementing a given interface or extending a given base class
-- [ ] **XREF-03**: User can find all outward dependencies of a method or type (what it calls/references)
-- [ ] **XREF-04**: User can find all instantiation sites (newobj) of a given type
+- [x] **XREF-01**: User can find all usages of a type member (method, field, property) across an assembly via IL scanning
+- [x] **XREF-02**: User can find all types implementing a given interface or extending a given base class
+- [x] **XREF-03**: User can find all outward dependencies of a method or type (what it calls/references)
+- [x] **XREF-04**: User can find all instantiation sites (newobj) of a given type
 
 ### IL & Disassembly
 
@@ -62,7 +62,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Testing
 
 - [x] **TEST-01**: All existing tools have regression tests that pass after SDK upgrades
-- [ ] **TEST-02**: Cross-reference analysis tools (XREF-01 through XREF-04) have integration tests against real assemblies
+- [x] **TEST-02**: Cross-reference analysis tools (XREF-01 through XREF-04) have integration tests against real assemblies
 - [x] **TEST-03**: IL disassembly output (IL-01, IL-02) has integration tests verifying structural correctness
 - [x] **TEST-04**: Bug fixes (SDK-03, SDK-04, SDK-05) each have regression tests proving the fix
 
@@ -108,11 +108,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IL-01 | Phase 3 | Complete |
 | IL-02 | Phase 3 | Complete |
 | TEST-03 | Phase 3 | Complete |
-| XREF-01 | Phase 4 | Pending |
-| XREF-02 | Phase 4 | Pending |
-| XREF-03 | Phase 4 | Pending |
-| XREF-04 | Phase 4 | Pending |
-| TEST-02 | Phase 4 | Pending |
+| XREF-01 | Phase 4 | Complete |
+| XREF-02 | Phase 4 | Complete |
+| XREF-03 | Phase 4 | Complete |
+| XREF-04 | Phase 4 | Complete |
+| TEST-02 | Phase 4 | Complete |
 | META-01 | Phase 5 | Pending |
 | META-02 | Phase 5 | Pending |
 | META-03 | Phase 5 | Pending |
