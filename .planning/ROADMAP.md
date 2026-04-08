@@ -123,10 +123,12 @@ Plans:
   1. User can decompile all types in a namespace with a single tool call
   2. User can export a complete .csproj with all decompiled source files to a target directory
   3. README.md documents all new tools with usage examples and the current feature list is accurate
-**Plans:** 2 plans
+**Plans:** 3 plans
 
 Plans:
-- [ ] 07-01: TBD
+- [ ] 07-01-PLAN.md — Namespace decompilation tool (decompile_namespace) with summary listing, kind ordering, and tests
+- [ ] 07-02-PLAN.md — Project export tool (export_project) with WholeProjectDecompiler integration and tests
+- [ ] 07-03-PLAN.md — README rewrite documenting all 28 tools with categorized reference and examples
 
 ## Progress
 
@@ -142,4 +144,4 @@ Note: Phase 5 depends only on Phase 2 (not Phase 3/4), so it could run in parall
 | 4. Cross-Reference Analysis | 0/2 | Planned    |  |
 | 5. Assembly Inspection | 1/2 | In Progress|  |
 | 6. Search & Cross-Assembly | 1/2 | In Progress|  |
-| 7. Bulk Operations & Documentation | 0/TBD | Not started | - |
+| 7. Bulk Operations & Documentation | 0/3 | Planned | - |
