@@ -9,4 +9,10 @@ public sealed class AssemblyLoadException : DomainException
     {
         AssemblyPath = assemblyPath;
     }
+
+    public AssemblyLoadException(string assemblyPath, string message, Exception innerException)
+        : base("ASSEMBLY_LOAD_FAILED", message, innerException)
+    {
+        AssemblyPath = assemblyPath;
+    }
 }
