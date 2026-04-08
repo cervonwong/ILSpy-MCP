@@ -47,6 +47,8 @@ ILSpy MCP Server lets AI assistants decompile, inspect, and analyze .NET assembl
 This means you can do things the ILSpy GUI can't:
 
 - **Ask questions in natural language** — "What does this method do?" or "Find all types that implement ILogger" instead of clicking through tree views
+- **Trace execution flow** — find all usages of a method, discover who implements an interface, track dependencies, and locate every instantiation site
+- **Read raw IL** — view CIL/IL disassembly at the type or method level alongside decompiled C#, useful for understanding compiler output and low-level behavior
 - **Chain analysis across multiple assemblies** in a single conversation — trace a call from your app through framework code and into a NuGet package
 - **Get AI-powered explanations** alongside raw decompiled code — the assistant reads the output and explains patterns, potential bugs, or architectural decisions
 - **Automate bulk analysis** — decompile entire namespaces, search across types, and map dependency graphs without manual navigation
@@ -253,19 +255,38 @@ Ask your AI assistant to work with .NET assemblies using natural language. Repla
 - **Decompile a constructor** -- "Decompile the .ctor constructor of UserService in `C:\repos\MyApp\bin\Debug\net10.0\MyApp.dll`"
 - **Analyze type hierarchy** -- "Show me the type hierarchy for ProductService in `C:\repos\ECommerce\bin\Release\net10.0\ECommerce.dll`"
 - **Search members** -- "Search for members containing 'Authenticate' in `C:\repos\AuthService\bin\Debug\net10.0\Auth.dll`"
+- **View IL disassembly** -- "Show me the raw IL for the Serialize method in `C:\repos\MyApp\bin\Debug\net10.0\MyApp.dll`"
+- **Find all usages** -- "Where is the Save method of IRepository called in `C:\repos\MyApp\bin\Debug\net10.0\MyApp.dll`?"
+- **Find implementors** -- "What types implement ILogger in `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\10.0.0\Microsoft.Extensions.Logging.dll`?"
+- **Trace dependencies** -- "What does the ProcessOrder method in OrderService depend on in `C:\repos\ECommerce\bin\Release\net10.0\ECommerce.dll`?"
+- **Find instantiations** -- "Where is HttpClient instantiated in `C:\repos\MyApp\bin\Debug\net10.0\MyApp.dll`?"
 
 ## Available Tools
 
+**Decompilation & Inspection**
+
 | Tool | Description |
 |------|-------------|
-| `decompile_type` | Decompile and analyze a .NET type from a DLL |
-| `decompile_method` | Decompile and analyze a specific method or constructor (`.ctor`/`.cctor`) |
+| `decompile_type` | Decompile a .NET type to C# source code |
+| `decompile_method` | Decompile a specific method or constructor (`.ctor`/`.cctor`) to C# |
+| `disassemble_type` | Get raw CIL/IL disassembly of a type (method signatures, fields, properties) |
+| `disassemble_method` | Get raw CIL/IL instruction listing for a specific method (opcodes, labels, stack info) |
 | `list_assembly_types` | List all types in an assembly |
 | `analyze_assembly` | Get architectural overview of an assembly |
 | `get_type_members` | Get complete API surface of a type (constructors, methods, properties, fields, events) |
 | `find_type_hierarchy` | Find inheritance relationships |
 | `search_members_by_name` | Search for members by name |
 | `find_extension_methods` | Find extension methods for a type |
+
+**Cross-Reference Analysis**
+
+| Tool | Description |
+|------|-------------|
+| `find_usages` | Find all call sites, field accesses, and property usages of a member across an assembly |
+| `find_implementors` | Find all types implementing an interface or extending a base class |
+| `find_dependencies` | Find all outward dependencies (calls, field accesses) of a type or method |
+| `find_instantiations` | Find all sites where a type is instantiated (`newobj`) |
+| `analyze_references` | Unified cross-reference dispatcher -- routes to the above tools by analysis type |
 
 ## HTTP Server Reference
 
@@ -397,6 +418,8 @@ Several projects expose .NET decompilation over MCP. Here's how ILSpy MCP Server
 | **Method decompilation** | Yes (including `.ctor`/`.cctor`) | Yes | Yes (member-scoped snippets) | No | No |
 | **Type hierarchy analysis** | Yes | No | No | No | No |
 | **Extension method discovery** | Yes | No | No | No | No |
+| **IL disassembly output** | Yes (type + method level) | Yes | No | No | No |
+| **Cross-reference analysis** | Yes (usages, implementors, dependencies, instantiations) | No | No | No | No |
 | **Assembly architecture overview** | Yes | Yes | No | Yes | No |
 | **Member search** | Yes | Yes | Yes | No | No |
 | **Multi-version comparison** | No | No | Yes | No | No |
@@ -409,6 +432,7 @@ Several projects expose .NET decompilation over MCP. Here's how ILSpy MCP Server
 - **Remote analysis via HTTP.** Run the server on an analysis VM or build server and connect from anywhere. No other .NET decompilation MCP server supports this out of the box.
 - **True cross-platform support.** Pre-built binaries for Windows, Linux, and macOS on both x64 and ARM64. No Windows-only dependencies.
 - **Direct engine integration.** Calls the decompiler library in-process for maximum speed and fidelity. No shelling out to CLI tools, no parsing text output, no intermediate formats.
+- **Cross-reference analysis.** The only .NET decompilation MCP server that can trace usages, find implementors, map dependencies, and locate instantiation sites — all via IL bytecode scanning.
 - **Safe by design.** Every operation is read-only. The server never writes to disk, never modifies assemblies, never executes the code it analyzes.
 
 ## Acknowledgements
