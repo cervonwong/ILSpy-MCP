@@ -14,7 +14,7 @@
 
 # ILSpy MCP Server
 
-MCP server that gives AI assistants .NET decompilation and static analysis capabilities via [ILSpy](https://github.com/icsharpcode/ILSpy).
+MCP server that gives AI assistants .NET decompilation and static analysis capabilities via [ILSpy](https://github.com/icsharpcode/ILSpy). Works with any MCP client (Claude Code, Codex, Opencode, Cursor, and more) on Windows, Linux, and macOS.
 
 Ask your favourite AI Chatbot to explain how to use ILSpy MCP Server: [![ChatGPT](https://img.shields.io/badge/ChatGPT-Read%20README-74aa9c?logo=openai&logoColor=white)](https://chatgpt.com/?q=Read%20https%3A%2F%2Fgithub.com%2Fcervonwong%2FILSpy-MCP%2Fblob%2Fmain%2FREADME.md)
 [![Claude](https://img.shields.io/badge/Claude-Read%20README-d4a27f?logo=claude&logoColor=white)](https://claude.ai/new?q=Read%20https%3A%2F%2Fgithub.com%2Fcervonwong%2FILSpy-MCP%2Fblob%2Fmain%2FREADME.md)
