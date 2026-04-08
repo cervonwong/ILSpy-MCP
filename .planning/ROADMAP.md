@@ -97,8 +97,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md — Domain contracts, infrastructure service, and TestTargets extensions
+- [ ] 05-02-PLAN.md — Use cases, MCP tools, DI wiring, and integration tests
 
 ### Phase 6: Search & Cross-Assembly
 **Goal**: Users can search for strings and constants across assembly IL, and resolve types across multiple assemblies in a directory
@@ -140,6 +140,6 @@ Note: Phase 5 depends only on Phase 2 (not Phase 3/4), so it could run in parall
 | 2. SDK Upgrades & Bug Fixes | 0/3 | Planned    |  |
 | 3. IL Infrastructure & Disassembly | 1/2 | In Progress|  |
 | 4. Cross-Reference Analysis | 0/2 | Planned    |  |
-| 5. Assembly Inspection | 0/TBD | Not started | - |
+| 5. Assembly Inspection | 0/2 | Planned | - |
 | 6. Search & Cross-Assembly | 0/TBD | Not started | - |
 | 7. Bulk Operations & Documentation | 0/TBD | Not started | - |
