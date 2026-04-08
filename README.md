@@ -23,14 +23,14 @@ Ask your favourite AI Chatbot to explain how to use ILSpy MCP Server: [![ChatGPT
 
 - [What is this?](#what-is-this)
 - [Supported MCP Clients](#supported-mcp-clients)
-- [Install](#install)
-  - [Option A: Pre-built Binary](#option-a-pre-built-binary-recommended----no-net-required)
-  - [Option B: Build from Source](#option-b-build-from-source)
-- [Configure Your MCP Client](#configure-your-mcp-client)
+- [Quick Start](#quick-start)
+  - [Step 1: Get the Binary](#step-1-get-the-binary)
+  - [Step 2: Choose Your Transport](#step-2-choose-your-transport)
+  - [Step 3: Configure Your MCP Client](#step-3-configure-your-mcp-client)
 - [How It Works](#how-it-works)
 - [Usage Examples](#usage-examples)
 - [Available Tools](#available-tools)
-- [Running as an HTTP Server](#running-as-an-http-server-remote--vm)
+- [HTTP Server Reference](#http-server-reference)
 - [Architecture](#architecture)
 - [Comparison with Other Servers](#comparison-with-other-net-decompilation-mcp-servers)
 - [Acknowledgements](#acknowledgements)
@@ -56,9 +56,14 @@ Works with any MCP-compatible client. We recommend **Claude Code**.
 
 Amazon Q Developer CLI, Augment Code, Claude, **Claude Code** (recommended), Cline, Codex, Copilot CLI, Crush, Cursor, Gemini CLI, Kilo Code, Kiro, LM Studio, Opencode, Qodo Gen, Qwen Coder, Roo Code, Trae, VS Code, VS Code Insiders, Warp, Windsurf, Zed, and more.
 
-## Install
+## Quick Start
 
-### Option A: Pre-built Binary (Recommended -- no .NET required)
+### Step 1: Get the Binary
+
+Choose how you want to install:
+
+<details>
+<summary><b>Option A: Pre-built Binary (Recommended -- no .NET required)</b></summary>
 
 1. Download the latest release for your platform from [Releases](https://github.com/cervonwong/ILSpy-MCP/releases):
 
@@ -91,9 +96,10 @@ Amazon Q Developer CLI, Augment Code, Claude, **Claude Code** (recommended), Cli
    chmod +x ilspy-mcp/ILSpy.Mcp
    ```
 
-3. Continue to [Configure Your MCP Client](#configure-your-mcp-client) below.
+</details>
 
-### Option B: Build from Source
+<details>
+<summary><b>Option B: Build from Source</b></summary>
 
 1. Clone the repository:
    ```bash
@@ -106,52 +112,128 @@ Amazon Q Developer CLI, Augment Code, Claude, **Claude Code** (recommended), Cli
    dotnet build
    ```
 
-3. The binary is at `src/ILSpy.Mcp/bin/Debug/net10.0/ILSpy.Mcp`. Use this path when configuring your MCP client below.
+3. The binary is at `src/ILSpy.Mcp/bin/Debug/net10.0/ILSpy.Mcp`. Use this path in the steps below.
 
-## Configure Your MCP Client
+</details>
+
+### Step 2: Choose Your Transport
+
+Use the flowchart below to decide how to set up the server:
+
+```mermaid
+flowchart TD
+    A[Where is the DLL you want to analyze?] --> B{Same machine as your\nMCP client?}
+    B -->|Yes| C[Use stdio transport\nDefault -- no extra config needed]
+    B -->|No| D{Can you copy the DLL\nto your local machine?}
+    D -->|Yes| C
+    D -->|No| E[Use HTTP transport\nRun on the remote machine]
+    C --> F[Go to Step 3:\nConfigure your MCP client\nwith stdio]
+    E --> G[Start the HTTP server\non the remote machine]
+    G --> H[Go to Step 3:\nConfigure your MCP client\nwith HTTP URL]
+```
+
+**stdio (default)** -- The MCP client launches the server automatically. No extra setup. Use this if the DLLs are on your local machine.
+
+**HTTP** -- You start the server manually on a remote machine. Use this for analysis VMs, build servers, or Docker containers. See [HTTP Server Reference](#http-server-reference) for startup commands and configuration.
+
+### Step 3: Configure Your MCP Client
 
 Pick your client and follow the steps.
 
-### Claude Code
+<details>
+<summary><b>Claude Code</b></summary>
 
-1. Run:
-   ```bash
-   claude mcp add ilspy-mcp --command "/path/to/ilspy-mcp/ILSpy.Mcp" --scope user
-   ```
+**stdio (local):**
+```bash
+claude mcp add ilspy-mcp --command "/path/to/ilspy-mcp/ILSpy.Mcp" --scope user
+```
 
-2. Restart Claude Code. The tools are now available.
+**HTTP (remote):**
+```bash
+claude mcp add ilspy-mcp --transport http http://<server>:3001/mcp --scope user
+```
 
-### Cursor
+Restart Claude Code. The tools are now available.
 
-1. Add to your MCP settings JSON:
-   ```json
-   {
-     "mcpServers": {
-       "ilspy-mcp": {
-         "command": "/path/to/ilspy-mcp/ILSpy.Mcp",
-         "args": []
-       }
-     }
-   }
-   ```
+</details>
 
-2. Restart Cursor.
+<details>
+<summary><b>Cursor</b></summary>
 
-### Claude Desktop
+Add to your MCP settings JSON:
 
-1. Add to `claude_desktop_config.json`:
-   ```json
-   {
-     "mcpServers": {
-       "ilspy-mcp": {
-         "command": "/path/to/ilspy-mcp/ILSpy.Mcp",
-         "args": []
-       }
-     }
-   }
-   ```
+**stdio (local):**
+```json
+{
+  "mcpServers": {
+    "ilspy-mcp": {
+      "command": "/path/to/ilspy-mcp/ILSpy.Mcp",
+      "args": []
+    }
+  }
+}
+```
 
-2. Restart Claude Desktop.
+**HTTP (remote):**
+```json
+{
+  "mcpServers": {
+    "ilspy-mcp": {
+      "type": "http",
+      "url": "http://<server>:3001/mcp"
+    }
+  }
+}
+```
+
+Restart Cursor.
+
+</details>
+
+<details>
+<summary><b>Claude Desktop</b></summary>
+
+Add to `claude_desktop_config.json`:
+
+**stdio (local):**
+```json
+{
+  "mcpServers": {
+    "ilspy-mcp": {
+      "command": "/path/to/ilspy-mcp/ILSpy.Mcp",
+      "args": []
+    }
+  }
+}
+```
+
+**HTTP (remote):**
+```json
+{
+  "mcpServers": {
+    "ilspy-mcp": {
+      "type": "http",
+      "url": "http://<server>:3001/mcp"
+    }
+  }
+}
+```
+
+Restart Claude Desktop.
+
+</details>
+
+<details>
+<summary><b>Other MCP Clients</b></summary>
+
+For any MCP-compatible client, configure it with:
+
+- **stdio:** Point to the `ILSpy.Mcp` binary as the command
+- **HTTP:** Use `http://<server>:3001/mcp` as the endpoint URL
+
+Consult your client's documentation for how to add MCP servers.
+
+</details>
 
 ## How It Works
 
@@ -183,56 +265,34 @@ Ask your AI assistant to work with .NET assemblies using natural language. Repla
 | `search_members_by_name` | Search for members by name |
 | `find_extension_methods` | Find extension methods for a type |
 
-## Running as an HTTP Server (Remote / VM)
+## HTTP Server Reference
 
-By default the server uses **stdio** — the MCP client launches it and communicates via stdin/stdout. For remote access (e.g. running on an analysis VM while the MCP client runs on your workstation), switch to **HTTP mode**.
+For remote access (analysis VMs, build servers, containers), run in HTTP mode. Client configuration for HTTP is covered in [Step 3](#step-3-configure-your-mcp-client) above.
 
 ### Starting the HTTP server
 
-Pick whichever matches how you installed it:
+<details>
+<summary><b>Pre-built binary</b></summary>
 
-**Pre-built binary:**
 ```bash
 # From the directory where you extracted the release archive
 ./ILSpy.Mcp --transport http        # Linux / macOS
 .\ILSpy.Mcp.exe --transport http    # Windows
 ```
 
-**From source:**
+</details>
+
+<details>
+<summary><b>From source</b></summary>
+
 ```bash
-# From the repo root (where ILSpy.Mcp.csproj lives)
+# From the repo root
 dotnet run -- --transport http
 ```
 
-The server starts and prints:
-```
-ILSpy MCP server listening on http://0.0.0.0:3001
-```
+</details>
 
-It stays running in the foreground until you stop it (Ctrl+C).
-
-### Connecting your MCP client
-
-From the machine running your AI assistant, point the MCP client at the server's HTTP endpoint. Replace `analysis-vm` with the server's hostname or IP:
-
-**Claude Code:**
-```bash
-claude mcp add ilspy-mcp --transport http http://<analysis-vm>:3001/mcp --scope user    # available across all your projects
-claude mcp add ilspy-mcp --transport http http://<analysis-vm>:3001/mcp --scope project # shared with team via .mcp.json in repo
-claude mcp add ilspy-mcp --transport http http://<analysis-vm>:3001/mcp --scope local   # current project only (default)
-```
-
-**Claude Desktop / Cursor (MCP settings JSON):**
-```json
-{
-  "mcpServers": {
-    "ilspy-mcp": {
-      "type": "http",
-      "url": "http://<analysis-vm>:3001/mcp"
-    }
-  }
-}
-```
+The server prints `ILSpy MCP server listening on http://0.0.0.0:3001` and stays running until you stop it (Ctrl+C).
 
 ### Changing port and host
 
@@ -244,7 +304,10 @@ claude mcp add ilspy-mcp --transport http http://<analysis-vm>:3001/mcp --scope 
 
 Transport mode is resolved in priority order: CLI arg > env var > appsettings.json.
 
-To make HTTP the permanent default, edit `appsettings.json` (located next to the binary):
+<details>
+<summary><b>Make HTTP the permanent default via appsettings.json</b></summary>
+
+Edit `appsettings.json` (located next to the binary):
 ```json
 {
   "Transport": {
@@ -257,9 +320,10 @@ To make HTTP the permanent default, edit `appsettings.json` (located next to the
 }
 ```
 
-### Running as a background service
+</details>
 
-To keep the server running after you disconnect from the VM:
+<details>
+<summary><b>Running as a background service</b></summary>
 
 **Linux (systemd):**
 ```bash
@@ -282,11 +346,12 @@ sudo systemctl enable --now ilspy-mcp
 
 **Windows (Task Scheduler or sc.exe):**
 ```powershell
-# Quick background run with nohup equivalent
 Start-Process -NoNewWindow -FilePath .\ILSpy.Mcp.exe -ArgumentList "--transport http"
 ```
 
 **Docker / tmux / screen** also work — the server is a single self-contained binary with no external dependencies.
+
+</details>
 
 ### Security
 
@@ -297,9 +362,7 @@ No authentication is built in. The server binds to `0.0.0.0` (all interfaces) by
 - Binding to `127.0.0.1` and using SSH port forwarding
 
 <details>
-<summary>Configuration Reference</summary>
-
-The server can be configured via environment variables:
+<summary><b>Configuration Reference</b></summary>
 
 | Variable | Default | Description |
 |----------|---------|-------------|
