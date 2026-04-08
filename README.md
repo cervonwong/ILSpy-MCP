@@ -122,14 +122,14 @@ Use the flowchart below to decide how to set up the server:
 
 ```mermaid
 flowchart TD
-    A[Where is the DLL you want to analyze?] --> B{Same machine as your\nMCP client?}
+    A[Where is the DLL you want to analyze?] --> B{Is the DLL on your\nlocal machine?}
     B -->|Yes| C[Use stdio transport\nDefault -- no extra config needed]
-    B -->|No| D{Can you copy the DLL\nto your local machine?}
-    D -->|Yes| C
-    D -->|No| E[Use HTTP transport\nRun on the remote machine]
-    C --> F[Go to Step 3:\nConfigure your MCP client\nwith stdio]
-    E --> G[Start the HTTP server\non the remote machine]
-    G --> H[Go to Step 3:\nConfigure your MCP client\nwith HTTP URL]
+    B -->|No| D{Does the DLL need to stay\non a VM for security?\ne.g. malware analysis}
+    D -->|Yes| E[Use HTTP transport\nRun the server on the VM]
+    D -->|No| C
+    C --> F[Go to Step 3:\nConfigure with stdio]
+    E --> G[Start the HTTP server on the VM]
+    G --> H[Go to Step 3:\nConfigure with HTTP URL]
 ```
 
 **stdio (default)** -- The MCP client launches the server automatically. No extra setup. Use this if the DLLs are on your local machine.
