@@ -24,6 +24,7 @@ Ask your favourite AI Chatbot to explain how to use ILSpy MCP Server: [![ChatGPT
 ---
 
 - [What is this?](#what-is-this)
+- [Features](#features)
 - [Supported MCP Clients](#supported-mcp-clients)
 - [Quick Start](#quick-start)
   - [Step 1: Get the Binary](#step-1-get-the-binary)
@@ -31,9 +32,17 @@ Ask your favourite AI Chatbot to explain how to use ILSpy MCP Server: [![ChatGPT
   - [Step 3: Configure Your MCP Client](#step-3-configure-your-mcp-client)
 - [How It Works](#how-it-works)
 - [Usage Examples](#usage-examples)
-- [Available Tools](#available-tools)
+- [Tool Reference](#tool-reference)
+  - [Decompilation](#decompilation)
+  - [IL Disassembly](#il-disassembly)
+  - [Type Analysis](#type-analysis)
+  - [Cross-References](#cross-references)
+  - [Assembly Inspection](#assembly-inspection)
+  - [Search](#search)
+  - [Cross-Assembly](#cross-assembly)
+  - [Bulk Operations](#bulk-operations)
 - [HTTP Server Reference](#http-server-reference)
-- [Architecture](#architecture)
+- [Configuration Reference](#configuration-reference)
 - [Comparison with Other Servers](#comparison-with-other-net-decompilation-mcp-servers)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
@@ -42,18 +51,20 @@ Ask your favourite AI Chatbot to explain how to use ILSpy MCP Server: [![ChatGPT
 
 ## What is this?
 
-ILSpy MCP Server lets AI assistants decompile, inspect, and analyze .NET assemblies through natural language. It wraps [ICSharpCode.Decompiler](https://github.com/icsharpcode/ILSpy/tree/master/ICSharpCode.Decompiler) — the same decompilation engine that powers ILSpy — as a [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server. No GUI needed. Your AI assistant calls the decompiler directly and gets back structured results it can reason over.
+ILSpy MCP Server lets AI assistants decompile, inspect, and analyze .NET assemblies through natural language. It wraps [ICSharpCode.Decompiler](https://github.com/icsharpcode/ILSpy/tree/master/ICSharpCode.Decompiler) -- the same decompilation engine that powers ILSpy -- as a [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server. No GUI needed. Your AI assistant calls the decompiler directly and gets back structured results it can reason over.
 
-This means you can do things the ILSpy GUI can't:
+## Features
 
-- **Ask questions in natural language** — "What does this method do?" or "Find all types that implement ILogger" instead of clicking through tree views
-- **Trace execution flow** — find all usages of a method, discover who implements an interface, track dependencies, and locate every instantiation site
-- **Read raw IL** — view CIL/IL disassembly at the type or method level alongside decompiled C#, useful for understanding compiler output and low-level behavior
-- **Chain analysis across multiple assemblies** in a single conversation — trace a call from your app through framework code and into a NuGet package
-- **Get AI-powered explanations** alongside raw decompiled code — the assistant reads the output and explains patterns, potential bugs, or architectural decisions
-- **Inspect assembly metadata** — check target framework, PE bitness, strong name, referenced assemblies, custom attributes at assembly/type/member level, and embedded resources
-- **Automate bulk analysis** — decompile entire namespaces, search across types, and map dependency graphs without manual navigation
-- **Integrate into any MCP client** — Claude Code, Cursor, VS Code, or any tool that speaks MCP
+**28 tools** across 8 categories:
+
+- **Decompilation** -- Decompile types, methods, and entire namespaces to C# source
+- **IL Disassembly** -- View raw CIL/IL at the type or method level
+- **Type Analysis** -- List types, inspect members, trace hierarchies, find implementors, discover extension methods
+- **Cross-References** -- Find usages, dependencies, instantiation sites, and combined reference analysis
+- **Assembly Inspection** -- Read metadata, custom attributes (assembly/type/member), embedded resources, compiler-generated types
+- **Search** -- Search string literals and numeric constants in IL bytecode
+- **Cross-Assembly** -- Resolve types across assemblies, load entire directories
+- **Bulk Operations** -- Export assemblies as complete C# projects
 
 ## Supported MCP Clients
 
@@ -265,45 +276,1096 @@ Ask your AI assistant to work with .NET assemblies using natural language. Repla
 - **Read custom attributes** -- "What custom attributes are on the OrderService class in `C:\repos\ECommerce\bin\Debug\net10.0\ECommerce.dll`?"
 - **Extract embedded resources** -- "List all embedded resources in `C:\repos\MyApp\bin\Debug\net10.0\MyApp.dll` and extract the SQL migration script"
 - **Find compiler-generated types** -- "Show me the async state machines and closures in `C:\repos\MyApp\bin\Debug\net10.0\MyApp.dll`"
+- **Export a project** -- "Export `C:\repos\MyApp\bin\Debug\net10.0\MyApp.dll` as a C# project to `C:\temp\MyApp-decompiled`"
 
-## Available Tools
+## Tool Reference
 
-**Decompilation & Inspection**
+### Decompilation
 
-| Tool | Description |
-|------|-------------|
-| `decompile_type` | Decompile a .NET type to C# source code |
-| `decompile_method` | Decompile a specific method or constructor (`.ctor`/`.cctor`) to C# |
-| `disassemble_type` | Get raw CIL/IL disassembly of a type (method signatures, fields, properties) |
-| `disassemble_method` | Get raw CIL/IL instruction listing for a specific method (opcodes, labels, stack info) |
-| `list_assembly_types` | List all types in an assembly |
-| `analyze_assembly` | Get architectural overview of an assembly |
-| `get_type_members` | Get complete API surface of a type (constructors, methods, properties, fields, events) |
-| `find_type_hierarchy` | Find inheritance relationships |
-| `search_members_by_name` | Search for members by name |
-| `find_extension_methods` | Find extension methods for a type |
+#### `decompile_type`
 
-**Cross-Reference Analysis**
+Decompile a .NET type to C# source code with AI-analyzed insights about usage patterns.
 
-| Tool | Description |
-|------|-------------|
-| `find_usages` | Find all call sites, field accesses, and property usages of a member across an assembly |
-| `find_implementors` | Find all types implementing an interface or extending a base class |
-| `find_dependencies` | Find all outward dependencies (calls, field accesses) of a type or method |
-| `find_instantiations` | Find all sites where a type is instantiated (`newobj`) |
-| `analyze_references` | Unified cross-reference dispatcher -- routes to the above tools by analysis type |
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type to decompile (e.g., `System.String`) |
+| `query` | string | No | What specific information to look for (e.g., "method implementations", "property definitions") |
 
-**Assembly Inspection**
+<details>
+<summary>Example</summary>
 
-| Tool | Description |
-|------|-------------|
-| `get_assembly_metadata` | Get assembly metadata including target framework, runtime version, PE bitness, strong name, entry point, and referenced assemblies |
-| `get_assembly_attributes` | List all custom attributes declared on an assembly with their constructor arguments and named properties |
-| `get_type_attributes` | List all custom attributes declared on a type with their constructor arguments and named properties |
-| `get_member_attributes` | List all custom attributes on a type member (method, property, field, event) with their constructor arguments |
-| `list_embedded_resources` | List all embedded resources in an assembly with name, type, size, and visibility |
-| `extract_resource` | Extract embedded resource content -- text inline or binary as base64, with optional offset/limit pagination |
-| `find_compiler_generated_types` | Find compiler-generated types (async state machines, display classes, closures, iterators) with parent method and type context |
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Services.UserService",
+  "query": "overall structure"
+}
+```
+
+**Output (trimmed):**
+```
+using System;
+using System.Threading.Tasks;
+
+namespace MyLibrary.Services
+{
+    public class UserService : IUserService
+    {
+        private readonly IUserRepository _repository;
+
+        public UserService(IUserRepository repository)
+        {
+            _repository = repository;
+        }
+
+        public async Task<User> GetByIdAsync(int id) { ... }
+        public async Task<bool> DeleteAsync(int id) { ... }
+        ...
+    }
+}
+```
+
+</details>
+
+---
+
+#### `decompile_method`
+
+Decompile a specific method or constructor (`.ctor`/`.cctor`) to C# source code.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type containing the method |
+| `methodName` | string | Yes | Name of the method to decompile |
+| `query` | string | No | What aspect of the method to focus on (e.g., "algorithm logic", "error handling") |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Services.UserService",
+  "methodName": "GetByIdAsync"
+}
+```
+
+**Output (trimmed):**
+```
+public async Task<User> GetByIdAsync(int id)
+{
+    if (id <= 0)
+        throw new ArgumentOutOfRangeException(nameof(id));
+
+    var user = await _repository.FindByIdAsync(id);
+    if (user == null)
+        throw new UserNotFoundException(id);
+
+    return user;
+}
+```
+
+</details>
+
+---
+
+#### `decompile_namespace`
+
+List all types in a namespace with full signatures, member counts, and public method signatures. Returns a summary -- use `decompile_type` to get full source for individual types.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `namespaceName` | string | Yes | Full namespace name (e.g., `System.Collections.Generic`) |
+| `maxTypes` | int | No | Maximum number of types to return (default: 200) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "namespaceName": "MyLibrary.Services"
+}
+```
+
+**Output (trimmed):**
+```
+Namespace: MyLibrary.Services
+Types: 5
+
+--- Interfaces ---
+
+IUserService (Interface, 3 members)
+  Task<User> GetByIdAsync(int id)
+  Task<IEnumerable<User>> GetAllAsync()
+  Task<bool> DeleteAsync(int id)
+
+--- Classes ---
+
+UserService : IUserService (Class, 4 members)
+  .ctor(IUserRepository repository)
+  Task<User> GetByIdAsync(int id)
+  Task<IEnumerable<User>> GetAllAsync()
+  Task<bool> DeleteAsync(int id)
+
+OrderService : IOrderService (Class, 3 members)
+  ...
+```
+
+</details>
+
+---
+
+### IL Disassembly
+
+#### `disassemble_type`
+
+Get raw CIL/IL disassembly of a .NET type showing method signatures, fields, properties, and events in IL format.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type (e.g., `System.String`) |
+| `showTokens` | bool | No | Show metadata token numbers (e.g., `/* 06000001 */`) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Models.User"
+}
+```
+
+**Output (trimmed):**
+```
+.class public auto ansi beforefieldinit MyLibrary.Models.User
+    extends [System.Runtime]System.Object
+{
+    .field private string '<Name>k__BackingField'
+
+    .property instance string Name()
+    {
+        .get instance string MyLibrary.Models.User::get_Name()
+        .set instance void MyLibrary.Models.User::set_Name(string)
+    }
+
+    .method public hidebysig specialname
+        instance string get_Name () cil managed
+    {
+        ...
+    }
+}
+```
+
+</details>
+
+---
+
+#### `disassemble_method`
+
+Get raw CIL/IL disassembly of a specific method with opcodes, labels, and stack information.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type containing the method |
+| `methodName` | string | Yes | Name of the method to disassemble |
+| `showBytes` | bool | No | Show raw opcode byte sequences |
+| `showTokens` | bool | No | Show metadata token numbers (e.g., `/* 06000001 */`) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Services.UserService",
+  "methodName": "GetByIdAsync"
+}
+```
+
+**Output (trimmed):**
+```
+.method public hidebysig newslot virtual
+    instance class [System.Runtime]System.Threading.Tasks.Task`1<class MyLibrary.Models.User>
+    GetByIdAsync (int32 id) cil managed
+{
+    .maxstack 2
+    .locals init (
+        [0] class MyLibrary.Models.User user
+    )
+
+    IL_0000: ldarg.1
+    IL_0001: ldc.i4.0
+    IL_0002: bgt.s IL_000a
+    IL_0004: ldstr "id"
+    IL_0009: newobj instance void [System.Runtime]System.ArgumentOutOfRangeException::.ctor(string)
+    IL_000e: throw
+    ...
+}
+```
+
+</details>
+
+---
+
+### Type Analysis
+
+#### `list_assembly_types`
+
+List all types in an assembly, organized by namespace. Essential first step for exploring unfamiliar libraries.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `namespaceFilter` | string | No | Filter types by namespace (case-insensitive) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "namespaceFilter": "MyLibrary.Services"
+}
+```
+
+**Output (trimmed):**
+```
+Assembly: MyLibrary
+Types in namespace 'MyLibrary.Services': 5
+
+  MyLibrary.Services.IUserService (Interface)
+  MyLibrary.Services.UserService (Class)
+  MyLibrary.Services.IOrderService (Interface)
+  MyLibrary.Services.OrderService (Class)
+  MyLibrary.Services.ServiceException (Class)
+```
+
+</details>
+
+---
+
+#### `get_type_members`
+
+Get the complete API surface of a type -- constructors, methods, properties, fields, and events -- without implementation details.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type to inspect |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Services.UserService"
+}
+```
+
+**Output (trimmed):**
+```
+Type: MyLibrary.Services.UserService (Class)
+Base: System.Object
+Implements: MyLibrary.Services.IUserService
+
+Constructors:
+  .ctor(IUserRepository repository)
+
+Methods:
+  Task<User> GetByIdAsync(int id)
+  Task<IEnumerable<User>> GetAllAsync()
+  Task<bool> DeleteAsync(int id)
+
+Properties:
+  (none)
+
+Fields:
+  IUserRepository _repository (private)
+```
+
+</details>
+
+---
+
+#### `find_type_hierarchy`
+
+Find inheritance relationships -- base classes, implemented interfaces, and derived types.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type to analyze |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Services.UserService"
+}
+```
+
+**Output (trimmed):**
+```
+Type: MyLibrary.Services.UserService
+
+Base types:
+  System.Object
+
+Implements:
+  MyLibrary.Services.IUserService
+
+Derived types:
+  MyLibrary.Services.CachedUserService
+```
+
+</details>
+
+---
+
+#### `find_implementors`
+
+Find all types implementing a given interface or extending a given base class within an assembly.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the interface or base class (e.g., `MyNamespace.IMyInterface`) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Services.IUserService"
+}
+```
+
+**Output (trimmed):**
+```
+Implementors of MyLibrary.Services.IUserService:
+
+  MyLibrary.Services.UserService (implements)
+  MyLibrary.Services.CachedUserService (implements)
+```
+
+</details>
+
+---
+
+#### `find_extension_methods`
+
+Find extension methods available for a specific type.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `targetTypeName` | string | Yes | Full name of the type to find extensions for (e.g., `System.String`) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "targetTypeName": "System.String"
+}
+```
+
+**Output (trimmed):**
+```
+Extension methods for System.String:
+
+  MyLibrary.Extensions.StringExtensions.ToSlug(this string value) -> string
+  MyLibrary.Extensions.StringExtensions.Truncate(this string value, int maxLength) -> string
+```
+
+</details>
+
+---
+
+#### `find_compiler_generated_types`
+
+Find compiler-generated types (async state machines, display classes, closures, iterators) with their parent method and type context.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll"
+}
+```
+
+**Output (trimmed):**
+```
+Compiler-generated types: 3
+
+  <GetByIdAsync>d__1 (AsyncStateMachine)
+    Parent method: UserService.GetByIdAsync
+    Parent type: MyLibrary.Services.UserService
+
+  <>c__DisplayClass2_0 (DisplayClass)
+    Parent method: OrderService.ProcessOrderAsync
+    Parent type: MyLibrary.Services.OrderService
+  ...
+```
+
+</details>
+
+---
+
+#### `search_members_by_name`
+
+Search for members (methods, properties, fields, events) by name across all types in an assembly.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `searchTerm` | string | Yes | Name or partial name to search for (case-insensitive) |
+| `memberKind` | string | No | Filter by member kind: `method`, `property`, `field`, `event` |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "searchTerm": "Async",
+  "memberKind": "method"
+}
+```
+
+**Output (trimmed):**
+```
+Members matching 'Async': 4
+
+  MyLibrary.Services.UserService.GetByIdAsync(int) -> Task<User>
+  MyLibrary.Services.UserService.GetAllAsync() -> Task<IEnumerable<User>>
+  MyLibrary.Services.UserService.DeleteAsync(int) -> Task<bool>
+  MyLibrary.Services.OrderService.ProcessOrderAsync(Order) -> Task<OrderResult>
+```
+
+</details>
+
+---
+
+### Cross-References
+
+#### `find_usages`
+
+Find all call sites, field accesses, and property usages of a specific member across an assembly.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type containing the member (e.g., `MyNamespace.MyClass`) |
+| `memberName` | string | Yes | Name of the member (method, field, or property) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Data.IUserRepository",
+  "memberName": "FindByIdAsync"
+}
+```
+
+**Output (trimmed):**
+```
+Usages of MyLibrary.Data.IUserRepository.FindByIdAsync: 3
+
+  MyLibrary.Services.UserService.GetByIdAsync (call)
+  MyLibrary.Services.CachedUserService.GetByIdAsync (call)
+  MyLibrary.Tests.UserServiceTests.GetById_ReturnsUser (call)
+```
+
+</details>
+
+---
+
+#### `find_dependencies`
+
+Find all outward dependencies (method calls, field accesses, type references) of a type or specific method.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type to analyze (e.g., `MyNamespace.MyClass`) |
+| `methodName` | string | No | Method name to narrow analysis to a specific method |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Services.UserService",
+  "methodName": "GetByIdAsync"
+}
+```
+
+**Output (trimmed):**
+```
+Dependencies of MyLibrary.Services.UserService.GetByIdAsync: 4
+
+  MyLibrary.Data.IUserRepository.FindByIdAsync (call)
+  System.ArgumentOutOfRangeException..ctor (call)
+  MyLibrary.Exceptions.UserNotFoundException..ctor (call)
+  MyLibrary.Data.IUserRepository (type reference)
+```
+
+</details>
+
+---
+
+#### `find_instantiations`
+
+Find all sites where a given type is instantiated (`newobj`) within an assembly.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type to find instantiations of (e.g., `MyNamespace.MyClass`) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "System.Net.Http.HttpClient"
+}
+```
+
+**Output (trimmed):**
+```
+Instantiations of System.Net.Http.HttpClient: 2
+
+  MyLibrary.Services.ApiClient..ctor (newobj)
+  MyLibrary.Services.WebhookSender.SendAsync (newobj)
+```
+
+</details>
+
+---
+
+#### `analyze_references`
+
+Unified cross-reference analysis tool. Routes to the appropriate analysis based on `analysisType` parameter. Use for exploratory analysis when you are not sure which specific tool to call.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `analysisType` | string | Yes | Type of analysis: `usages`, `implementors`, `dependencies`, or `instantiations` |
+| `typeName` | string | Yes | Full name of the type to analyze |
+| `memberName` | string | No | Member name (required for `usages`, optional for `dependencies`) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "analysisType": "implementors",
+  "typeName": "MyLibrary.Services.IUserService"
+}
+```
+
+**Output (trimmed):**
+```
+Implementors of MyLibrary.Services.IUserService:
+
+  MyLibrary.Services.UserService (implements)
+  MyLibrary.Services.CachedUserService (implements)
+```
+
+</details>
+
+---
+
+### Assembly Inspection
+
+#### `analyze_assembly`
+
+Get a high-level overview of an assembly's architecture -- main namespaces, key public types, and design patterns.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `query` | string | No | What aspects to analyze (e.g., "architecture overview", "public API surface") |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "query": "architecture overview"
+}
+```
+
+**Output (trimmed):**
+```
+Assembly: MyLibrary, Version=1.0.0.0
+Types: 42 | Namespaces: 6
+
+Top namespaces:
+  MyLibrary.Services (12 types)
+  MyLibrary.Models (10 types)
+  MyLibrary.Data (8 types)
+  MyLibrary.Extensions (5 types)
+  ...
+```
+
+</details>
+
+---
+
+#### `get_assembly_metadata`
+
+Get assembly metadata including target framework, runtime version, PE bitness, strong name, entry point, and all referenced assemblies.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll"
+}
+```
+
+**Output (trimmed):**
+```
+Assembly: MyLibrary
+Version: 1.0.0.0
+Target Framework: .NETCoreApp,Version=v10.0
+Runtime: v10.0.0
+PE: PE32+ (64-bit)
+Strong Name: No
+Entry Point: None
+
+Referenced Assemblies:
+  System.Runtime, Version=10.0.0.0
+  System.Collections, Version=10.0.0.0
+  Microsoft.Extensions.DependencyInjection.Abstractions, Version=10.0.0.0
+  ...
+```
+
+</details>
+
+---
+
+#### `get_assembly_attributes`
+
+List all custom attributes declared on an assembly with their constructor arguments and named properties.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll"
+}
+```
+
+**Output (trimmed):**
+```
+Assembly attributes:
+
+  [AssemblyTitle("MyLibrary")]
+  [AssemblyVersion("1.0.0.0")]
+  [AssemblyFileVersion("1.0.0.0")]
+  [TargetFramework(".NETCoreApp,Version=v10.0")]
+  ...
+```
+
+</details>
+
+---
+
+#### `get_type_attributes`
+
+List all custom attributes declared on a type with their constructor arguments and named properties.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type (e.g., `MyNamespace.MyClass`) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Models.User"
+}
+```
+
+**Output (trimmed):**
+```
+Attributes on MyLibrary.Models.User:
+
+  [Serializable]
+  [DataContract(Name = "user")]
+```
+
+</details>
+
+---
+
+#### `get_member_attributes`
+
+List all custom attributes on a type member (method, property, field, event) with their constructor arguments.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `typeName` | string | Yes | Full name of the type (e.g., `MyNamespace.MyClass`) |
+| `memberName` | string | Yes | Name of the member (method, property, field, or event) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "typeName": "MyLibrary.Controllers.UserController",
+  "memberName": "GetUser"
+}
+```
+
+**Output (trimmed):**
+```
+Attributes on MyLibrary.Controllers.UserController.GetUser:
+
+  [HttpGet("{id}")]
+  [ProducesResponseType(typeof(User), 200)]
+  [Authorize(Roles = "Admin")]
+```
+
+</details>
+
+---
+
+#### `list_embedded_resources`
+
+List all embedded resources in an assembly with name, type, size, and visibility.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll"
+}
+```
+
+**Output (trimmed):**
+```
+Embedded resources: 3
+
+  MyLibrary.Resources.schema.sql (7,234 bytes, public)
+  MyLibrary.Resources.config.json (1,024 bytes, public)
+  MyLibrary.Resources.logo.png (45,678 bytes, public)
+```
+
+</details>
+
+---
+
+#### `extract_resource`
+
+Extract embedded resource content -- text displayed inline, binary as base64. Supports offset and limit for paginated binary extraction.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `resourceName` | string | Yes | Name of the embedded resource (e.g., `MyNamespace.Resources.file.txt`) |
+| `offset` | int | No | Byte offset for paginated extraction |
+| `limit` | int | No | Maximum bytes to return for paginated extraction |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "resourceName": "MyLibrary.Resources.schema.sql"
+}
+```
+
+**Output (trimmed):**
+```
+Resource: MyLibrary.Resources.schema.sql
+Type: text
+Size: 7,234 bytes
+
+CREATE TABLE Users (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(255) NOT NULL UNIQUE,
+    ...
+);
+```
+
+</details>
+
+---
+
+### Search
+
+#### `search_strings`
+
+Search for string literals in assembly IL bytecode matching a regex pattern. Scans all `ldstr` instructions.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `pattern` | string | Yes | Regex pattern to match (e.g., `https?://`, `password`, `Error.*`) |
+| `maxResults` | int | No | Maximum results to return (default: 100) |
+| `offset` | int | No | Number of results to skip for pagination (default: 0) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "pattern": "https?://"
+}
+```
+
+**Output (trimmed):**
+```
+String matches for 'https?://': 3
+
+  "https://api.example.com/v1"
+    in MyLibrary.Services.ApiClient..ctor
+
+  "http://localhost:5000"
+    in MyLibrary.Tests.IntegrationTestBase.Setup
+
+  "https://cdn.example.com/assets"
+    in MyLibrary.Services.AssetService.GetBaseUrl
+```
+
+</details>
+
+---
+
+#### `search_constants`
+
+Search for numeric integer constants in assembly IL bytecode. Finds all `ldc.i4` and `ldc.i8` instructions loading the specified value.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `value` | long | Yes | Exact numeric value to search for (integer) |
+| `maxResults` | int | No | Maximum results to return (default: 100) |
+| `offset` | int | No | Number of results to skip for pagination (default: 0) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "value": 404
+}
+```
+
+**Output (trimmed):**
+```
+Constant matches for 404: 2
+
+  404 (ldc.i4)
+    in MyLibrary.Controllers.UserController.GetUser
+
+  404 (ldc.i4)
+    in MyLibrary.Controllers.OrderController.GetOrder
+```
+
+</details>
+
+---
+
+### Cross-Assembly
+
+#### `resolve_type`
+
+Resolve which assembly in a directory defines a given type. Supports partial type name matching.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `directoryPath` | string | Yes | Path to the directory containing .NET assemblies |
+| `typeName` | string | Yes | Type name to search for (partial match supported, e.g., `HttpClient`) |
+| `maxDepth` | int | No | Maximum directory recursion depth (default: 3) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "directoryPath": "C:\\repos\\MyApp\\bin\\Debug\\net10.0",
+  "typeName": "HttpClient"
+}
+```
+
+**Output (trimmed):**
+```
+Type 'HttpClient' found in:
+
+  System.Net.Http.HttpClient
+    Assembly: System.Net.Http, Version=10.0.0.0
+    Path: C:\repos\MyApp\bin\Debug\net10.0\System.Net.Http.dll
+```
+
+</details>
+
+---
+
+#### `load_assembly_directory`
+
+Load and list all .NET assemblies found in a directory. Scans `.dll` and `.exe` files recursively up to the specified depth.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `directoryPath` | string | Yes | Path to the directory to scan for .NET assemblies |
+| `maxDepth` | int | No | Maximum directory recursion depth (default: 3) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "directoryPath": "C:\\repos\\MyApp\\bin\\Debug\\net10.0"
+}
+```
+
+**Output (trimmed):**
+```
+Assemblies loaded: 12
+Skipped: 3
+
+Loaded:
+  MyApp, Version=1.0.0.0
+  MyLibrary, Version=1.0.0.0
+  Microsoft.Extensions.DependencyInjection, Version=10.0.0.0
+  ...
+
+Skipped:
+  native.dll (not a .NET assembly)
+  legacy.dll (unsupported metadata)
+  ...
+```
+
+</details>
+
+---
+
+### Bulk Operations
+
+#### `export_project`
+
+Export a .NET assembly as a complete C# project (`.csproj` + `.cs` files) to a target directory. The directory must be empty or non-existent.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `outputDirectory` | string | Yes | Target directory for the exported project (must be empty or non-existent) |
+| `namespaceFilter` | string | No | Namespace filter to limit export scope |
+| `maxTypes` | int | No | Maximum number of types to export (default: 500) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "outputDirectory": "C:\\temp\\MyLibrary-decompiled",
+  "namespaceFilter": "MyLibrary.Services"
+}
+```
+
+**Output (trimmed):**
+```
+Export complete.
+
+Output directory: C:\temp\MyLibrary-decompiled
+Project file: MyLibrary.csproj
+Total files: 8
+
+Files:
+  MyLibrary.csproj
+  Services/IUserService.cs
+  Services/UserService.cs
+  Services/IOrderService.cs
+  Services/OrderService.cs
+  Services/ServiceException.cs
+  ...
+```
+
+</details>
+
+---
 
 ## HTTP Server Reference
 
@@ -339,8 +1401,8 @@ The server prints `ILSpy MCP server listening on http://0.0.0.0:3001` and stays 
 | Setting | Default | CLI | Env Variable | appsettings.json |
 |---------|---------|-----|--------------|------------------|
 | Transport | stdio | `--transport http` | `ILSPY_TRANSPORT=http` | `Transport:Type` |
-| Port | 3001 | — | `Transport__Http__Port` | `Transport:Http:Port` |
-| Host | 0.0.0.0 | — | `Transport__Http__Host` | `Transport:Http:Host` |
+| Port | 3001 | -- | `Transport__Http__Port` | `Transport:Http:Port` |
+| Host | 0.0.0.0 | -- | `Transport__Http__Host` | `Transport:Http:Host` |
 
 Transport mode is resolved in priority order: CLI arg > env var > appsettings.json.
 
@@ -389,7 +1451,7 @@ sudo systemctl enable --now ilspy-mcp
 Start-Process -NoNewWindow -FilePath .\ILSpy.Mcp.exe -ArgumentList "--transport http"
 ```
 
-**Docker / tmux / screen** also work — the server is a single self-contained binary with no external dependencies.
+**Docker / tmux / screen** also work -- the server is a single self-contained binary with no external dependencies.
 
 </details>
 
@@ -401,8 +1463,7 @@ No authentication is built in. The server binds to `0.0.0.0` (all interfaces) by
 - VPN or SSH tunnel between client and server
 - Binding to `127.0.0.1` and using SSH port forwarding
 
-<details>
-<summary><b>Configuration Reference</b></summary>
+## Configuration Reference
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -412,12 +1473,6 @@ No authentication is built in. The server binds to `0.0.0.0` (all interfaces) by
 | `ILSPY_TRANSPORT` | `stdio` | Transport mode: `stdio` or `http` |
 | `Transport__Http__Port` | 3001 | HTTP server port |
 | `Transport__Http__Host` | 0.0.0.0 | HTTP server bind address |
-
-</details>
-
-## Architecture
-
-The server follows a clean layered architecture: **Domain** (core entities), **Application** (use cases), **Infrastructure** (ILSpy and file system adapters), and **Transport** (MCP protocol layer). All operations are read-only -- the server never modifies files on disk.
 
 ## Comparison with Other .NET Decompilation MCP Servers
 
@@ -430,9 +1485,10 @@ Several projects expose .NET decompilation over MCP. Here's how ILSpy MCP Server
 | **Install options** | Pre-built binary or source | Clone + build | Clone + build | `pip install` | `npm install` |
 | **Transport** | stdio + HTTP (remote/VM support) | SSE or stdio | stdio | stdio | stdio |
 | **Cross-platform** | Windows, Linux, macOS (x64 + ARM64) | Windows only (dnSpyEx dependency) | Windows, Linux, macOS | Depends on ILSpy CLI availability | Depends on ILSpy CLI availability |
-| **Architecture** | Clean layered (Domain/Application/Infrastructure/Transport) | dnSpyEx plugin | Single project | Python wrapper around CLI | Node.js wrapper around CLI |
+| **Tools** | 28 | ~10 | ~5 | ~3 | ~3 |
 | **Type decompilation** | Yes | Yes | Yes | Yes | Yes |
 | **Method decompilation** | Yes (including `.ctor`/`.cctor`) | Yes | Yes (member-scoped snippets) | No | No |
+| **Namespace decompilation** | Yes | No | No | No | No |
 | **Type hierarchy analysis** | Yes | No | No | No | No |
 | **Extension method discovery** | Yes | No | No | No | No |
 | **IL disassembly output** | Yes (type + method level) | Yes | No | No | No |
@@ -441,21 +1497,22 @@ Several projects expose .NET decompilation over MCP. Here's how ILSpy MCP Server
 | **Custom attribute inspection** | Yes (assembly, type, and member level with decoded arguments) | No | No | No | No |
 | **Embedded resource extraction** | Yes (text inline, binary as base64, with pagination) | No | No | No | No |
 | **Compiler-generated type discovery** | Yes (async state machines, closures, display classes with parent context) | No | No | No | No |
+| **String/constant search** | Yes (IL bytecode scanning with regex) | No | No | No | No |
+| **Project export** | Yes (full .csproj + .cs files) | No | No | No | No |
 | **Assembly architecture overview** | Yes | Yes | No | Yes | No |
 | **Member search** | Yes | Yes | Yes | No | No |
-| **Multi-version comparison** | No | No | Yes | No | No |
 | **Read-only by design** | Yes (never modifies files) | Has renaming/edit capabilities | Yes | Yes | Yes |
 
 ### Why ILSpy MCP Server?
 
-- **Zero-dependency install.** Download a single self-contained binary — no .NET SDK, no Python, no Node.js, no ILSpy CLI to install separately. It just works.
-- **Actively maintained engine.** Built on ICSharpCode.Decompiler, the same library that powers ILSpy — under active development with regular releases. Not dependent on abandoned tools like dnSpy.
+- **Zero-dependency install.** Download a single self-contained binary -- no .NET SDK, no Python, no Node.js, no ILSpy CLI to install separately. It just works.
+- **Actively maintained engine.** Built on ICSharpCode.Decompiler, the same library that powers ILSpy -- under active development with regular releases. Not dependent on abandoned tools like dnSpy.
 - **Remote analysis via HTTP.** Run the server on an analysis VM or build server and connect from anywhere. No other .NET decompilation MCP server supports this out of the box.
 - **True cross-platform support.** Pre-built binaries for Windows, Linux, and macOS on both x64 and ARM64. No Windows-only dependencies.
 - **Direct engine integration.** Calls the decompiler library in-process for maximum speed and fidelity. No shelling out to CLI tools, no parsing text output, no intermediate formats.
-- **Cross-reference analysis.** The only .NET decompilation MCP server that can trace usages, find implementors, map dependencies, and locate instantiation sites — all via IL bytecode scanning.
+- **Cross-reference analysis.** The only .NET decompilation MCP server that can trace usages, find implementors, map dependencies, and locate instantiation sites -- all via IL bytecode scanning.
 - **Deep assembly inspection.** Read assembly metadata, custom attributes at every scope level, extract embedded resources, and discover compiler-generated types with parent context. No other .NET decompilation MCP server exposes this.
-- **Safe by design.** Every operation is read-only. The server never writes to disk, never modifies assemblies, never executes the code it analyzes.
+- **Safe by design.** Every operation is read-only. The server never writes to disk (except `export_project`), never modifies assemblies, never executes the code it analyzes.
 
 ## Acknowledgements
 
@@ -469,7 +1526,7 @@ MIT -- see [LICENSE](LICENSE) for details.
 
 ```
  ________________________________________
-< Built with love by a fellow analyst :) 💖 >
+< Built with love by a fellow analyst :) >
  ----------------------------------------
         \   ^__^
          \  (oo)\_______
