@@ -1,80 +1,38 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
-status: planning
-stopped_at: Completed 07-03-PLAN.md
-last_updated: "2026-04-08T15:29:03.451Z"
+milestone_name: Feature Parity
+status: complete
+stopped_at: Milestone v1.0 shipped
+last_updated: "2026-04-08T16:00:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 7
   total_plans: 16
   completed_plans: 16
-  percent: 94
----
-
----
-gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: planning
-stopped_at: Phase 7 context gathered
-last_updated: "2026-04-08T11:12:38.018Z"
-progress:
-  [█████████░] 94%
-  completed_phases: 6
-  total_plans: 13
-  completed_plans: 13
----
-
----
-gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: Ready to plan
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-04-08T09:44:53.960Z"
-progress:
-  total_phases: 7
-  completed_phases: 6
-  total_plans: 13
-  completed_plans: 13
+  percent: 100
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-07)
+See: .planning/PROJECT.md (updated 2026-04-08)
 
 **Core value:** AI assistants can perform complete .NET static analysis workflows — trace execution, find usages, search strings, and navigate across types and assemblies.
-**Current focus:** Phase 07 — bulk-operations-documentation
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 7
-Plan: 1 of 3 (completed)
+Milestone v1.0 Feature Parity — SHIPPED 2026-04-08
+Next: `/gsd:new-milestone` to define v1.1
 
 ## Performance Metrics
 
-**Velocity:**
+**v1.0 Velocity:**
 
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
-
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| - | - | - | - |
-
-**Recent Trend:**
-
-- Last 5 plans: -
-- Trend: -
-
-*Updated after each plan completion*
+| Phase | Plan | Duration | Tasks | Files |
+|-------|------|----------|-------|-------|
 | Phase 01 P01 | 3m | 2 tasks | 18 files |
 | Phase 01 P02 | 4m | 2 tasks | 10 files |
 | Phase 02 P01 | 1m | 1 tasks | 2 files |
@@ -88,76 +46,29 @@ Plan: 1 of 3 (completed)
 | Phase 05 P02 | 7m | 2 tasks | 23 files |
 | Phase 06 P01 | 6m | 2 tasks | 12 files |
 | Phase 06 P02 | 4m | 2 tasks | 12 files |
-| Phase 07 P02 | 6m | 2 tasks | 6 files |
 | Phase 07 P01 | 6m | 2 tasks | 7 files |
+| Phase 07 P02 | 6m | 2 tasks | 6 files |
 | Phase 07 P03 | 2m | 2 tasks | 1 files |
+
+**Totals:** 16 plans, ~71m execution, 154 files touched
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- Establish test baseline BEFORE SDK upgrades (safety net for regressions)
-- Upgrade SDKs before new features (clean foundation, avoid rework)
-- Fix bugs before new features (stable baseline for tests)
-- Build reusable ILScanner service for IL-based features (XREF, search, constants share scanning)
-- [Phase 01]: Updated all projects to net10.0 since only .NET 10 runtime available
-- [Phase 01]: Excluded TestTargets from main project compilation to prevent source file leakage
-- [Phase 01]: Invalid assembly path returns INTERNAL_ERROR (FileNotFoundException from validation) not ASSEMBLY_LOAD_FAILED
-- [Phase 01]: Generic types listed without backtick arity notation by decompiler
-- [Phase 02]: Big bang decompiler upgrade validated - zero removed API usage, 31 tests green
-- [Phase 02]: TimeoutToken always creates linked CTS for correctness; ConcurrencyLimiter singleton shares semaphore; timeout starts after semaphore acquisition
-- [Phase 02]: Constructors listed before Methods in get_type_members output to match typical C# class layout
-- [Phase 03]: Used using-alias for TypeName disambiguation between Domain.Models and System.Reflection.Metadata
-- [Phase 03]: Separate IDisassemblyService interface from IDecompilerService - disassembly and decompilation are distinct concerns
-- [Phase 03]: Disassembly tools mirror decompile tool structure with identical error handling patterns
-- [Phase 03]: Constructor disassembly test uses Circle (single .ctor) to avoid overload ambiguity
-- [Phase 04]: IL scanning via System.Reflection.Metadata BlobReader for cross-reference analysis — no new dependencies
-- [Phase 04]: Complete ILOpCode operand size table for correct IL reader advancement across all opcodes
-- [Phase 04]: Two-pass FindImplementors (direct then indirect) — simpler than recursive traversal
-- [Phase 04]: MethodNotFoundException mapped to MEMBER_NOT_FOUND error code for cross-reference tools
-- [Phase 04]: AnalyzeReferencesTool dispatcher uses switch expression on analysisType for clean routing
-- [Phase 05]: Use PEFile directly for PE header access since MetadataFile does not expose PEReader
-- [Phase 05]: Disable auto-generated assembly attributes in TestTargets to allow manual assembly-level attributes
-- [Phase 05]: StringAttributeTypeProvider with ICustomAttributeTypeProvider<string> for decoding attribute blobs
-- [Phase 05]: Shared FormatAttributes helper on GetAssemblyAttributesUseCase reused by type and member attribute use cases
-- [Phase 05]: SerializableAttribute is a pseudo-attribute (metadata flag) not a CustomAttribute -- adjusted test expectations
-- [Phase 06]: Duplicated IL scanning helpers between ILSpySearchService and ILSpyCrossReferenceService to avoid coupling
-- [Phase 06]: Integer-only constant search (ldc.i4/ldc.i8) -- no float/double per SRCH-02 requirement
-- [Phase 06]: DirectoryPath value object validates directory existence at creation, mirroring AssemblyPath pattern
-- [Phase 06]: PEFile for lightweight assembly loading in LoadDirectory; CSharpDecompiler for ResolveType (needs full type system)
-- [Phase 06]: Depth-limited directory enumeration avoids SearchOption.AllDirectories for safety
-- [Phase 07]: WholeProjectDecompiler used directly in use case, not via IDecompilerService
-- [Phase 07]: NamespaceFilteredProjectDecompiler overrides IncludeTypeWhenDecompilingProject with fallback
-- [Phase 07]: DIRECTORY_NOT_EMPTY validation as McpToolException (tool-specific, not domain)
-- [Phase 07]: Exact namespace filtering post-ListTypesAsync (Contains match is too broad)
-- [Phase 07]: Nested types detected via + in FullName convention
-- [Phase 07]: Kind ordering: Interface=0, Enum=1, Struct=2, Class=3, Delegate=4, Unknown=5
-- [Phase 07]: 8 tool categories in README: Decompilation, IL Disassembly, Type Analysis, Cross-References, Assembly Inspection, Search, Cross-Assembly, Bulk Operations
-
-### Pending Todos
-
-None yet.
-
-### Blockers/Concerns
-
-- MCP SDK 0.4 to 1.2.0 upgrade completed in quick task 260407-hz7 — no breaking changes in tool registration
-- ICSharpCode.Decompiler 9.1 to 10.x may have API changes in decompiler surface — investigate during Phase 2
-- Target framework changed from net9.0 to net10.0 (only runtime available) — verify CI compatibility
+All v1.0 decisions archived in PROJECT.md Key Decisions table.
 
 ### Quick Tasks Completed
 
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
-| 260407-hz7 | Switch MCP server from stdio to HTTP server transport | 2026-04-07 | e38806a | [260407-hz7-switch-mcp-server-from-stdio-to-http-ser](./quick/260407-hz7-switch-mcp-server-from-stdio-to-http-ser/) |
-| 260407-kbk | GitHub Actions release workflow for self-contained binaries | 2026-04-07 | pending | [260407-kbk-create-github-actions-workflow-for-publi](./quick/260407-kbk-create-github-actions-workflow-for-publi/) |
-| 260407-kzu | Rewrite README with clear numbered install/use instructions | 2026-04-07 | adc7e52 | [260407-kzu-rewrite-readme-with-clear-numbered-insta](./quick/260407-kzu-rewrite-readme-with-clear-numbered-insta/) |
-| 260408-flk | Add native DLL guard (check PE CLR header) | 2026-04-08 | 0309d3a | [260408-flk-add-native-dll-guard-check-pe-clr-header](./quick/260408-flk-add-native-dll-guard-check-pe-clr-header/) |
+| # | Description | Date | Commit |
+|---|-------------|------|--------|
+| 260407-hz7 | Switch MCP server from stdio to HTTP server transport | 2026-04-07 | e38806a |
+| 260407-kbk | GitHub Actions release workflow for self-contained binaries | 2026-04-07 | pending |
+| 260407-kzu | Rewrite README with clear numbered install/use instructions | 2026-04-07 | adc7e52 |
+| 260408-flk | Add native DLL guard (check PE CLR header) | 2026-04-08 | 0309d3a |
 
 ## Session Continuity
 
-Last session: 2026-04-08T15:25:38.370Z
-Stopped at: Completed 07-03-PLAN.md
+Last session: 2026-04-08
+Stopped at: Milestone v1.0 shipped
 Resume file: None
