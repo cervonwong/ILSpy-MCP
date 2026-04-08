@@ -112,6 +112,7 @@ static void RegisterServices(IServiceCollection services)
     services.AddScoped<ICrossReferenceService, ILSpyCrossReferenceService>();
     services.AddScoped<IAssemblyInspectionService, ILSpyAssemblyInspectionService>();
     services.AddScoped<ISearchService, ILSpySearchService>();
+    services.AddScoped<ICrossAssemblyService, ILSpyCrossAssemblyService>();
 
     // Application use cases
     services.AddScoped<DecompileTypeUseCase>();
@@ -137,6 +138,8 @@ static void RegisterServices(IServiceCollection services)
     services.AddScoped<FindCompilerGeneratedTypesUseCase>();
     services.AddScoped<SearchStringsUseCase>();
     services.AddScoped<SearchConstantsUseCase>();
+    services.AddScoped<ResolveTypeUseCase>();
+    services.AddScoped<LoadAssemblyDirectoryUseCase>();
 
     // MCP tool handlers
     services.AddScoped<DecompileTypeTool>();
@@ -163,4 +166,6 @@ static void RegisterServices(IServiceCollection services)
     services.AddScoped<FindCompilerGeneratedTypesTool>();
     services.AddScoped<SearchStringsTool>();
     services.AddScoped<SearchConstantsTool>();
+    services.AddScoped<ResolveTypeTool>();
+    services.AddScoped<LoadAssemblyDirectoryTool>();
 }
