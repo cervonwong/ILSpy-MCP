@@ -21,6 +21,7 @@ key_files:
 decisions:
   - Constructors listed before Methods in output to match typical C# class layout
   - Static class constructors (.cctor) display as "private static .cctor()" which is correct IL-level representation
+requirements-completed: [SDK-05, TEST-04]
 metrics:
   duration: 3m
   completed: "2026-04-07T08:05:00Z"

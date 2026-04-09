@@ -28,6 +28,7 @@ decisions:
   - Invalid assembly path triggers INTERNAL_ERROR (not ASSEMBLY_LOAD_FAILED) due to FileNotFoundException from AssemblyPath.Create validation
   - Generic types appear without backtick notation in ListAssemblyTypes output (decompiler strips arity suffix)
   - FindTypeHierarchy only shows direct base type, not full inheritance chain
+requirements-completed: [TEST-01]
 metrics:
   duration: 4m
   completed: "2026-04-07T05:43:00Z"

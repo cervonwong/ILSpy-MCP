@@ -29,6 +29,7 @@ decisions:
   - Duplicated IL scanning helpers from ILSpyCrossReferenceService to avoid coupling between services
   - Regex validation happens before Task.Run IL scan to fail fast on invalid patterns
   - Integer-only constant search (ldc.i4/ldc.i8) — no float/double per requirement
+requirements-completed: [SRCH-01, SRCH-02]
 metrics:
   duration: 6m
   completed: "2026-04-08T09:29:54Z"

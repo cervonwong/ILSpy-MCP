@@ -31,6 +31,7 @@ decisions:
   - TimeoutToken always creates linked CTS (even with CancellationToken.None) for correctness over micro-optimization
   - ConcurrencyLimiter registered as singleton to share semaphore across scoped use cases
   - Concurrency limiter wraps the entire decompiler call including timeout token creation
+requirements-completed: [SDK-03, SDK-04]
 metrics:
   duration: 5m
   completed: "2026-04-07T07:59:58Z"

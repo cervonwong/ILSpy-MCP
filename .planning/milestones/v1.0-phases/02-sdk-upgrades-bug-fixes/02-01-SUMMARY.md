@@ -18,6 +18,7 @@ key_files:
 decisions:
   - "Zero removed API usage confirmed before upgrade (ITypeReference, ToTypeReference, UnresolvedUsingScope, ResolvedUsingScope)"
   - "Big bang upgrade strategy validated - all 31 tests green on first run"
+requirements-completed: [SDK-01, SDK-02]
 metrics:
   duration: 1m
   completed: 2026-04-07T07:53:13Z

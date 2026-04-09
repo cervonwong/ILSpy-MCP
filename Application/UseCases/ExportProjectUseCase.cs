@@ -5,7 +5,6 @@ using ICSharpCode.Decompiler.Metadata;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
-using ILSpy.Mcp.Transport.Mcp.Errors;
 using Microsoft.Extensions.Logging;
 
 namespace ILSpy.Mcp.Application.UseCases;
@@ -57,8 +56,7 @@ public sealed class ExportProjectUseCase
 
             if (Directory.EnumerateFileSystemEntries(outputDirectory).Any())
             {
-                throw new McpToolException("DIRECTORY_NOT_EMPTY",
-                    $"Output directory is not empty: {outputDirectory}. Specify an empty or non-existent directory.");
+                throw new OutputDirectoryNotEmptyException(outputDirectory);
             }
 
             _logger.LogInformation("Exporting project from {Assembly} to {OutputDirectory}",
@@ -137,10 +135,6 @@ public sealed class ExportProjectUseCase
 
                 return FormatOutput(result);
             }, cancellationToken);
-        }
-        catch (McpToolException)
-        {
-            throw;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
