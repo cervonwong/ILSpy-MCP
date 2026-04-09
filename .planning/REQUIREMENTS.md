@@ -52,7 +52,7 @@ Self-describing match records so the agent doesn't need follow-up calls to under
 
 - [x] **CLEAN-01**: `analyze_references` dispatcher tool removed; four `find_*` tools become the sole cross-reference entry points (tool count: 28 → 27)
 - [x] **CLEAN-02**: `decompile_namespace` renamed to `list_namespace_types` — surface matches actual behavior (enumerates types with signatures; it is not a decompile operation)
-- [ ] **CLEAN-03**: README.md and any cross-references updated to match the new surface (27 tools, renamed namespace tool, no dispatcher)
+- [x] **CLEAN-03**: README.md and any cross-references updated to match the new surface (27 tools, renamed namespace tool, no dispatcher)
 
 ### v1.0 Tech Debt
 
@@ -102,7 +102,7 @@ Which phases cover which requirements.
 | PAGE-01 | Phase 9 | Complete |
 | CLEAN-01 | Phase 9 | Complete |
 | CLEAN-02 | Phase 9 | Complete |
-| CLEAN-03 | Phase 9 | Pending |
+| CLEAN-03 | Phase 9 | Complete |
 | PAGE-02 | Phase 10 | Pending |
 | OUTPUT-01 | Phase 10 | Pending |
 | OUTPUT-02 | Phase 10 | Pending |
