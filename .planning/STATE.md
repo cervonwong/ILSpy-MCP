@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 08-03-PLAN.md (Phase 08 complete)
-last_updated: "2026-04-09T11:49:41.494Z"
+stopped_at: Completed quick task 260411 (add --host/--port CLI flags)
+last_updated: "2026-04-09T11:54:22.417Z"
 last_activity: 2026-04-09 - Plan 08-03 closed DEBT-04 with runtime verification evidence (173/173 tests green) appended to all three Phase 7 SUMMARY files. Phase 08 complete.
 progress:
   total_phases: 6
@@ -89,6 +89,7 @@ All v1.0 decisions archived in PROJECT.md Key Decisions table.
 - [Phase 08]: Plan 08-03: Full suite no-filter run chosen as the DEBT-04 evidence artifact — a filtered run would miss regressions outside Phase 7 test classes caused by Plan 01 DEBT-01/02 edits
 - [Phase 08]: Plan 08-03: 07-03-SUMMARY.md received a symmetric 'Applicable tests: None' Runtime Verification block rather than being skipped — uniform evidence layer across all three Phase 7 plans
 - [Phase 08]: Plan 08-03: Phase-gate validation complete — 173 passed / 0 failed / 0 skipped on full dotnet test ILSpy.Mcp.sln. Phase 08 tech-debt cleanup closed (DEBT-01..04 all resolved)
+- [Quick 260411]: --host/--port CLI flags implemented via switch-mapped AddCommandLine provider registered after WebApplication.CreateBuilder — framework-native precedence chain (CLI > env > appsettings.json > default) instead of hand-rolled parsing. Stdio mode rejects the flags fail-fast with exit code 2. HttpBindingResolver public static helper extracted as unit-test seam (10 new tests, 183/183 total). Adding `return 2;` forced explicit `return 0;` in both transport branches.
 
 ### Quick Tasks Completed
 
@@ -100,9 +101,10 @@ All v1.0 decisions archived in PROJECT.md Key Decisions table.
 | 260408-flk | Add native DLL guard (check PE CLR header) | 2026-04-08 | 0309d3a |
 | 260409 | Add tests for security and robustness fixes | 2026-04-09 | 5941b12 |
 | 260410 | Audit MCP tools for AI-effectiveness and document design principles | 2026-04-09 | b32eed8 |
+| 260411 | Add --host and --port CLI flags for HTTP transport | 2026-04-09 | 28acfcd |
 
 ## Session Continuity
 
-Last session: 2026-04-09T11:44:14.512Z
-Stopped at: Completed 08-03-PLAN.md (Phase 08 complete)
+Last session: 2026-04-09T11:54:22.414Z
+Stopped at: Completed quick task 260411 (add --host/--port CLI flags)
 Resume file: None
