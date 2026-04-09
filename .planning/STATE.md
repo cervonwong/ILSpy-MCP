@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Roadmap defined
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-04-09T11:37:23.468Z"
-last_activity: 2026-04-09 - v1.2.0 roadmap created, 6 phases (8-13), 27 requirements mapped
+status: executing
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-04-09T11:37:51.668Z"
+last_activity: 2026-04-09 - Plan 08-01 closed DEBT-01 (MEMBER_NOT_FOUND wire-code normalization) and DEBT-02 (Application->Transport layer violation); 173/173 tests green
 progress:
   total_phases: 6
   completed_phases: 0
@@ -24,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 8 (not yet planned)
-Plan: —
-Status: Roadmap defined
-Last activity: 2026-04-09 - v1.2.0 roadmap created, 6 phases (8-13), 27 requirements mapped
+Phase: 08-tech-debt-cleanup
+Plan: 01 complete; 03 remaining
+Status: Phase 08 in progress (2/3 plans complete)
+Last activity: 2026-04-09 - Plan 08-01 closed DEBT-01 (MEMBER_NOT_FOUND wire-code normalization) and DEBT-02 (Application->Transport layer violation); 173/173 tests green
 
 ## v1.2.0 Roadmap Summary
 
@@ -83,6 +83,8 @@ All v1.0 decisions archived in PROJECT.md Key Decisions table.
 - [Phase 08-tech-debt-cleanup]: 01-01 SUMMARY credited with requirements-completed: [] (not TEST-01) because the user-observable regression-test effect lives in 01-02
 - [Phase 08-tech-debt-cleanup]: Frontmatter backfill is additive-only — existing requirements: keys on 02-02 and 02-03 preserved alongside new requirements-completed: key (no rename, no churn)
 - [Phase 08-tech-debt-cleanup]: Wave 1 parallel-execution staging race accepted: Plan 08-02 edits landed in commit 854e045 under Plan 08-01 attribution — documented in SUMMARY rather than rewriting history
+- [Phase 08]: Plan 08-01: Preserved DIRECTORY_NOT_EMPTY wire code verbatim via new OutputDirectoryNotEmptyException domain type — ExportProjectToolTests.FailsOnNonEmptyDirectory guardrail passes unchanged, clients see byte-identical error on the wire
+- [Phase 08]: Plan 08-01: Domain/Errors/MethodNotFoundException keeps METHOD_NOT_FOUND base code; only the Transport->wire mapping in FindDependenciesTool changed to MEMBER_NOT_FOUND to match FindUsagesTool and GetMemberAttributesTool siblings
 
 ### Quick Tasks Completed
 
@@ -97,6 +99,6 @@ All v1.0 decisions archived in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-04-09T11:36:33.543Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-04-09T11:37:51.665Z
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None
