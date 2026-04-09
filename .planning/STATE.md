@@ -66,9 +66,10 @@ All v1.0 decisions archived in PROJECT.md Key Decisions table.
 | 260407-kbk | GitHub Actions release workflow for self-contained binaries | 2026-04-07 | pending |
 | 260407-kzu | Rewrite README with clear numbered install/use instructions | 2026-04-07 | adc7e52 |
 | 260408-flk | Add native DLL guard (check PE CLR header) | 2026-04-08 | 0309d3a |
+| 260409 | Add tests for security and robustness fixes | 2026-04-09 | 5941b12 |
 
 ## Session Continuity
 
-Last session: 2026-04-08
-Stopped at: Milestone v1.0 shipped
+Last session: 2026-04-09
+Stopped at: Completed quick task 260409
 Resume file: None
