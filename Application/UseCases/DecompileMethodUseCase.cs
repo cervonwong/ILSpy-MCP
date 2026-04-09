@@ -1,8 +1,10 @@
+using ILSpy.Mcp.Application.Configuration;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
 using ILSpy.Mcp.Domain.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ILSpy.Mcp.Application.UseCases;
 
@@ -12,17 +14,20 @@ public sealed class DecompileMethodUseCase
     private readonly ITimeoutService _timeout;
     private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<DecompileMethodUseCase> _logger;
+    private readonly ILSpyOptions _options;
 
     public DecompileMethodUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
         IConcurrencyLimiter limiter,
-        ILogger<DecompileMethodUseCase> logger)
+        ILogger<DecompileMethodUseCase> logger,
+        IOptions<ILSpyOptions> options)
     {
         _decompiler = decompiler;
         _timeout = timeout;
         _limiter = limiter;
         _logger = logger;
+        _options = options.Value;
     }
 
     public async Task<string> ExecuteAsync(
@@ -44,6 +49,11 @@ public sealed class DecompileMethodUseCase
             {
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var methodCode = await _decompiler.DecompileMethodAsync(assembly, type, methodName, timeout.Token);
+                if (methodCode.Length > _options.MaxDecompilationSize)
+                {
+                    methodCode = methodCode[.._options.MaxDecompilationSize]
+                        + $"\n\n[Output truncated at {_options.MaxDecompilationSize} bytes. The full output is {methodCode.Length} bytes.]";
+                }
                 return methodCode;
             }, cancellationToken);
         }

@@ -50,7 +50,7 @@ public sealed class ILSpyDisassemblyService : IDisassemblyService
 
                 var metadataFile = decompiler.TypeSystem.MainModule.MetadataFile;
 
-                var writer = new StringWriter();
+                using var writer = new StringWriter();
                 var output = new PlainTextOutput(writer);
                 var disassembler = new ReflectionDisassembler(output, cancellationToken)
                 {
@@ -154,7 +154,7 @@ public sealed class ILSpyDisassemblyService : IDisassemblyService
                 var method = methods[0];
                 var metadataFile = decompiler.TypeSystem.MainModule.MetadataFile;
 
-                var writer = new StringWriter();
+                using var writer = new StringWriter();
                 var output = new PlainTextOutput(writer);
                 var disassembler = new ReflectionDisassembler(output, cancellationToken)
                 {

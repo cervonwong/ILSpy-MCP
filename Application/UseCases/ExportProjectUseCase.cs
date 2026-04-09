@@ -40,17 +40,25 @@ public sealed class ExportProjectUseCase
         {
             var assembly = AssemblyPath.Create(assemblyPath);
 
+            // Parameter validation
+            if (string.IsNullOrWhiteSpace(outputDirectory))
+            {
+                throw new ArgumentException("Output directory path must not be null or whitespace.", nameof(outputDirectory));
+            }
+
+            // Canonicalize the path to resolve any relative segments
+            outputDirectory = Path.GetFullPath(outputDirectory);
+
             // Directory validation (D-08, D-09)
-            if (Directory.Exists(outputDirectory) &&
-                Directory.EnumerateFileSystemEntries(outputDirectory).Any())
+            // CreateDirectory is a no-op if it already exists, eliminating the
+            // TOCTOU race between existence check and creation. This is acceptable
+            // for a single-user MCP tool.
+            Directory.CreateDirectory(outputDirectory);
+
+            if (Directory.EnumerateFileSystemEntries(outputDirectory).Any())
             {
                 throw new McpToolException("DIRECTORY_NOT_EMPTY",
                     $"Output directory is not empty: {outputDirectory}. Specify an empty or non-existent directory.");
-            }
-
-            if (!Directory.Exists(outputDirectory))
-            {
-                Directory.CreateDirectory(outputDirectory);
             }
 
             _logger.LogInformation("Exporting project from {Assembly} to {OutputDirectory}",

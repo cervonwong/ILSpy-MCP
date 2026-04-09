@@ -74,9 +74,9 @@ public sealed class ILSpyAssemblyInspectionService : IAssemblyInspectionService
                             if (decoded.FixedArguments.Length > 0)
                                 targetFramework = decoded.FixedArguments[0].Value?.ToString();
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            // Skip if decode fails
+                            _logger.LogWarning(ex, "Failed to decode TargetFrameworkAttribute on assembly {Assembly}", assemblyPath.Value);
                         }
                         break;
                     }
@@ -109,9 +109,9 @@ public sealed class ILSpyAssemblyInspectionService : IAssemblyInspectionService
                             entryPoint = $"{fullTypeName}.{methodName}";
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Skip if entry point resolution fails
+                        _logger.LogWarning(ex, "Failed to resolve entry point for assembly {Assembly}", assemblyPath.Value);
                     }
                 }
 
@@ -375,9 +375,9 @@ public sealed class ILSpyAssemblyInspectionService : IAssemblyInspectionService
                                     size = stream.Length;
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            // Size unknown if stream fails
+                            _logger.LogWarning(ex, "Failed to determine size of resource '{ResourceName}' in assembly {Assembly}", name, assemblyPath.Value);
                         }
                     }
 
@@ -428,11 +428,64 @@ public sealed class ILSpyAssemblyInspectionService : IAssemblyInspectionService
                 if (stream == null)
                     throw new InvalidOperationException($"Cannot open resource stream for '{resourceName}'.");
 
-                // Read all bytes
-                using var ms = new MemoryStream();
-                stream.CopyTo(ms);
-                var allBytes = ms.ToArray();
-                var totalSize = allBytes.Length;
+                const int MaxResourceSize = 104_857_600; // 100 MB
+
+                // Determine how many bytes we actually need to read
+                int maxBytesToRead = MaxResourceSize;
+                if (limit.HasValue && offset.HasValue)
+                    maxBytesToRead = Math.Min(maxBytesToRead, offset.Value + limit.Value);
+                else if (limit.HasValue)
+                    maxBytesToRead = Math.Min(maxBytesToRead, limit.Value);
+
+                byte[] allBytes;
+                long totalSize;
+
+                if (stream.CanSeek)
+                {
+                    totalSize = stream.Length;
+                    if (totalSize > MaxResourceSize && maxBytesToRead >= MaxResourceSize)
+                        throw new InvalidOperationException(
+                            $"Resource '{resourceName}' is {totalSize} bytes, which exceeds the maximum allowed size of {MaxResourceSize} bytes (100 MB).");
+
+                    var bytesToRead = (int)Math.Min(totalSize, maxBytesToRead);
+                    using var ms = new MemoryStream(bytesToRead);
+                    var buffer = new byte[81920];
+                    int totalRead = 0;
+                    int read;
+                    while (totalRead < bytesToRead && (read = stream.Read(buffer, 0, Math.Min(buffer.Length, bytesToRead - totalRead))) > 0)
+                    {
+                        ms.Write(buffer, 0, read);
+                        totalRead += read;
+                    }
+                    allBytes = ms.ToArray();
+                }
+                else
+                {
+                    // Stream is not seekable; read in chunks up to the limit
+                    using var ms = new MemoryStream();
+                    var buffer = new byte[81920];
+                    int totalRead = 0;
+                    int read;
+                    while ((read = stream.Read(buffer, 0, Math.Min(buffer.Length, maxBytesToRead - totalRead))) > 0)
+                    {
+                        ms.Write(buffer, 0, read);
+                        totalRead += read;
+                        if (totalRead >= maxBytesToRead)
+                            break;
+                    }
+
+                    // Check if there's more data beyond what we read
+                    if (totalRead >= MaxResourceSize && maxBytesToRead >= MaxResourceSize)
+                    {
+                        // Try to read one more byte to see if the stream exceeds the limit
+                        if (stream.Read(buffer, 0, 1) > 0)
+                            throw new InvalidOperationException(
+                                $"Resource '{resourceName}' exceeds the maximum allowed size of {MaxResourceSize} bytes (100 MB).");
+                    }
+
+                    allBytes = ms.ToArray();
+                    totalSize = allBytes.Length;
+                }
 
                 // Apply offset/limit on raw bytes
                 var actualOffset = offset ?? 0;
@@ -530,9 +583,9 @@ public sealed class ILSpyAssemblyInspectionService : IAssemblyInspectionService
                             }
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Skip attribute check errors
+                        _logger.LogWarning(ex, "Failed to decode attributes on type {TypeName}", fullName);
                     }
 
                     if (!hasCompilerGeneratedName && !hasCompilerGeneratedAttr)
@@ -633,7 +686,7 @@ public sealed class ILSpyAssemblyInspectionService : IAssemblyInspectionService
         return "Unknown";
     }
 
-    private static IReadOnlyList<AttributeInfo> DecodeAttributes(
+    private IReadOnlyList<AttributeInfo> DecodeAttributes(
         MetadataReader reader,
         CustomAttributeHandleCollection attrHandles)
     {
@@ -661,9 +714,9 @@ public sealed class ILSpyAssemblyInspectionService : IAssemblyInspectionService
                     namedArgs[argName] = namedArg.Value?.ToString() ?? "null";
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // If decode fails, still include the attribute with no args
+                _logger.LogWarning(ex, "Failed to decode attribute {AttributeType}", typeName);
             }
 
             results.Add(new AttributeInfo

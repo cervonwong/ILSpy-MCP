@@ -36,6 +36,11 @@ public sealed class ExtractResourceUseCase
         int? limit = null,
         CancellationToken cancellationToken = default)
     {
+        if (offset.HasValue && offset.Value < 0)
+            throw new ArgumentOutOfRangeException(nameof(offset), offset.Value, "Offset must be non-negative.");
+        if (limit.HasValue && limit.Value <= 0)
+            throw new ArgumentOutOfRangeException(nameof(limit), limit.Value, "Limit must be greater than zero.");
+
         try
         {
             var assembly = AssemblyPath.Create(assemblyPath);

@@ -3,6 +3,7 @@ using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
 using ILSpy.Mcp.Domain.Services;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 
 namespace ILSpy.Mcp.Application.UseCases;
 
@@ -66,6 +67,10 @@ public sealed class SearchStringsUseCase
             throw;
         }
         catch (ArgumentException)
+        {
+            throw;
+        }
+        catch (RegexMatchTimeoutException)
         {
             throw;
         }

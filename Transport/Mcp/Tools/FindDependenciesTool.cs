@@ -39,17 +39,17 @@ public sealed class FindDependenciesTool
         catch (TypeNotFoundException ex)
         {
             _logger.LogWarning("Type not found: {TypeName} in {Assembly}", ex.TypeName, ex.AssemblyPath);
-            throw new McpToolException("TYPE_NOT_FOUND", ex.Message);
+            throw new McpToolException("TYPE_NOT_FOUND", ErrorSanitizer.SanitizePath(ex.Message));
         }
         catch (MethodNotFoundException ex)
         {
             _logger.LogWarning("Method not found: {MethodName} in {TypeName}", ex.MethodName, ex.TypeName);
-            throw new McpToolException("METHOD_NOT_FOUND", ex.Message);
+            throw new McpToolException("METHOD_NOT_FOUND", ErrorSanitizer.SanitizePath(ex.Message));
         }
         catch (AssemblyLoadException ex)
         {
             _logger.LogError(ex, "Failed to load assembly: {Assembly}", ex.AssemblyPath);
-            throw new McpToolException("ASSEMBLY_LOAD_FAILED", ex.Message);
+            throw new McpToolException("ASSEMBLY_LOAD_FAILED", ErrorSanitizer.SanitizePath(ex.Message));
         }
         catch (TimeoutException ex)
         {

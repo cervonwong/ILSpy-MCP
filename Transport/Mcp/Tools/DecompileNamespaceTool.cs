@@ -39,12 +39,12 @@ public sealed class DecompileNamespaceTool
         catch (NamespaceNotFoundException ex)
         {
             _logger.LogWarning("Namespace not found: {Namespace} in {Assembly}", ex.NamespaceName, ex.AssemblyPath);
-            throw new McpToolException("NAMESPACE_NOT_FOUND", ex.Message);
+            throw new McpToolException("NAMESPACE_NOT_FOUND", ErrorSanitizer.SanitizePath(ex.Message));
         }
         catch (AssemblyLoadException ex)
         {
             _logger.LogError(ex, "Failed to load assembly: {Assembly}", ex.AssemblyPath);
-            throw new McpToolException("ASSEMBLY_LOAD_FAILED", ex.Message);
+            throw new McpToolException("ASSEMBLY_LOAD_FAILED", ErrorSanitizer.SanitizePath(ex.Message));
         }
         catch (TimeoutException ex)
         {

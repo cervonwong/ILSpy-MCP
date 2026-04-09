@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ModelContextProtocol.Server;
 
 // Determine transport mode from args, env, or config (highest priority first)
@@ -102,6 +103,10 @@ else
 // Shared service registration to avoid duplication
 static void RegisterServices(IServiceCollection services)
 {
+    // Options validation
+    services.AddSingleton<IValidateOptions<ILSpyOptions>, ILSpyOptionsValidator>();
+    services.AddOptions<ILSpyOptions>().ValidateOnStart();
+
     // Application services
     services.AddSingleton<ITimeoutService, TimeoutService>();
     services.AddSingleton<IConcurrencyLimiter, ConcurrencyLimiter>();

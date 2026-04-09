@@ -1,9 +1,11 @@
 using System.Text;
+using ILSpy.Mcp.Application.Configuration;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
 using ILSpy.Mcp.Domain.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ILSpy.Mcp.Application.UseCases;
 
@@ -16,6 +18,7 @@ public sealed class DecompileNamespaceUseCase
     private readonly ITimeoutService _timeout;
     private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<DecompileNamespaceUseCase> _logger;
+    private readonly ILSpyOptions _options;
 
     private static readonly Dictionary<TypeKind, int> KindOrder = new()
     {
@@ -31,12 +34,14 @@ public sealed class DecompileNamespaceUseCase
         IDecompilerService decompiler,
         ITimeoutService timeout,
         IConcurrencyLimiter limiter,
-        ILogger<DecompileNamespaceUseCase> logger)
+        ILogger<DecompileNamespaceUseCase> logger,
+        IOptions<ILSpyOptions> options)
     {
         _decompiler = decompiler;
         _timeout = timeout;
         _limiter = limiter;
         _logger = logger;
+        _options = options.Value;
     }
 
     public async Task<string> ExecuteAsync(
@@ -109,7 +114,13 @@ public sealed class DecompileNamespaceUseCase
                     TotalTypeCount = exactMatches.Count,
                 };
 
-                return FormatOutput(summary);
+                var result = FormatOutput(summary);
+                if (result.Length > _options.MaxDecompilationSize)
+                {
+                    result = result[.._options.MaxDecompilationSize]
+                        + $"\n\n[Output truncated at {_options.MaxDecompilationSize} bytes. The full output is {result.Length} bytes.]";
+                }
+                return result;
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

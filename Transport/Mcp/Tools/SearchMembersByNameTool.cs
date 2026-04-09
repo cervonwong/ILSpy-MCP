@@ -36,7 +36,7 @@ public sealed class SearchMembersByNameTool
         catch (AssemblyLoadException ex)
         {
             _logger.LogError(ex, "Failed to load assembly: {Assembly}", ex.AssemblyPath);
-            throw new McpToolException("ASSEMBLY_LOAD_FAILED", ex.Message);
+            throw new McpToolException("ASSEMBLY_LOAD_FAILED", ErrorSanitizer.SanitizePath(ex.Message));
         }
         catch (TimeoutException ex)
         {

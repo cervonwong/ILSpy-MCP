@@ -37,12 +37,12 @@ public sealed class LoadAssemblyDirectoryTool
         catch (DirectoryNotFoundException ex)
         {
             _logger.LogWarning("Directory not found: {Directory}", directoryPath);
-            throw new McpToolException("DIRECTORY_NOT_FOUND", ex.Message);
+            throw new McpToolException("DIRECTORY_NOT_FOUND", ErrorSanitizer.SanitizePath(ex.Message));
         }
         catch (ArgumentException ex)
         {
             _logger.LogWarning("Invalid argument: {Message}", ex.Message);
-            throw new McpToolException("INVALID_ARGUMENT", ex.Message);
+            throw new McpToolException("INVALID_ARGUMENT", ErrorSanitizer.SanitizePath(ex.Message));
         }
         catch (TimeoutException ex)
         {
