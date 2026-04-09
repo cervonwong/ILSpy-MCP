@@ -38,9 +38,10 @@ public sealed class ExportProjectTool
             return await _useCase.ExecuteAsync(
                 assemblyPath, outputDirectory, namespaceFilter, maxTypes, cancellationToken);
         }
-        catch (McpToolException)
+        catch (OutputDirectoryNotEmptyException ex)
         {
-            throw;
+            _logger.LogWarning("Output directory not empty: {Directory}", ex.OutputDirectory);
+            throw new McpToolException("DIRECTORY_NOT_EMPTY", ErrorSanitizer.SanitizePath(ex.Message));
         }
         catch (AssemblyLoadException ex)
         {

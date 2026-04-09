@@ -43,8 +43,8 @@ public sealed class FindDependenciesTool
         }
         catch (MethodNotFoundException ex)
         {
-            _logger.LogWarning("Method not found: {MethodName} in {TypeName}", ex.MethodName, ex.TypeName);
-            throw new McpToolException("METHOD_NOT_FOUND", ErrorSanitizer.SanitizePath(ex.Message));
+            _logger.LogWarning("Member not found: {MemberName} in {TypeName}", ex.MethodName, ex.TypeName);
+            throw new McpToolException("MEMBER_NOT_FOUND", ErrorSanitizer.SanitizePath(ex.Message));
         }
         catch (AssemblyLoadException ex)
         {
