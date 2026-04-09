@@ -41,7 +41,17 @@ AI assistants can perform complete .NET static analysis workflows — not just r
 
 ### Active
 
-(None — next milestone requirements TBD via `/gsd:new-milestone`)
+#### Current Milestone: v1.1.0 Tool Polish
+
+**Goal:** Make the 28 existing tools AI-effective — close the lazy-agent gaps identified in the 260410 audit so agents succeed on first call without round-tripping.
+
+**Target buckets:**
+- **Pagination (P0)** — Uniform `(maxResults, offset)` + `truncated`/`total` contract across 19 unbounded tools, opt-out via defaults
+- **Scenario descriptions** — Rewrite mechanical "Lists all X..." descriptions to "Use this when..." agent-intent language
+- **IL output richness** — Inline-resolve metadata token references in `disassemble_type`/`disassemble_method` (biggest round-trip waste)
+- **Find-tool output richness** — Enrich match records with declaring type, method signature, IL offset, surrounding context
+- **Structural cleanup** — Drop `analyze_references` dispatcher; rename `decompile_namespace` → `list_namespace_types`
+- **v1.0 tech debt** — Error code consistency, Transport layer import violation, SUMMARY frontmatter gaps, Phase 7 runtime verification
 
 ### Out of Scope
 
@@ -105,4 +115,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-08 after v1.0 milestone*
+*Last updated: 2026-04-09 after v1.1.0 milestone start*

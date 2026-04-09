@@ -1,31 +1,33 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: Feature Parity
-status: complete
-stopped_at: Milestone v1.0 shipped
-last_updated: "2026-04-08T16:00:00.000Z"
+milestone: v1.1.0
+milestone_name: Tool Polish
+status: defining_requirements
+stopped_at: Defining requirements
+last_updated: "2026-04-09T00:00:00.000Z"
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 16
-  completed_plans: 16
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-08)
+See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** AI assistants can perform complete .NET static analysis workflows — trace execution, find usages, search strings, and navigate across types and assemblies.
-**Current focus:** Planning next milestone
+**Current focus:** v1.1.0 Tool Polish — defining requirements
 
 ## Current Position
 
-Milestone v1.0 Feature Parity — SHIPPED 2026-04-08
-Next: `/gsd:new-milestone` to define v1.1
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-09 — Milestone v1.1.0 started (driven by 260410 audit)
 
 ## Performance Metrics
 
@@ -72,5 +74,5 @@ All v1.0 decisions archived in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-04-09
-Stopped at: Completed quick task 260410 (MCP tool audit + design principles skill)
+Stopped at: Defining v1.1.0 requirements
 Resume file: None
