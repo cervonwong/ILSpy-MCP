@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Roadmap defined
-stopped_at: Phase_8_context_gathered
-last_updated: "2026-04-09T07:46:33.848Z"
+stopped_at: Completed 08-02-PLAN.md
+last_updated: "2026-04-09T11:37:23.468Z"
 last_activity: 2026-04-09 - v1.2.0 roadmap created, 6 phases (8-13), 27 requirements mapped
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 2
 ---
 
 # Project State
@@ -64,6 +64,8 @@ Coverage: 27/27 v1.2 requirements mapped.
 | Phase 07 P03 | 2m | 2 tasks | 1 files |
 
 **Totals:** 16 plans, ~71m execution, 154 files touched
+| Phase 08-tech-debt-cleanup P02 | 2 min | 1 tasks | 6 files |
+| Phase 08 P01 | 3m | 4 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -78,6 +80,9 @@ All v1.0 decisions archived in PROJECT.md Key Decisions table.
 - **Find-tool pagination + enrichment paired in one phase**: Phase 10 combines PAGE-02 with OUTPUT-01..04 because both touch the same tool files and share the same goal-backward test ("find results are paginable AND self-describing").
 - **IL token resolution paired with search enrichment and source truncation**: Phase 12 groups IL-01..03 with OUTPUT-06/07 and PAGE-07/08 because they share metadata-token resolution infrastructure (search_strings needs surrounding IL context; disassemble tools need token resolution; both are source/IL-returning tools that need truncation reporting).
 - **Description sweep as final phase**: Phase 13 runs last so descriptions are not rewritten twice as tool shapes change in earlier phases.
+- [Phase 08-tech-debt-cleanup]: 01-01 SUMMARY credited with requirements-completed: [] (not TEST-01) because the user-observable regression-test effect lives in 01-02
+- [Phase 08-tech-debt-cleanup]: Frontmatter backfill is additive-only — existing requirements: keys on 02-02 and 02-03 preserved alongside new requirements-completed: key (no rename, no churn)
+- [Phase 08-tech-debt-cleanup]: Wave 1 parallel-execution staging race accepted: Plan 08-02 edits landed in commit 854e045 under Plan 08-01 attribution — documented in SUMMARY rather than rewriting history
 
 ### Quick Tasks Completed
 
@@ -92,6 +97,6 @@ All v1.0 decisions archived in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-04-09T07:46:33.840Z
-Stopped at: Phase_8_context_gathered
-Resume file: .planning/phases/08-tech-debt-cleanup/08-CONTEXT.md
+Last session: 2026-04-09T11:36:33.543Z
+Stopped at: Completed 08-02-PLAN.md
+Resume file: None
