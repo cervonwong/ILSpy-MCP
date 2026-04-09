@@ -64,6 +64,12 @@ int offset = 0,              // for cursor-style continuation
 // ...and the response must include `truncated: bool` and `total: int`.
 ```
 
+> **Canonical format:** The exact response envelope (header, body, trailing
+> `[pagination:...]` footer), the hard ceiling (500), and the rejection
+> behavior are specified in **[`docs/PAGINATION.md`](../../../docs/PAGINATION.md)**.
+> Every paginable tool in this project obeys that contract — do not invent a
+> new shape.
+
 A tool whose output is structurally bounded (e.g., the inheritance chain of a single type, the fixed-shape metadata record of a single assembly) is exempt — and you must justify the exemption in code review.
 
 ### 5. Rich but not flooding
