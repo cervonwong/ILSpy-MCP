@@ -58,7 +58,11 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
   2. An agent listing MCP tools sees exactly 27 tools; `analyze_references` is not in the list - verifiable by `tools/list` MCP request or tool registration inspection
   3. An agent listing MCP tools sees `list_namespace_types` and does not see `decompile_namespace` - verifiable by `tools/list` inspection
   4. `README.md` reflects the final 27-tool surface with no stale references to `analyze_references` or `decompile_namespace` - verifiable by grep
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 09-01-PLAN.md — PAGE-01: Create docs/PAGINATION.md canonical contract spec + cross-reference from mcp-tool-design SKILL Principle 4 (Wave 1, parallel with 09-02)
+- [ ] 09-02-PLAN.md — CLEAN-01: Hard-delete AnalyzeReferencesTool + tests + DI registrations in Program.cs and ToolTestFixture.cs (Wave 1, parallel with 09-01)
+- [ ] 09-03-PLAN.md — CLEAN-02 + PAGE-06 scope expansion: Rename decompile_namespace → list_namespace_types, implement pagination contract (first reference impl), create PaginationTestTargets fixture, add 7 new Pagination_* tests (Wave 2, depends on 09-02)
+- [ ] 09-04-PLAN.md — CLEAN-03: Update README.md to 27-tool surface with list_namespace_types section + Pagination intro; roadmap ripple moving PAGE-06 from Phase 11 to Phase 9 in REQUIREMENTS.md and ROADMAP.md (Wave 3, depends on 09-01+09-02+09-03)
 
 ### Phase 10: Find-Tool Pagination & Match Enrichment
 **Milestone**: v1.2.0
