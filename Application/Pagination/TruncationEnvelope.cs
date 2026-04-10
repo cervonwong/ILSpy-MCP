@@ -63,20 +63,25 @@ public static class TruncationEnvelope
     }
 
     /// <summary>
-    /// Helper to truncate source text at a byte cap and compute line counts.
+    /// Helper to truncate source text at a character cap and compute line counts.
+    /// Snaps the cut point back to the last newline boundary to avoid mid-line cuts.
     /// Returns (truncatedText, totalLines, returnedLines, wasTruncated).
     /// </summary>
     public static (string text, int totalLines, int returnedLines, bool truncated) TruncateSource(
-        string fullText, int maxBytes)
+        string fullText, int maxChars)
     {
-        if (fullText.Length <= maxBytes)
+        if (fullText.Length <= maxChars)
         {
             int lines = CountLines(fullText);
             return (fullText, lines, lines, false);
         }
 
         var totalLines = CountLines(fullText);
-        var truncated = fullText[..maxBytes];
+        // Snap back to last newline boundary to avoid cutting mid-line or mid-CRLF
+        int cutAt = maxChars;
+        while (cutAt > 0 && fullText[cutAt - 1] != '\n') cutAt--;
+        if (cutAt == 0) cutAt = maxChars; // no newline found, cut at char limit
+        var truncated = fullText[..cutAt];
         var returnedLines = CountLines(truncated);
         return (truncated, totalLines, returnedLines, true);
     }
