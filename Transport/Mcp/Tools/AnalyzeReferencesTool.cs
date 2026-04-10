@@ -49,8 +49,13 @@ public sealed class AnalyzeReferencesTool
                 "usages" => memberName is null
                     ? throw new McpToolException("INVALID_PARAMETER", "member_name is required for usages analysis")
                     : await _usagesUseCase.ExecuteAsync(assemblyPath, typeName, memberName, cancellationToken: cancellationToken),
+<<<<<<< HEAD
                 "implementors" => await _implementorsUseCase.ExecuteAsync(assemblyPath, typeName, cancellationToken),
                 "dependencies" => await _dependenciesUseCase.ExecuteAsync(assemblyPath, typeName, memberName, cancellationToken: cancellationToken),
+=======
+                "implementors" => await _implementorsUseCase.ExecuteAsync(assemblyPath, typeName, cancellationToken: cancellationToken),
+                "dependencies" => await _dependenciesUseCase.ExecuteAsync(assemblyPath, typeName, memberName, cancellationToken),
+>>>>>>> worktree-agent-a92b9e1a
                 "instantiations" => await _instantiationsUseCase.ExecuteAsync(assemblyPath, typeName, cancellationToken),
                 _ => throw new McpToolException("INVALID_ANALYSIS_TYPE",
                     $"Unknown analysis type: {analysisType}. Valid types: usages, implementors, dependencies, instantiations")
