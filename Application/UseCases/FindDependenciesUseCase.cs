@@ -1,3 +1,5 @@
+using System.Text;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -32,6 +34,8 @@ public sealed class FindDependenciesUseCase
         string assemblyPath,
         string typeName,
         string? methodName = null,
+        int maxResults = 100,
+        int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try
@@ -47,7 +51,13 @@ public sealed class FindDependenciesUseCase
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var results = await _crossRef.FindDependenciesAsync(assembly, type, methodName, timeout.Token);
 
-                return FormatResults(target, results);
+                var sorted = results
+                    .OrderBy(r => (int)r.Kind)  // enum order: MethodCall=0, FieldAccess=1, TypeReference=2, VirtualCall=3
+                    .ThenBy(r => r.TargetMember, StringComparer.Ordinal)
+                    .ToList();
+                var total = sorted.Count;
+                var page = sorted.Skip(offset).Take(maxResults).ToList();
+                return FormatResults(target, page, total, offset);
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -71,27 +81,39 @@ public sealed class FindDependenciesUseCase
         }
     }
 
-    private static string FormatResults(string target, IReadOnlyList<DependencyResult> results)
+    private static string FormatResults(string target, IReadOnlyList<DependencyResult> page, int total, int offset)
     {
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Dependencies of {target}: {results.Count} found");
-        sb.AppendLine();
+        var sb = new StringBuilder();
 
-        if (results.Count == 0)
+        // Header — three branches
+        if (total == 0)
         {
-            sb.AppendLine("No outward dependencies found.");
-            return sb.ToString();
+            sb.AppendLine($"Dependencies of {target}: 0 found");
+        }
+        else if (page.Count == 0)
+        {
+            sb.AppendLine($"Dependencies of {target}: {total} found (offset {offset} is beyond last page)");
+        }
+        else
+        {
+            sb.AppendLine($"Dependencies of {target}: {total} found (showing {offset + 1}-{offset + page.Count})");
         }
 
-        var grouped = results.GroupBy(r => r.Kind).OrderBy(g => g.Key);
-        foreach (var group in grouped)
+        // Body — flat sorted list, NO section headers. One line per match.
+        foreach (var dep in page)
         {
-            sb.AppendLine($"{group.Key}:");
-            foreach (var dep in group)
+            if (dep.ResolutionNote != null)
             {
-                sb.AppendLine($"  {dep.TargetMember}");
+                sb.AppendLine($"  [{dep.Kind}] {dep.TargetMember} [{dep.DefiningAssembly}] ({dep.ResolutionNote})");
+            }
+            else
+            {
+                sb.AppendLine($"  [{dep.Kind}] {dep.TargetMember} [{dep.DefiningAssembly}]");
             }
         }
+
+        // Footer — the parseable contract. ALWAYS present.
+        PaginationEnvelope.AppendFooter(sb, total, page.Count, offset);
 
         return sb.ToString();
     }
