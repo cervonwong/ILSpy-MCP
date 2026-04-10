@@ -1,3 +1,5 @@
+using System.Text;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -31,6 +33,8 @@ public sealed class FindInstantiationsUseCase
     public async Task<string> ExecuteAsync(
         string assemblyPath,
         string typeName,
+        int maxResults = 100,
+        int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try
@@ -45,7 +49,13 @@ public sealed class FindInstantiationsUseCase
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var results = await _crossRef.FindInstantiationsAsync(assembly, type, timeout.Token);
 
-                return FormatResults(typeName, results);
+                var sorted = results
+                    .OrderBy(r => r.DeclaringType, StringComparer.Ordinal)
+                    .ThenBy(r => r.ILOffset)
+                    .ToList();
+                var total = sorted.Count;
+                var page = sorted.Skip(offset).Take(maxResults).ToList();
+                return FormatResults(typeName, page, total, offset);
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -69,22 +79,42 @@ public sealed class FindInstantiationsUseCase
         }
     }
 
-    private static string FormatResults(string typeName, IReadOnlyList<InstantiationResult> results)
+    private static string FormatResults(string typeName, IReadOnlyList<InstantiationResult> page, int total, int offset)
     {
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Instantiations of {typeName}: {results.Count} found");
+        var sb = new StringBuilder();
+        var returned = page.Count;
+
+        // Header — three branches
+        if (total == 0)
+        {
+            sb.AppendLine($"Instantiations of {typeName}: 0 found");
+        }
+        else if (returned == 0)
+        {
+            sb.AppendLine($"Instantiations of {typeName}: {total} found (offset {offset} is beyond last page)");
+        }
+        else
+        {
+            sb.AppendLine($"Instantiations of {typeName}: {total} found (showing {offset + 1}-{offset + returned})");
+        }
         sb.AppendLine();
 
-        if (results.Count == 0)
+        // Body — one line per match
+        if (total == 0)
         {
             sb.AppendLine("No instantiation sites found in the assembly.");
-            return sb.ToString();
+        }
+        else
+        {
+            foreach (var result in page)
+            {
+                var sig = result.MethodSignature is not null ? " " + result.MethodSignature : "";
+                sb.AppendLine($"  {result.DeclaringType}.{result.MethodName} (IL_{result.ILOffset:X4}){sig}");
+            }
         }
 
-        foreach (var result in results)
-        {
-            sb.AppendLine($"  {result.DeclaringType}.{result.MethodName} (IL_{result.ILOffset:X4})");
-        }
+        // Footer — the parseable contract. ALWAYS present.
+        PaginationEnvelope.AppendFooter(sb, total, returned, offset);
 
         return sb.ToString();
     }

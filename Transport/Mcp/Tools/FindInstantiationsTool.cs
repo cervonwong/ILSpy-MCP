@@ -29,11 +29,29 @@ public sealed class FindInstantiationsTool
     public async Task<string> ExecuteAsync(
         [Description("Path to the .NET assembly file")] string assemblyPath,
         [Description("Full name of the type to find instantiations of (e.g., 'MyNamespace.MyClass')")] string typeName,
+        [Description("Maximum number of results to return (default: 100)")] int maxResults = 100,
+        [Description("Number of results to skip for pagination (default: 0)")] int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _useCase.ExecuteAsync(assemblyPath, typeName, cancellationToken);
+            // Phase 9 pagination contract: hard ceiling + positive minimum.
+            if (maxResults > 500)
+            {
+                throw new McpToolException("INVALID_PARAMETER",
+                    "maxResults cannot exceed 500. Use offset to paginate.");
+            }
+            if (maxResults <= 0)
+            {
+                throw new McpToolException("INVALID_PARAMETER",
+                    "maxResults must be >= 1.");
+            }
+
+            return await _useCase.ExecuteAsync(assemblyPath, typeName, maxResults, offset, cancellationToken);
+        }
+        catch (McpToolException)
+        {
+            throw;  // Rethrow our own INVALID_PARAMETER without mapping it again
         }
         catch (TypeNotFoundException ex)
         {
