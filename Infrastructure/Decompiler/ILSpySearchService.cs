@@ -317,7 +317,7 @@ public sealed class ILSpySearchService : ISearchService
 
         foreach (var result in results)
         {
-            var cacheKey = $"{result.DeclaringType}.{result.MethodName}";
+            var cacheKey = result.MethodSignature ?? $"{result.DeclaringType}.{result.MethodName}";
             if (!ilLinesCache.TryGetValue(cacheKey, out var ilLines))
             {
                 ilLines = CaptureMethodILLines(metadataFile, result, cancellationToken);
