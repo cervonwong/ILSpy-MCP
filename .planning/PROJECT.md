@@ -38,6 +38,9 @@ AI assistants can perform complete .NET static analysis workflows — not just r
 - ✓ Bulk decompilation: decompile_namespace, export_project — v1.0 (Phase 7)
 - ✓ Critical-path test coverage (148+ integration tests) — v1.0 (Phases 1-7)
 - ✓ README.md with all 28 tools documented — v1.0 (Phase 7)
+- ✓ IL token resolution with resolveDeep parameter — v1.2 (Phase 12)
+- ✓ Search enrichment with method FQN and surrounding IL context — v1.2 (Phase 12)
+- ✓ Standardized truncation reporting across all source-returning tools — v1.2 (Phase 12)
 
 ### Active
 
@@ -115,4 +118,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-09 after v1.2.0 milestone start*
+*Last updated: 2026-04-10 after Phase 12 completion*
