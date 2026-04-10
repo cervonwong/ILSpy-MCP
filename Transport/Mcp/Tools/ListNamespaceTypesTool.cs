@@ -11,25 +11,25 @@ namespace ILSpy.Mcp.Transport.Mcp.Tools;
 /// MCP tool handler for listing all types in a namespace with summary information.
 /// </summary>
 [McpServerToolType]
-public sealed class DecompileNamespaceTool
+public sealed class ListNamespaceTypesTool
 {
-    private readonly DecompileNamespaceUseCase _useCase;
-    private readonly ILogger<DecompileNamespaceTool> _logger;
+    private readonly ListNamespaceTypesUseCase _useCase;
+    private readonly ILogger<ListNamespaceTypesTool> _logger;
 
-    public DecompileNamespaceTool(
-        DecompileNamespaceUseCase useCase,
-        ILogger<DecompileNamespaceTool> logger)
+    public ListNamespaceTypesTool(
+        ListNamespaceTypesUseCase useCase,
+        ILogger<ListNamespaceTypesTool> logger)
     {
         _useCase = useCase;
         _logger = logger;
     }
 
-    [McpServerTool(Name = "decompile_namespace")]
-    [Description("Lists all types in a namespace with full signatures, member counts, and public method signatures. Use this when you know which namespace to investigate and want a detailed inventory before drilling into individual types. For a lighter assembly-wide listing by namespace (names only, no signatures), use list_assembly_types instead. Returns paginated type summaries.")]
+    [McpServerTool(Name = "list_namespace_types")]
+    [Description("Lists all types in a namespace with full signatures, member counts, and public method signatures. Returns a summary -- use decompile_type to get full source for individual types.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
-        [Description("Full namespace (e.g., 'System.Collections.Generic')")] string namespaceName,
-        [Description("Maximum types to return (default 200)")] int maxTypes = 200,
+        [Description("Path to the .NET assembly file")] string assemblyPath,
+        [Description("Full namespace name (e.g., 'System.Collections.Generic')")] string namespaceName,
+        [Description("Maximum number of types to return (default 200)")] int maxTypes = 200,
         CancellationToken cancellationToken = default)
     {
         try
@@ -48,17 +48,17 @@ public sealed class DecompileNamespaceTool
         }
         catch (TimeoutException ex)
         {
-            _logger.LogWarning("Timeout in decompile_namespace tool: {Message}", ex.Message);
+            _logger.LogWarning("Timeout in list_namespace_types tool: {Message}", ex.Message);
             throw new McpToolException("TIMEOUT", "The operation timed out. The assembly may be too large or the operation took too long.");
         }
         catch (OperationCanceledException)
         {
-            _logger.LogInformation("Operation cancelled in decompile_namespace tool");
+            _logger.LogInformation("Operation cancelled in list_namespace_types tool");
             throw new McpToolException("CANCELLED", "The operation was cancelled.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error in decompile_namespace tool");
+            _logger.LogError(ex, "Unexpected error in list_namespace_types tool");
             throw new McpToolException("INTERNAL_ERROR", "An unexpected error occurred while listing namespace types.");
         }
     }

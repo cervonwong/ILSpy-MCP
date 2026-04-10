@@ -12,12 +12,12 @@ namespace ILSpy.Mcp.Application.UseCases;
 /// <summary>
 /// Use case for decompiling all types in a namespace into a summary listing.
 /// </summary>
-public sealed class DecompileNamespaceUseCase
+public sealed class ListNamespaceTypesUseCase
 {
     private readonly IDecompilerService _decompiler;
     private readonly ITimeoutService _timeout;
     private readonly IConcurrencyLimiter _limiter;
-    private readonly ILogger<DecompileNamespaceUseCase> _logger;
+    private readonly ILogger<ListNamespaceTypesUseCase> _logger;
     private readonly ILSpyOptions _options;
 
     private static readonly Dictionary<TypeKind, int> KindOrder = new()
@@ -30,11 +30,11 @@ public sealed class DecompileNamespaceUseCase
         [TypeKind.Unknown] = 5,
     };
 
-    public DecompileNamespaceUseCase(
+    public ListNamespaceTypesUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
         IConcurrencyLimiter limiter,
-        ILogger<DecompileNamespaceUseCase> logger,
+        ILogger<ListNamespaceTypesUseCase> logger,
         IOptions<ILSpyOptions> options)
     {
         _decompiler = decompiler;

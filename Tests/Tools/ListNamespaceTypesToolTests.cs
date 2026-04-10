@@ -8,17 +8,17 @@ using Xunit;
 namespace ILSpy.Mcp.Tests.Tools;
 
 [Collection("ToolTests")]
-public class DecompileNamespaceToolTests
+public class ListNamespaceTypesToolTests
 {
     private readonly ToolTestFixture _fixture;
 
-    public DecompileNamespaceToolTests(ToolTestFixture fixture) => _fixture = fixture;
+    public ListNamespaceTypesToolTests(ToolTestFixture fixture) => _fixture = fixture;
 
     [Fact]
     public async Task ListsTypesInNamespace()
     {
         using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DecompileNamespaceTool>();
+        var tool = scope.ServiceProvider.GetRequiredService<ListNamespaceTypesTool>();
 
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
@@ -34,7 +34,7 @@ public class DecompileNamespaceToolTests
     public async Task OrdersByKindThenAlphabetically()
     {
         using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DecompileNamespaceTool>();
+        var tool = scope.ServiceProvider.GetRequiredService<ListNamespaceTypesTool>();
 
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
@@ -58,7 +58,7 @@ public class DecompileNamespaceToolTests
     public async Task NestedTypesIndentedUnderParent()
     {
         using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DecompileNamespaceTool>();
+        var tool = scope.ServiceProvider.GetRequiredService<ListNamespaceTypesTool>();
 
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
@@ -75,7 +75,7 @@ public class DecompileNamespaceToolTests
     public async Task InvalidNamespace_ThrowsNamespaceNotFound()
     {
         using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DecompileNamespaceTool>();
+        var tool = scope.ServiceProvider.GetRequiredService<ListNamespaceTypesTool>();
 
         var act = () => tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
@@ -90,7 +90,7 @@ public class DecompileNamespaceToolTests
     public async Task MaxTypesLimitsOutput()
     {
         using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DecompileNamespaceTool>();
+        var tool = scope.ServiceProvider.GetRequiredService<ListNamespaceTypesTool>();
 
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
@@ -125,7 +125,7 @@ public class DecompileNamespaceToolTests
     public async Task InvalidAssembly_ThrowsError()
     {
         using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DecompileNamespaceTool>();
+        var tool = scope.ServiceProvider.GetRequiredService<ListNamespaceTypesTool>();
 
         var act = () => tool.ExecuteAsync(
             "nonexistent.dll",

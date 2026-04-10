@@ -22,10 +22,10 @@ public sealed class ListAssemblyTypesTool
     }
 
     [McpServerTool(Name = "list_assembly_types")]
-    [Description("Lists all public types in an assembly grouped by namespace, showing type names and kind (class/struct/interface/enum). Use this when you need a broad inventory of what an unfamiliar binary contains before narrowing scope. For a single namespace with full signatures and member counts, use decompile_namespace instead. Returns paginated type listing.")]
+    [Description("Use this when you added a NuGet package but don't know what classes/types it provides. Lists all available types by namespace to help you discover what's available. Essential first step before using decompile_type to examine specific classes. For detailed namespace exploration, use list_namespace_types instead.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
-        [Description("Filter types to this namespace prefix (case-insensitive)")] string? namespaceFilter = null,
+        [Description("Path to the .NET assembly file")] string assemblyPath,
+        [Description("Optional: Filter types by namespace (case-insensitive)")] string? namespaceFilter = null,
         CancellationToken cancellationToken = default)
     {
         try
