@@ -1,6 +1,6 @@
 using System.Text;
-using System.Text.Json;
 using ILSpy.Mcp.Application.Configuration;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -227,20 +227,7 @@ public sealed class ListNamespaceTypesUseCase
         }
 
         // Footer — the parseable contract. ALWAYS present.
-        var truncated = offset + returned < totalTopLevelTypes;
-        int? nextOffset = truncated ? offset + returned : (int?)null;
-        var footerPayload = JsonSerializer.Serialize(new
-        {
-            total = totalTopLevelTypes,
-            returned,
-            offset,
-            truncated,
-            nextOffset,
-        });
-        sb.AppendLine();
-        sb.Append("[pagination:");
-        sb.Append(footerPayload);
-        sb.Append(']');
+        PaginationEnvelope.AppendFooter(sb, totalTopLevelTypes, returned, offset);
 
         return sb.ToString();
     }
