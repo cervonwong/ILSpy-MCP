@@ -223,6 +223,8 @@ public sealed class ILSpyCrossReferenceService : ICrossReferenceService
                 var reader = metadataFile.Metadata;
                 var results = new List<DependencyResult>();
                 var seen = new HashSet<string>();
+                var assemblyDirectory = Path.GetDirectoryName(assemblyPath.Value);
+                var resolverCache = new Dictionary<string, (string terminal, string? note)>(StringComparer.Ordinal);
 
                 // Determine which methods to scan
                 IEnumerable<IMethod> methods;
@@ -256,7 +258,7 @@ public sealed class ILSpyCrossReferenceService : ICrossReferenceService
                         if (body == null) continue;
 
                         var ilReader = body.GetILReader();
-                        ScanILForDependencies(ref ilReader, reader, typeName.FullName, results, seen);
+                        ScanILForDependencies(ref ilReader, reader, typeName.FullName, assemblyDirectory, resolverCache, results, seen);
                     }
                     catch (Exception ex) when (ex is not OperationCanceledException)
                     {
@@ -428,6 +430,8 @@ public sealed class ILSpyCrossReferenceService : ICrossReferenceService
         ref BlobReader ilReader,
         MetadataReader reader,
         string sourceTypeName,
+        string? assemblyDirectory,
+        Dictionary<string, (string terminal, string? note)> resolverCache,
         List<DependencyResult> results,
         HashSet<string> seen)
     {
@@ -486,11 +490,14 @@ public sealed class ILSpyCrossReferenceService : ICrossReferenceService
                     && targetType != sourceTypeName
                     && seen.Add(targetMember))
                 {
+                    var definingAssembly = ResolveDefiningAssembly(reader, handle, assemblyDirectory, resolverCache, out var resolutionNote);
                     results.Add(new DependencyResult
                     {
                         TargetMember = targetMember,
                         TargetType = targetType,
-                        Kind = kind
+                        Kind = kind,
+                        DefiningAssembly = definingAssembly,
+                        ResolutionNote = resolutionNote
                     });
                 }
             }
@@ -620,6 +627,179 @@ public sealed class ILSpyCrossReferenceService : ICrossReferenceService
     {
         var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type.FullName} {p.Name}"));
         return $"{method.ReturnType.FullName} {method.Name}({parameters})";
+    }
+
+    /// <summary>
+    /// Walks TypeReference.ResolutionScope -> AssemblyReference for the given handle,
+    /// optionally loads the referenced assembly from the analyzed assembly's directory
+    /// via PEFile, chases type-forwards (bounded depth 5), and returns the terminal
+    /// assembly name. Fail-soft: on any failure, returns the immediate AssemblyReference
+    /// name and populates resolutionNote with a descriptive string that MUST NOT contain
+    /// any filesystem path.
+    /// </summary>
+    private static string ResolveDefiningAssembly(
+        MetadataReader reader,
+        EntityHandle memberOrTypeHandle,
+        string? assemblyDirectory,
+        Dictionary<string, (string terminal, string? note)> cache,
+        out string? resolutionNote)
+    {
+        resolutionNote = null;
+        try
+        {
+            // Extract the declaring type reference handle from the member/type handle
+            TypeReferenceHandle? typeRefHandle = null;
+            if (memberOrTypeHandle.Kind == HandleKind.MemberReference)
+            {
+                var memberRef = reader.GetMemberReference((MemberReferenceHandle)memberOrTypeHandle);
+                if (memberRef.Parent.Kind == HandleKind.TypeReference)
+                    typeRefHandle = (TypeReferenceHandle)memberRef.Parent;
+            }
+            else if (memberOrTypeHandle.Kind == HandleKind.TypeReference)
+            {
+                typeRefHandle = (TypeReferenceHandle)memberOrTypeHandle;
+            }
+            else if (memberOrTypeHandle.Kind == HandleKind.MethodDefinition
+                  || memberOrTypeHandle.Kind == HandleKind.FieldDefinition
+                  || memberOrTypeHandle.Kind == HandleKind.TypeDefinition)
+            {
+                // Defined in THIS assembly — not a cross-assembly reference
+                return reader.GetAssemblyDefinition().GetAssemblyName().Name ?? "(unknown)";
+            }
+
+            if (typeRefHandle == null)
+            {
+                resolutionNote = "unresolved: unsupported handle kind for defining-assembly resolution";
+                return "(unknown)";
+            }
+
+            var typeRef = reader.GetTypeReference(typeRefHandle.Value);
+            if (typeRef.ResolutionScope.Kind != HandleKind.AssemblyReference)
+            {
+                // Nested scope or module scope — fall back gracefully
+                resolutionNote = "unresolved: resolution scope is not an AssemblyReference";
+                return "(unknown)";
+            }
+
+            var asmRefHandle = (AssemblyReferenceHandle)typeRef.ResolutionScope;
+            var asmRef = reader.GetAssemblyReference(asmRefHandle);
+            var immediateName = reader.GetString(asmRef.Name);
+
+            // Cache hit?
+            if (cache.TryGetValue(immediateName, out var cached))
+            {
+                resolutionNote = cached.note;
+                return cached.terminal;
+            }
+
+            if (string.IsNullOrEmpty(assemblyDirectory))
+            {
+                resolutionNote = "unresolved: no analyzed-assembly directory available for sibling lookup";
+                cache[immediateName] = (immediateName, resolutionNote);
+                return immediateName;
+            }
+
+            // Try to chase the type-forward chain bounded to 5 hops
+            var typeNamespace = reader.GetString(typeRef.Namespace);
+            var typeName = reader.GetString(typeRef.Name);
+            var terminalName = ChaseTypeForward(assemblyDirectory, immediateName, typeNamespace, typeName, maxHops: 5, out var note);
+            cache[immediateName] = (terminalName, note);
+            resolutionNote = note;
+            return terminalName;
+        }
+        catch
+        {
+            resolutionNote = "unresolved: exception during defining-assembly resolution";
+            return "(unknown)";
+        }
+    }
+
+    /// <summary>
+    /// Loads the referenced assembly from the analyzed-assembly directory and chases
+    /// ExportedType forwards to the terminal assembly. Non-throwing — returns the
+    /// starting name with a populated note on any failure.
+    /// </summary>
+    private static string ChaseTypeForward(
+        string assemblyDirectory,
+        string startAssemblyName,
+        string targetNamespace,
+        string targetTypeName,
+        int maxHops,
+        out string? note)
+    {
+        note = null;
+        var currentName = startAssemblyName;
+        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        for (int hop = 0; hop < maxHops; hop++)
+        {
+            if (!visited.Add(currentName))
+            {
+                note = "unresolved: type-forward cycle detected";
+                return startAssemblyName;
+            }
+
+            // Try .dll first, then .exe
+            var candidateDll = Path.Combine(assemblyDirectory, currentName + ".dll");
+            var candidateExe = Path.Combine(assemblyDirectory, currentName + ".exe");
+            var path = File.Exists(candidateDll) ? candidateDll
+                     : File.Exists(candidateExe) ? candidateExe
+                     : null;
+
+            if (path == null)
+            {
+                note = hop == 0
+                    ? "unresolved: referenced assembly not present in analyzed assembly directory"
+                    : "unresolved: type-forward target assembly not present";
+                return startAssemblyName;
+            }
+
+            try
+            {
+                using var pe = new ICSharpCode.Decompiler.Metadata.PEFile(path);
+                var peReader = pe.Metadata;
+
+                // Scan ExportedType rows for a matching namespace+name
+                foreach (var exportedHandle in peReader.ExportedTypes)
+                {
+                    var exported = peReader.GetExportedType(exportedHandle);
+                    var ns = peReader.GetString(exported.Namespace);
+                    var name = peReader.GetString(exported.Name);
+                    if (ns == targetNamespace && name == targetTypeName)
+                    {
+                        if (exported.Implementation.Kind == HandleKind.AssemblyReference)
+                        {
+                            var nextAsmRef = peReader.GetAssemblyReference((AssemblyReferenceHandle)exported.Implementation);
+                            currentName = peReader.GetString(nextAsmRef.Name);
+                            goto nextHop;  // recurse via loop
+                        }
+                    }
+                }
+
+                // No forward found — this IS the terminal assembly
+                return currentName;
+            }
+            catch (ICSharpCode.Decompiler.Metadata.MetadataFileNotSupportedException)
+            {
+                note = "unresolved: referenced file is not a .NET metadata assembly";
+                return startAssemblyName;
+            }
+            catch (BadImageFormatException)
+            {
+                note = "unresolved: referenced assembly is corrupt or not a valid PE file";
+                return startAssemblyName;
+            }
+            catch
+            {
+                note = "unresolved: exception while loading referenced assembly for type-forward chase";
+                return startAssemblyName;
+            }
+
+            nextHop: ;
+        }
+
+        note = "unresolved: type-forward chase exceeded maximum depth";
+        return currentName;
     }
 
     private static DomainTypeKind MapTypeKind(ICSharpCode.Decompiler.TypeSystem.TypeKind kind) => kind switch
