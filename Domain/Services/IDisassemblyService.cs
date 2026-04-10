@@ -15,7 +15,6 @@ public interface IDisassemblyService
         AssemblyPath assemblyPath,
         TypeName typeName,
         bool showTokens = false,
-        bool resolveDeep = false,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -28,6 +27,5 @@ public interface IDisassemblyService
         string methodName,
         bool showBytes = false,
         bool showTokens = false,
-        bool resolveDeep = false,
         CancellationToken cancellationToken = default);
 }

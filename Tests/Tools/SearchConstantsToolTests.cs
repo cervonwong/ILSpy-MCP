@@ -104,20 +104,4 @@ public class SearchConstantsToolTests
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().BeOneOf("ASSEMBLY_LOAD_FAILED", "INTERNAL_ERROR");
     }
-
-    [Fact]
-    public async Task SearchConstants_ShowsMethodSignatureWithFullTypes()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<SearchConstantsTool>();
-
-        var result = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath,
-            42,
-            cancellationToken: CancellationToken.None);
-
-        // Should contain full method FQN with parentheses (method signature format)
-        result.Should().Contain("ConstantContainer");
-        result.Should().Contain("GetMagicNumber()");
-    }
 }

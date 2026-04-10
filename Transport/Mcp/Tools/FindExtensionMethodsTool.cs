@@ -22,12 +22,12 @@ public sealed class FindExtensionMethodsTool
     }
 
     [McpServerTool(Name = "find_extension_methods")]
-    [Description("Use this when you want to know what extension methods are available for a specific type. Extension methods add functionality to existing types and are often discovered through IntelliSense, but this tool helps you find them when exploring a library. Shows you additional methods you can call on instances of the type.")]
+    [Description("Finds all extension methods targeting a specific type within an assembly. Use this when investigating what additional operations are available on a type beyond its declared members -- common in LINQ-heavy or fluent API patterns. Returns paginated matches with method name, declaring static class, and signature.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
         [Description("Full name of the type to find extensions for (e.g., 'System.String')")] string targetTypeName,
-        [Description("Maximum number of results to return (default: 100)")] int maxResults = 100,
-        [Description("Number of results to skip for pagination (default: 0)")] int offset = 0,
+        [Description("Maximum results to return (default 100)")] int maxResults = 100,
+        [Description("Results to skip for pagination (default 0)")] int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try

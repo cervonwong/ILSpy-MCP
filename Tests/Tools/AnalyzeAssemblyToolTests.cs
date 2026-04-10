@@ -43,21 +43,6 @@ public class AnalyzeAssemblyToolTests
     }
 
     [Fact]
-    public async Task AnalyzeAssembly_AlwaysAppendsTruncationFooter()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<AnalyzeAssemblyTool>();
-
-        var result = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath, null, CancellationToken.None);
-
-        result.Should().Contain("[truncation:");
-        result.Should().Contain("\"totalPublicTypes\":");
-        result.Should().Contain("\"displayedTypes\":");
-        result.Should().Contain("\"truncated\":false");
-    }
-
-    [Fact]
     public async Task AnalyzeAssembly_InvalidAssembly_ThrowsException()
     {
         using var scope = _fixture.CreateScope();

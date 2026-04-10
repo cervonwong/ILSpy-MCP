@@ -2,7 +2,6 @@ using System.Text;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp.ProjectDecompiler;
 using ICSharpCode.Decompiler.Metadata;
-using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -67,12 +66,10 @@ public sealed class ExportProjectUseCase
             {
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var warnings = new List<string>();
-                int totalTypeCount = 0;
 
                 await Task.Run(() =>
                 {
                     using var peFile = new PEFile(assembly.Value);
-                    totalTypeCount = peFile.Metadata.TypeDefinitions.Count;
                     var resolver = new UniversalAssemblyResolver(
                         assembly.Value,
                         throwOnError: false,
@@ -136,7 +133,7 @@ public sealed class ExportProjectUseCase
                     allFiles.Length,
                     warnings);
 
-                return FormatOutput(result, totalTypeCount, maxTypes);
+                return FormatOutput(result);
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -161,7 +158,7 @@ public sealed class ExportProjectUseCase
         }
     }
 
-    private static string FormatOutput(ProjectExportResult result, int totalTypeCount, int maxTypes)
+    private static string FormatOutput(ProjectExportResult result)
     {
         var sb = new StringBuilder();
         sb.AppendLine($"Project exported to: {result.OutputDirectory}");
@@ -185,13 +182,7 @@ public sealed class ExportProjectUseCase
             }
         }
 
-        var exportedTypes = result.SourceFiles.Count;
-        var truncated = totalTypeCount > maxTypes;
-        // TrimEnd before appending footer so there's no trailing whitespace before it
-        var trimmed = sb.ToString().TrimEnd();
-        var footerSb = new StringBuilder(trimmed);
-        TruncationEnvelope.AppendExportFooter(footerSb, totalTypeCount, exportedTypes, truncated);
-        return footerSb.ToString();
+        return sb.ToString().TrimEnd();
     }
 }
 

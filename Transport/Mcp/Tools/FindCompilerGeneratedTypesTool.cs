@@ -25,11 +25,11 @@ public sealed class FindCompilerGeneratedTypesTool
     }
 
     [McpServerTool(Name = "find_compiler_generated_types")]
-    [Description("Find compiler-generated types (async state machines, display classes, closures, iterators) with their parent method and type context")]
+    [Description("Finds compiler-generated types (async state machines, display classes, closures, iterators) and maps them back to their originating user code. Use this when an assembly contains mysterious '<>c__DisplayClass' or '<Process>d__1' types and you need to understand which lambdas, async methods, or iterators produced them. Returns paginated matches with parent method and type context.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Maximum number of results to return (default: 100)")] int maxResults = 100,
-        [Description("Number of results to skip for pagination (default: 0)")] int offset = 0,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Maximum results to return (default 100)")] int maxResults = 100,
+        [Description("Results to skip for pagination (default 0)")] int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try

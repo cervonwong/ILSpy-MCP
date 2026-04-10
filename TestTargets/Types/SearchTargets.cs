@@ -9,16 +9,6 @@ public class StringContainer
     public string GetUrl() => "https://example.com/api";
     public string GetEmpty() => "";
     public void LogMessage() { var msg = "Error: connection failed"; _ = msg; }
-
-    /// <summary>
-    /// Method with string literal surrounded by method calls for IL window testing.
-    /// </summary>
-    public void MethodWithContext()
-    {
-        Console.Write("before");
-        var result = "SearchContext:Target";
-        Console.WriteLine(result);
-    }
 }
 
 /// <summary>

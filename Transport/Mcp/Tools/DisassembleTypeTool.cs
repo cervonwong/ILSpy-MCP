@@ -30,12 +30,11 @@ public sealed class DisassembleTypeTool
         [Description("Path to the .NET assembly file")] string assemblyPath,
         [Description("Full name of the type (e.g., 'System.String')")] string typeName,
         [Description("Show metadata token numbers (e.g., /* 06000001 */)")] bool showTokens = false,
-        [Description("Expand generic parameters and show full type signatures for all operand references")] bool resolveDeep = false,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _useCase.ExecuteAsync(assemblyPath, typeName, showTokens, resolveDeep, cancellationToken);
+            return await _useCase.ExecuteAsync(assemblyPath, typeName, showTokens, cancellationToken);
         }
         catch (TypeNotFoundException ex)
         {

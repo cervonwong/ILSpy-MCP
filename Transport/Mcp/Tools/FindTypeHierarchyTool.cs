@@ -22,10 +22,10 @@ public sealed class FindTypeHierarchyTool
     }
 
     [McpServerTool(Name = "find_type_hierarchy")]
-    [Description("Use this when you need to understand inheritance relationships - what base classes a type extends, what interfaces it implements, or what types inherit from it. Essential for knowing valid cast operations, available polymorphic behaviors, and understanding the type's contract.")]
+    [Description("Maps the inheritance chain of a type: base classes, implemented interfaces, and derived types within the assembly. Use this when you need to understand what contracts a type fulfills, what it inherits, or what subtypes exist for polymorphic dispatch analysis. Returns the full hierarchy tree.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full name of the type to analyze")] string typeName,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full name of the type to analyze (e.g., 'MyApp.Models.BaseEntity')")] string typeName,
         CancellationToken cancellationToken = default)
     {
         try
