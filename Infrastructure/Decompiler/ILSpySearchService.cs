@@ -1,5 +1,8 @@
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
+using ICSharpCode.Decompiler.Disassembler;
+using ICSharpCode.Decompiler.Metadata;
+using ICSharpCode.Decompiler.Output;
 using ICSharpCode.Decompiler.TypeSystem;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -86,12 +89,16 @@ public sealed class ILSpySearchService : ISearchService
                     }
                 }
 
+                // Enrich matches with surrounding IL window per method (cached per method)
+                var pagedResults = allMatches.Skip(offset).Take(maxResults).ToList();
+                var enrichedResults = EnrichWithSurroundingIL(pagedResults, metadataFile, cancellationToken);
+
                 return new SearchResults<StringSearchResult>
                 {
                     TotalCount = totalCount,
                     Offset = offset,
                     Limit = maxResults,
-                    Results = allMatches.Skip(offset).Take(maxResults).ToList()
+                    Results = enrichedResults
                 };
             }
             catch (OperationCanceledException) { throw; }
@@ -289,7 +296,125 @@ public sealed class ILSpySearchService : ISearchService
 
     private static string FormatMethodSignature(IMethod method)
     {
-        var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type.Name} {p.Name}"));
-        return $"{method.ReturnType.Name} {method.Name}({parameters})";
+        var parameters = string.Join(", ", method.Parameters.Select(p => p.Type.FullName));
+        return $"{method.DeclaringType.FullName}.{method.Name}({parameters})";
+    }
+
+    /// <summary>
+    /// Enriches string search results with surrounding IL instructions using ReflectionDisassembler.
+    /// Caches disassembly per method to avoid redundant work within the same scan.
+    /// </summary>
+    private static List<StringSearchResult> EnrichWithSurroundingIL(
+        List<StringSearchResult> results,
+        MetadataFile metadataFile,
+        CancellationToken cancellationToken)
+    {
+        if (results.Count == 0) return results;
+
+        // Group by method signature to cache disassembly per method
+        var enriched = new List<StringSearchResult>(results.Count);
+        var ilLinesCache = new Dictionary<string, List<(int offset, string line)>>();
+
+        foreach (var result in results)
+        {
+            var cacheKey = $"{result.DeclaringType}.{result.MethodName}";
+            if (!ilLinesCache.TryGetValue(cacheKey, out var ilLines))
+            {
+                ilLines = CaptureMethodILLines(metadataFile, result, cancellationToken);
+                ilLinesCache[cacheKey] = ilLines;
+            }
+
+            if (ilLines.Count > 0)
+            {
+                // Find the IL line matching our offset
+                int matchIdx = ilLines.FindIndex(l => l.offset == result.ILOffset);
+                if (matchIdx >= 0)
+                {
+                    int windowStart = Math.Max(0, matchIdx - 3);
+                    int windowEnd = Math.Min(ilLines.Count - 1, matchIdx + 3);
+                    var window = ilLines.GetRange(windowStart, windowEnd - windowStart + 1);
+                    int matchInWindow = matchIdx - windowStart;
+
+                    enriched.Add(result with
+                    {
+                        SurroundingInstructions = window.Select(l => l.line).ToList(),
+                        MatchInstructionIndex = matchInWindow
+                    });
+                    continue;
+                }
+            }
+
+            enriched.Add(result);
+        }
+
+        return enriched;
+    }
+
+    /// <summary>
+    /// Disassembles a method body and extracts IL instruction lines with their offsets.
+    /// Uses ReflectionDisassembler for proper token resolution.
+    /// </summary>
+    private static List<(int offset, string line)> CaptureMethodILLines(
+        MetadataFile metadataFile,
+        StringSearchResult result,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var reader = metadataFile.Metadata;
+            // Find the method handle by scanning type definitions
+            foreach (var typeHandle in reader.TypeDefinitions)
+            {
+                var typeDef = reader.GetTypeDefinition(typeHandle);
+                var typeFullName = GetTypeFullName(reader, typeDef);
+                if (typeFullName != result.DeclaringType) continue;
+
+                foreach (var methodHandle in typeDef.GetMethods())
+                {
+                    var methodDef = reader.GetMethodDefinition(methodHandle);
+                    var methodName = reader.GetString(methodDef.Name);
+                    if (methodName != result.MethodName) continue;
+                    if (methodDef.RelativeVirtualAddress == 0) continue;
+
+                    using var writer = new StringWriter();
+                    var output = new PlainTextOutput(writer);
+                    var disassembler = new ReflectionDisassembler(output, cancellationToken)
+                    {
+                        DetectControlStructure = false,
+                        ShowMetadataTokens = false
+                    };
+                    disassembler.DisassembleMethod(metadataFile, methodHandle);
+
+                    var lines = writer.ToString().Split('\n');
+                    var ilLinesList = new List<(int, string)>();
+                    foreach (var line in lines)
+                    {
+                        var trimmed = line.TrimStart();
+                        if (trimmed.StartsWith("IL_") && trimmed.Length >= 7)
+                        {
+                            if (int.TryParse(trimmed.Substring(3, 4),
+                                System.Globalization.NumberStyles.HexNumber, null, out int ilOffset))
+                            {
+                                ilLinesList.Add((ilOffset, trimmed.TrimEnd()));
+                            }
+                        }
+                    }
+                    return ilLinesList;
+                }
+            }
+        }
+        catch
+        {
+            // If disassembly fails for any reason, return empty — the match still shows without IL window
+        }
+
+        return new List<(int, string)>();
+    }
+
+    private static string GetTypeFullName(MetadataReader reader, TypeDefinition typeDef)
+    {
+        var name = reader.GetString(typeDef.Name);
+        var ns = reader.GetString(typeDef.Namespace);
+        return string.IsNullOrEmpty(ns) ? name : $"{ns}.{name}";
     }
 }

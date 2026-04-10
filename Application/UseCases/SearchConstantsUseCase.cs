@@ -95,7 +95,8 @@ public sealed class SearchConstantsUseCase
 
         foreach (var result in results.Results)
         {
-            sb.AppendLine($"  {result.MatchedValue} ({result.ConstantType}) in {result.DeclaringType}.{result.MethodName} (IL_{result.ILOffset:X4})");
+            var methodRef = result.MethodSignature ?? $"{result.DeclaringType}.{result.MethodName}";
+            sb.AppendLine($"  {result.MatchedValue} ({result.ConstantType}) in {methodRef} (IL_{result.ILOffset:X4})");
         }
 
         return sb.ToString();

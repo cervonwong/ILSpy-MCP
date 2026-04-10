@@ -104,7 +104,18 @@ public sealed class SearchStringsUseCase
 
         foreach (var result in results.Results)
         {
-            sb.AppendLine($"  \"{result.MatchedValue}\" in {result.DeclaringType}.{result.MethodName} (IL_{result.ILOffset:X4})");
+            var methodRef = result.MethodSignature ?? $"{result.DeclaringType}.{result.MethodName}";
+            sb.AppendLine($"  \"{result.MatchedValue}\" in {methodRef} (IL_{result.ILOffset:X4})");
+
+            // Surrounding IL window
+            if (result.SurroundingInstructions.Count > 0)
+            {
+                for (int i = 0; i < result.SurroundingInstructions.Count; i++)
+                {
+                    var marker = i == result.MatchInstructionIndex ? "        <-- match" : "";
+                    sb.AppendLine($"      {result.SurroundingInstructions[i]}{marker}");
+                }
+            }
         }
 
         return sb.ToString();

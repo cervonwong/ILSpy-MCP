@@ -37,6 +37,18 @@ public sealed record StringSearchResult
 
     /// <summary>IL offset of the ldstr instruction.</summary>
     public int ILOffset { get; init; }
+
+    /// <summary>
+    /// Up to 3 IL instructions before and 3 after the ldstr, with resolved token references.
+    /// Each string is a formatted IL instruction line like "IL_001E: ldarg.1".
+    /// The ldstr instruction itself is included in the list.
+    /// </summary>
+    public IReadOnlyList<string> SurroundingInstructions { get; init; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Index within SurroundingInstructions that is the matched ldstr instruction.
+    /// </summary>
+    public int MatchInstructionIndex { get; init; }
 }
 
 /// <summary>
