@@ -1,8 +1,12 @@
+using System.Text;
+using ILSpy.Mcp.Application.Configuration;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
 using ILSpy.Mcp.Domain.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ILSpy.Mcp.Application.UseCases;
 
@@ -15,17 +19,20 @@ public sealed class DisassembleTypeUseCase
     private readonly ITimeoutService _timeout;
     private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<DisassembleTypeUseCase> _logger;
+    private readonly ILSpyOptions _options;
 
     public DisassembleTypeUseCase(
         IDisassemblyService disassembly,
         ITimeoutService timeout,
         IConcurrencyLimiter limiter,
-        ILogger<DisassembleTypeUseCase> logger)
+        ILogger<DisassembleTypeUseCase> logger,
+        IOptions<ILSpyOptions> options)
     {
         _disassembly = disassembly;
         _timeout = timeout;
         _limiter = limiter;
         _logger = logger;
+        _options = options.Value;
     }
 
     public async Task<string> ExecuteAsync(
@@ -45,7 +52,12 @@ public sealed class DisassembleTypeUseCase
             return await _limiter.ExecuteAsync(async () =>
             {
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
-                return await _disassembly.DisassembleTypeAsync(assembly, type, showTokens, resolveDeep, timeout.Token);
+                var result = await _disassembly.DisassembleTypeAsync(assembly, type, showTokens, resolveDeep, timeout.Token);
+                var (text, totalLines, returnedLines, wasTruncated) =
+                    TruncationEnvelope.TruncateSource(result, _options.MaxDecompilationSize);
+                var sb = new StringBuilder(text);
+                TruncationEnvelope.AppendSourceFooter(sb, totalLines, returnedLines, wasTruncated);
+                return sb.ToString();
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

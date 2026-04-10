@@ -1,5 +1,6 @@
 using System.Text;
 using ILSpy.Mcp.Application.Configuration;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -112,12 +113,11 @@ public sealed class DecompileNamespaceUseCase
                 };
 
                 var result = FormatOutput(summary);
-                if (result.Length > _options.MaxDecompilationSize)
-                {
-                    result = result[.._options.MaxDecompilationSize]
-                        + $"\n\n[Output truncated at {_options.MaxDecompilationSize} bytes. The full output is {result.Length} bytes.]";
-                }
-                return result;
+                var (text, totalLines, returnedLines, wasTruncated) =
+                    TruncationEnvelope.TruncateSource(result, _options.MaxDecompilationSize);
+                var truncSb = new StringBuilder(text);
+                TruncationEnvelope.AppendSourceFooter(truncSb, totalLines, returnedLines, wasTruncated);
+                return truncSb.ToString();
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
