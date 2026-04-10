@@ -1,3 +1,4 @@
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -59,15 +60,25 @@ public sealed class AnalyzeAssemblyUseCase
                     result.AppendLine();
                 }
 
-                if (assemblyInfo.PublicTypes.Any())
+                var maxDisplayTypes = 200;
+                var totalPublicTypes = assemblyInfo.PublicTypes.Count;
+                var displayedTypes = assemblyInfo.PublicTypes.Take(maxDisplayTypes).ToList();
+                var typesTruncated = totalPublicTypes > maxDisplayTypes;
+
+                if (displayedTypes.Any())
                 {
                     result.AppendLine("Key Public Types:");
-                    foreach (var type in assemblyInfo.PublicTypes)
+                    foreach (var type in displayedTypes)
                     {
                         result.AppendLine($"  {type.Kind} {type.FullName}");
                     }
+                    if (typesTruncated)
+                    {
+                        result.AppendLine($"  ... and {totalPublicTypes - maxDisplayTypes} more types");
+                    }
                 }
 
+                TruncationEnvelope.AppendAnalysisFooter(result, totalPublicTypes, displayedTypes.Count, typesTruncated);
                 return result.ToString();
             }, cancellationToken);
         }
