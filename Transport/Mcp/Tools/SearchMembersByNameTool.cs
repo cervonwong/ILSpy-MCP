@@ -22,11 +22,11 @@ public sealed class SearchMembersByNameTool
     }
 
     [McpServerTool(Name = "search_members_by_name")]
-    [Description("Use this when you know what operation you want to perform (like 'Parse', 'Convert', 'Serialize') but don't know which type contains that method. Searches across all types in the assembly to find matching methods, properties, or fields. Helps discover API entry points.")]
+    [Description("Searches all types in an assembly for members matching a name pattern. Use this when you know the operation you need (e.g., 'Parse', 'Encrypt', 'Validate') but not which type implements it. Returns matching methods, properties, fields, and events with their declaring type and signature.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Name or partial name to search for (case-insensitive)")] string searchTerm,
-        [Description("Optional: Filter by member kind (method, property, field, event)")] string? memberKind = null,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Name or partial name to match (case-insensitive)")] string searchTerm,
+        [Description("Filter by kind: method, property, field, or event")] string? memberKind = null,
         CancellationToken cancellationToken = default)
     {
         try

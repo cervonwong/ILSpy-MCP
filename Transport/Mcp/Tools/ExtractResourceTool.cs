@@ -25,12 +25,12 @@ public sealed class ExtractResourceTool
     }
 
     [McpServerTool(Name = "extract_resource")]
-    [Description("Extract embedded resource content. Returns text inline or binary as base64. Use offset and limit for paginated binary extraction.")]
+    [Description("Extracts the content of a named embedded resource. Use this when you need to read configuration, localization tables, or other data embedded in a compiled assembly. Text resources return inline; binary resources return as base64. Supports offset/limit for paginated binary extraction.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Name of the embedded resource (e.g., 'MyNamespace.Resources.file.txt')")] string resourceName,
-        [Description("Byte offset for paginated extraction (optional)")] int? offset = null,
-        [Description("Maximum bytes to return for paginated extraction (optional)")] int? limit = null,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Embedded resource name (e.g., 'MyApp.Resources.config.json')")] string resourceName,
+        [Description("Byte offset for paginated binary extraction")] int? offset = null,
+        [Description("Maximum bytes to return for paginated binary extraction")] int? limit = null,
         CancellationToken cancellationToken = default)
     {
         try

@@ -24,11 +24,11 @@ public sealed class ResolveTypeTool
     }
 
     [McpServerTool(Name = "resolve_type")]
-    [Description("Resolve which assembly in a directory defines a given type. Supports partial type name matching -- 'HttpClient' matches 'System.Net.Http.HttpClient'. Returns all matching assemblies when multiple define the type.")]
+    [Description("Finds which assembly in a directory defines a given type. Use this when you have a type name from decompiled source or IL output and need to locate the assembly that contains it. Supports partial matching (e.g., 'HttpClient' matches 'System.Net.Http.HttpClient'). Use load_assembly_directory first to scan the directory.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the directory containing .NET assemblies")] string directoryPath,
-        [Description("Type name to search for (partial match supported, e.g., 'HttpClient' or 'System.Net.Http.HttpClient')")] string typeName,
-        [Description("Maximum directory recursion depth (default: 3)")] int maxDepth = 3,
+        [Description("Path to directory containing .NET assemblies")] string directoryPath,
+        [Description("Type name to search for (partial match supported, e.g., 'HttpClient')")] string typeName,
+        [Description("Maximum recursion depth for subdirectories (default 3)")] int maxDepth = 3,
         CancellationToken cancellationToken = default)
     {
         try

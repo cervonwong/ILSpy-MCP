@@ -25,9 +25,9 @@ public sealed class ListEmbeddedResourcesTool
     }
 
     [McpServerTool(Name = "list_embedded_resources")]
-    [Description("List all embedded resources in an assembly with name, type, size, and visibility")]
+    [Description("Lists all embedded resources in an assembly with name, type, size, and visibility. Use this when investigating configuration files, localization data, or embedded assets baked into a compiled binary. Use extract_resource to retrieve individual resource contents. Returns paginated resource listing.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
         CancellationToken cancellationToken = default)
     {
         try

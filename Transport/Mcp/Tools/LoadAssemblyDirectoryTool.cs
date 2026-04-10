@@ -24,10 +24,10 @@ public sealed class LoadAssemblyDirectoryTool
     }
 
     [McpServerTool(Name = "load_assembly_directory")]
-    [Description("Load and list all .NET assemblies found in a directory. Scans .dll and .exe files recursively up to the specified depth. Reports loaded assemblies with name and version, and skipped files with reasons.")]
+    [Description("Scans a directory for .NET assemblies and loads them for analysis. Use this when starting work on a multi-assembly project or application directory -- load the directory first, then use resolve_type to find which assembly defines a specific type. Reports loaded assemblies with name/version and skipped files with reasons.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the directory to scan for .NET assemblies")] string directoryPath,
-        [Description("Maximum directory recursion depth (default: 3)")] int maxDepth = 3,
+        [Description("Path to directory containing .NET assemblies")] string directoryPath,
+        [Description("Maximum recursion depth for subdirectories (default 3)")] int maxDepth = 3,
         CancellationToken cancellationToken = default)
     {
         try
