@@ -58,11 +58,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
   2. An agent listing MCP tools sees exactly 27 tools; `analyze_references` is not in the list - verifiable by `tools/list` MCP request or tool registration inspection
   3. An agent listing MCP tools sees `list_namespace_types` and does not see `decompile_namespace` - verifiable by `tools/list` inspection
   4. `README.md` reflects the final 27-tool surface with no stale references to `analyze_references` or `decompile_namespace` - verifiable by grep
-**Plans**: 4 plans
-- [x] 09-01-PLAN.md — PAGE-01: Create docs/PAGINATION.md canonical contract spec + cross-reference from mcp-tool-design SKILL Principle 4 (Wave 1, parallel with 09-02)
-- [x] 09-02-PLAN.md — CLEAN-01: Hard-delete AnalyzeReferencesTool + tests + DI registrations in Program.cs and ToolTestFixture.cs (Wave 1, parallel with 09-01)
-- [x] 09-03-PLAN.md — CLEAN-02 (+ list_namespace_types pagination landed here): Rename decompile_namespace → list_namespace_types, implement pagination contract (first reference impl), create PaginationTestTargets fixture, add 7 new Pagination_* tests (Wave 2, depends on 09-02)
-- [x] 09-04-PLAN.md — CLEAN-03: Update README.md to 27-tool surface with list_namespace_types section + Pagination intro; roadmap ripple recording that list_namespace_types pagination moved from Phase 11 to Phase 9 in REQUIREMENTS.md and ROADMAP.md (Wave 3, depends on 09-01+09-02+09-03)
+**Plans**: TBD
 
 ### Phase 10: Find-Tool Pagination & Match Enrichment
 **Milestone**: v1.2.0
@@ -81,12 +77,13 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 **Milestone**: v1.2.0
 **Goal**: Every remaining list-returning or enumeration-returning tool obeys the pagination contract, and `get_type_members` surfaces the inherited/declared distinction and modifier context agents need to pick the right member
 **Depends on**: Phase 9 (pagination contract); Phase 10 (pagination contract proven out on find_* tools first)
-**Requirements**: PAGE-03, PAGE-04, PAGE-05, OUTPUT-05
+**Requirements**: PAGE-03, PAGE-04, PAGE-05, PAGE-06, OUTPUT-05
 **Success Criteria** (what must be TRUE):
   1. An agent calling `list_assembly_types` or `list_embedded_resources` can paginate via `(maxResults, offset)` and always receives `(truncated, total)` metadata - verifiable by calling both tools against a large assembly (e.g. mscorlib)
   2. An agent calling `get_type_members` can paginate and always receives `(truncated, total)` metadata - verifiable by calling it against `System.String`
   3. An agent calling `search_members_by_name` can paginate and always receives `(truncated, total)` metadata - verifiable by calling it with a common search term in a large assembly
-  4. A `get_type_members` response distinguishes inherited vs declared members, exposes virtual/abstract/sealed flags, and summarizes attributes per member - verifiable by calling it against a type with inheritance, virtual members, and annotated members
+  4. `list_namespace_types` (renamed) uses the pagination contract in place of the previous hard `maxTypes=200` cap - verifiable by calling it against a namespace with >200 types and confirming no silent truncation
+  5. A `get_type_members` response distinguishes inherited vs declared members, exposes virtual/abstract/sealed flags, and summarizes attributes per member - verifiable by calling it against a type with inheritance, virtual members, and annotated members
 **Plans**: TBD
 
 ### Phase 12: IL Token Resolution, Search Enrichment & Truncation Reporting
@@ -100,7 +97,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
   3. A `search_strings` match tells the agent the literal value, the containing method FQN, the IL offset, and a window of surrounding IL instructions - verifiable by calling the tool against an assembly with known string literals
   4. A `search_constants` match tells the agent the constant value, the containing method FQN, and the IL offset - verifiable by calling against an assembly with known numeric constants
   5. `decompile_type`, `decompile_method`, `disassemble_type`, and `disassemble_method` report `(truncated, total_lines)` when output exceeds their line cap, making silent truncation visible - verifiable by calling against a type/method that exceeds the cap
-  6. `export_project` and `analyze_assembly` report `truncated`/`total` metadata so silent cap truncation becomes observable - verifiable by calling `export_project` on an assembly exceeding the type cap and inspecting the result
+  6. `export_project` and `analyze_assembly` report `truncated`/`total` metadata so silent cap truncation becomes observable - verifiable by calling `export_project` on an assembly exceeding the `maxTypes` cap and inspecting the result
 **Plans**: TBD
 
 ### Phase 13: Scenario Description Sweep

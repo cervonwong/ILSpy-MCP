@@ -1,3 +1,5 @@
+using System.Text;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -28,6 +30,8 @@ public sealed class FindExtensionMethodsUseCase
     public async Task<string> ExecuteAsync(
         string assemblyPath,
         string targetTypeName,
+        int maxResults = 100,
+        int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try
@@ -43,38 +47,50 @@ public sealed class FindExtensionMethodsUseCase
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var extensionMethods = await _decompiler.FindExtensionMethodsAsync(assembly, targetType, timeout.Token);
 
-                var result = new System.Text.StringBuilder();
-                result.AppendLine($"Extension methods for type: {targetTypeName}");
-                result.AppendLine($"Assembly: {assembly.FileName}");
-                result.AppendLine();
+                // Stable sort: MethodInfo has no containing-type FQN field in the domain model,
+                // so D-07's "(containing static class FQN asc, Name asc, signature asc)" adapts
+                // to the fields actually available: (Name asc, ReturnType asc, params-string asc).
+                // StringComparer.Ordinal for culture-invariant determinism.
+                var sorted = extensionMethods
+                    .OrderBy(m => m.Name, StringComparer.Ordinal)
+                    .ThenBy(m => m.ReturnType, StringComparer.Ordinal)
+                    .ThenBy(m => string.Join(",", m.Parameters.Select(p => p.Type + " " + p.Name)), StringComparer.Ordinal)
+                    .ToList();
+                var total = sorted.Count;
+                var page = sorted.Skip(offset).Take(maxResults).ToList();
 
-                if (extensionMethods.Any())
+                var sb = new StringBuilder();
+                var returned = page.Count;
+
+                sb.AppendLine($"Extension methods for type: {targetTypeName}");
+                sb.AppendLine($"Assembly: {assembly.FileName}");
+                if (total == 0)
                 {
-                    result.AppendLine($"Found {extensionMethods.Count} extension methods:");
-                    result.AppendLine();
-
-                    var grouped = extensionMethods.GroupBy(m => m.Name);
-                    foreach (var group in grouped)
-                    {
-                        result.AppendLine($"Method: {group.Key}");
-                        foreach (var method in group)
-                        {
-                            var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
-                            result.AppendLine($"  {method.ReturnType} {method.Name}({parameters})");
-                        }
-                        result.AppendLine();
-                    }
-
-                    result.AppendLine("Usage: these methods can be called as if they were instance methods on the target type.");
+                    sb.AppendLine();
+                    sb.AppendLine("No extension methods found for this type in the assembly.");
+                    sb.AppendLine();
+                    sb.AppendLine("Note: Extension methods are defined in static classes and marked with the 'this' keyword on their first parameter.");
                 }
                 else
                 {
-                    result.AppendLine("No extension methods found for this type in the assembly.");
-                    result.AppendLine();
-                    result.AppendLine("Note: Extension methods are defined in static classes and marked with the 'this' keyword on their first parameter.");
+                    if (returned == 0)
+                    {
+                        sb.AppendLine($"{total} extension methods total (offset {offset} is beyond last page)");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"{total} extension methods total (showing {offset + 1}-{offset + returned})");
+                    }
+                    sb.AppendLine();
+                    foreach (var method in page)
+                    {
+                        var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
+                        sb.AppendLine($"  {method.ReturnType} {method.Name}({parameters})");
+                    }
                 }
 
-                return result.ToString();
+                PaginationEnvelope.AppendFooter(sb, total, returned, offset);
+                return sb.ToString();
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

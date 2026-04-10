@@ -48,7 +48,7 @@ public sealed class AnalyzeReferencesTool
             {
                 "usages" => memberName is null
                     ? throw new McpToolException("INVALID_PARAMETER", "member_name is required for usages analysis")
-                    : await _usagesUseCase.ExecuteAsync(assemblyPath, typeName, memberName, cancellationToken: cancellationToken),
+                    : await _usagesUseCase.ExecuteAsync(assemblyPath, typeName, memberName, cancellationToken),
                 "implementors" => await _implementorsUseCase.ExecuteAsync(assemblyPath, typeName, cancellationToken),
                 "dependencies" => await _dependenciesUseCase.ExecuteAsync(assemblyPath, typeName, memberName, cancellationToken),
                 "instantiations" => await _instantiationsUseCase.ExecuteAsync(assemblyPath, typeName, cancellationToken),

@@ -168,7 +168,7 @@ static void RegisterServices(IServiceCollection services)
     services.AddScoped<ResolveTypeUseCase>();
     services.AddScoped<LoadAssemblyDirectoryUseCase>();
     services.AddScoped<ExportProjectUseCase>();
-    services.AddScoped<ListNamespaceTypesUseCase>();
+    services.AddScoped<DecompileNamespaceUseCase>();
 
     // MCP tool handlers
     services.AddScoped<DecompileTypeTool>();
@@ -185,6 +185,7 @@ static void RegisterServices(IServiceCollection services)
     services.AddScoped<FindImplementorsTool>();
     services.AddScoped<FindDependenciesTool>();
     services.AddScoped<FindInstantiationsTool>();
+    services.AddScoped<AnalyzeReferencesTool>();
     services.AddScoped<GetAssemblyMetadataTool>();
     services.AddScoped<GetAssemblyAttributesTool>();
     services.AddScoped<GetTypeAttributesTool>();
@@ -197,7 +198,7 @@ static void RegisterServices(IServiceCollection services)
     services.AddScoped<ResolveTypeTool>();
     services.AddScoped<LoadAssemblyDirectoryTool>();
     services.AddScoped<ExportProjectTool>();
-    services.AddScoped<ListNamespaceTypesTool>();
+    services.AddScoped<DecompileNamespaceTool>();
 }
 
 public static class HttpBindingResolver

@@ -11,49 +11,30 @@ namespace ILSpy.Mcp.Transport.Mcp.Tools;
 /// MCP tool handler for listing all types in a namespace with summary information.
 /// </summary>
 [McpServerToolType]
-public sealed class ListNamespaceTypesTool
+public sealed class DecompileNamespaceTool
 {
-    private readonly ListNamespaceTypesUseCase _useCase;
-    private readonly ILogger<ListNamespaceTypesTool> _logger;
+    private readonly DecompileNamespaceUseCase _useCase;
+    private readonly ILogger<DecompileNamespaceTool> _logger;
 
-    public ListNamespaceTypesTool(
-        ListNamespaceTypesUseCase useCase,
-        ILogger<ListNamespaceTypesTool> logger)
+    public DecompileNamespaceTool(
+        DecompileNamespaceUseCase useCase,
+        ILogger<DecompileNamespaceTool> logger)
     {
         _useCase = useCase;
         _logger = logger;
     }
 
-    [McpServerTool(Name = "list_namespace_types")]
+    [McpServerTool(Name = "decompile_namespace")]
     [Description("Lists all types in a namespace with full signatures, member counts, and public method signatures. Returns a summary -- use decompile_type to get full source for individual types.")]
     public async Task<string> ExecuteAsync(
         [Description("Path to the .NET assembly file")] string assemblyPath,
         [Description("Full namespace name (e.g., 'System.Collections.Generic')")] string namespaceName,
-        [Description("Maximum number of results to return (default: 100)")] int maxResults = 100,
-        [Description("Number of results to skip for pagination (default: 0)")] int offset = 0,
+        [Description("Maximum number of types to return (default 200)")] int maxTypes = 200,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            // Phase 9 pagination contract: hard ceiling + positive minimum.
-            // Validation at the Transport boundary (not the use case) to preserve
-            // the layering Phase 8 DEBT-02 restored.
-            if (maxResults > 500)
-            {
-                throw new McpToolException("INVALID_PARAMETER",
-                    "maxResults cannot exceed 500. Use offset to paginate.");
-            }
-            if (maxResults <= 0)
-            {
-                throw new McpToolException("INVALID_PARAMETER",
-                    "maxResults must be >= 1.");
-            }
-
-            return await _useCase.ExecuteAsync(assemblyPath, namespaceName, maxResults, offset, cancellationToken);
-        }
-        catch (McpToolException)
-        {
-            throw;  // Rethrow our own INVALID_PARAMETER without mapping it again
+            return await _useCase.ExecuteAsync(assemblyPath, namespaceName, maxTypes, cancellationToken);
         }
         catch (NamespaceNotFoundException ex)
         {
@@ -67,17 +48,17 @@ public sealed class ListNamespaceTypesTool
         }
         catch (TimeoutException ex)
         {
-            _logger.LogWarning("Timeout in list_namespace_types tool: {Message}", ex.Message);
+            _logger.LogWarning("Timeout in decompile_namespace tool: {Message}", ex.Message);
             throw new McpToolException("TIMEOUT", "The operation timed out. The assembly may be too large or the operation took too long.");
         }
         catch (OperationCanceledException)
         {
-            _logger.LogInformation("Operation cancelled in list_namespace_types tool");
+            _logger.LogInformation("Operation cancelled in decompile_namespace tool");
             throw new McpToolException("CANCELLED", "The operation was cancelled.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error in list_namespace_types tool");
+            _logger.LogError(ex, "Unexpected error in decompile_namespace tool");
             throw new McpToolException("INTERNAL_ERROR", "An unexpected error occurred while listing namespace types.");
         }
     }

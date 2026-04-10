@@ -55,7 +55,7 @@ ILSpy MCP Server lets AI assistants decompile, inspect, and analyze .NET assembl
 
 ## Features
 
-**27 tools** across 8 categories:
+**28 tools** across 8 categories:
 
 - **Decompilation** -- Decompile types, methods, and entire namespaces to C# source
 - **IL Disassembly** -- View raw CIL/IL at the type or method level
@@ -280,13 +280,6 @@ Ask your AI assistant to work with .NET assemblies using natural language. Repla
 
 ## Tool Reference
 
-> **Pagination:** Tools that return lists (e.g., `list_namespace_types`,
-> `find_*`, `search_*`) accept `maxResults` and `offset` parameters with
-> sensible defaults and always include a trailing `[pagination:{...}]`
-> footer reporting `total`, `returned`, `truncated`, and `nextOffset`.
-> See [`docs/PAGINATION.md`](docs/PAGINATION.md) for the complete contract,
-> including the hard ceiling and worked examples.
-
 ### Decompilation
 
 #### `decompile_type`
@@ -380,7 +373,7 @@ public async Task<User> GetByIdAsync(int id)
 
 ---
 
-#### `list_namespace_types`
+#### `decompile_namespace`
 
 List all types in a namespace with full signatures, member counts, and public method signatures. Returns a summary -- use `decompile_type` to get full source for individual types.
 
@@ -388,8 +381,7 @@ List all types in a namespace with full signatures, member counts, and public me
 |-----------|------|----------|-------------|
 | `assemblyPath` | string | Yes | Path to the .NET assembly file |
 | `namespaceName` | string | Yes | Full namespace name (e.g., `System.Collections.Generic`) |
-| `maxResults` | int | No | Maximum number of results to return (default: 100) |
-| `offset` | int | No | Number of results to skip for pagination (default: 0) |
+| `maxTypes` | int | No | Maximum number of types to return (default: 200) |
 
 <details>
 <summary>Example</summary>
@@ -883,6 +875,41 @@ Instantiations of System.Net.Http.HttpClient: 2
 
   MyLibrary.Services.ApiClient..ctor (newobj)
   MyLibrary.Services.WebhookSender.SendAsync (newobj)
+```
+
+</details>
+
+---
+
+#### `analyze_references`
+
+Unified cross-reference analysis tool. Routes to the appropriate analysis based on `analysisType` parameter. Use for exploratory analysis when you are not sure which specific tool to call.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `assemblyPath` | string | Yes | Path to the .NET assembly file |
+| `analysisType` | string | Yes | Type of analysis: `usages`, `implementors`, `dependencies`, or `instantiations` |
+| `typeName` | string | Yes | Full name of the type to analyze |
+| `memberName` | string | No | Member name (required for `usages`, optional for `dependencies`) |
+
+<details>
+<summary>Example</summary>
+
+**Input:**
+```json
+{
+  "assemblyPath": "C:\\libs\\MyLibrary.dll",
+  "analysisType": "implementors",
+  "typeName": "MyLibrary.Services.IUserService"
+}
+```
+
+**Output (trimmed):**
+```
+Implementors of MyLibrary.Services.IUserService:
+
+  MyLibrary.Services.UserService (implements)
+  MyLibrary.Services.CachedUserService (implements)
 ```
 
 </details>

@@ -618,8 +618,8 @@ public sealed class ILSpyCrossReferenceService : ICrossReferenceService
     /// </summary>
     private static string FormatMethodSignature(IMethod method)
     {
-        var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type.FullName} {p.Name}"));
-        return $"{method.ReturnType.FullName} {method.Name}({parameters})";
+        var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type.Name} {p.Name}"));
+        return $"{method.ReturnType.Name} {method.Name}({parameters})";
     }
 
     private static DomainTypeKind MapTypeKind(ICSharpCode.Decompiler.TypeSystem.TypeKind kind) => kind switch

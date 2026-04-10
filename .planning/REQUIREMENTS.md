@@ -12,12 +12,12 @@ Requirements for v1.2.0 Tool Polish. Each maps to roadmap phases.
 
 Uniform pagination contract across unbounded tools. Agents get sensible defaults (no forced pagination params), but `truncated`/`total` metadata is always returned so agents know when to page.
 
-- [x] **PAGE-01**: Uniform pagination contract defined and documented — every list-returning tool accepts `(maxResults, offset)` with sensible defaults, returns `(truncated: bool, total: int)`; documented as a reusable pattern so agents don't need to specify pagination unless they intend to page
+- [ ] **PAGE-01**: Uniform pagination contract defined and documented — every list-returning tool accepts `(maxResults, offset)` with sensible defaults, returns `(truncated: bool, total: int)`; documented as a reusable pattern so agents don't need to specify pagination unless they intend to page
 - [ ] **PAGE-02**: All `find_*` tools implement PAGE-01 contract (`find_usages`, `find_implementors`, `find_dependencies`, `find_instantiations`, `find_extension_methods`, `find_compiler_generated_types`)
 - [ ] **PAGE-03**: All `list_*` tools implement PAGE-01 contract (`list_assembly_types`, `list_embedded_resources`)
 - [ ] **PAGE-04**: `get_type_members` implements PAGE-01 contract
 - [ ] **PAGE-05**: `search_members_by_name` implements PAGE-01 contract
-- [x] **PAGE-06**: `list_namespace_types` implements PAGE-01 contract (replaces the previous `maxTypes=200` hard cap) — landed in Phase 9 alongside CLEAN-02
+- [ ] **PAGE-06**: `list_namespace_types` (renamed from `decompile_namespace`) implements PAGE-01 contract (replaces the `maxTypes=200` hard cap)
 - [ ] **PAGE-07**: Source-returning tools (`decompile_type`, `decompile_method`, `disassemble_type`, `disassemble_method`) report `(truncated, total_lines)` when output exceeds line cap — makes silent truncation visible
 - [ ] **PAGE-08**: Bounded-output tools (`export_project`, `analyze_assembly`) report `truncated`/`total` metadata so silent truncation becomes visible
 
@@ -50,9 +50,9 @@ Self-describing match records so the agent doesn't need follow-up calls to under
 
 ### Structural Cleanup
 
-- [x] **CLEAN-01**: `analyze_references` dispatcher tool removed; four `find_*` tools become the sole cross-reference entry points (tool count: 28 → 27)
-- [x] **CLEAN-02**: `decompile_namespace` renamed to `list_namespace_types` — surface matches actual behavior (enumerates types with signatures; it is not a decompile operation)
-- [x] **CLEAN-03**: README.md and any cross-references updated to match the new surface (27 tools, renamed namespace tool, no dispatcher)
+- [ ] **CLEAN-01**: `analyze_references` dispatcher tool removed; four `find_*` tools become the sole cross-reference entry points (tool count: 28 → 27)
+- [ ] **CLEAN-02**: `decompile_namespace` renamed to `list_namespace_types` — surface matches actual behavior (enumerates types with signatures; it is not a decompile operation)
+- [ ] **CLEAN-03**: README.md and any cross-references updated to match the new surface (27 tools, renamed namespace tool, no dispatcher)
 
 ### v1.0 Tech Debt
 
@@ -99,10 +99,10 @@ Which phases cover which requirements.
 | DEBT-02 | Phase 8 | Complete |
 | DEBT-03 | Phase 8 | Complete |
 | DEBT-04 | Phase 8 | Complete |
-| PAGE-01 | Phase 9 | Complete |
-| CLEAN-01 | Phase 9 | Complete |
-| CLEAN-02 | Phase 9 | Complete |
-| CLEAN-03 | Phase 9 | Complete |
+| PAGE-01 | Phase 9 | Pending |
+| CLEAN-01 | Phase 9 | Pending |
+| CLEAN-02 | Phase 9 | Pending |
+| CLEAN-03 | Phase 9 | Pending |
 | PAGE-02 | Phase 10 | Pending |
 | OUTPUT-01 | Phase 10 | Pending |
 | OUTPUT-02 | Phase 10 | Pending |
@@ -111,7 +111,7 @@ Which phases cover which requirements.
 | PAGE-03 | Phase 11 | Pending |
 | PAGE-04 | Phase 11 | Pending |
 | PAGE-05 | Phase 11 | Pending |
-| PAGE-06 | Phase 9 | Complete |
+| PAGE-06 | Phase 11 | Pending |
 | OUTPUT-05 | Phase 11 | Pending |
 | IL-01 | Phase 12 | Pending |
 | IL-02 | Phase 12 | Pending |
