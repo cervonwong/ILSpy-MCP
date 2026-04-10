@@ -34,7 +34,6 @@ public sealed class DisassembleMethodUseCase
         string methodName,
         bool showBytes,
         bool showTokens,
-        bool resolveDeep = false,
         CancellationToken cancellationToken = default)
     {
         try
@@ -49,7 +48,7 @@ public sealed class DisassembleMethodUseCase
             {
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 return await _disassembly.DisassembleMethodAsync(
-                    assembly, type, methodName, showBytes, showTokens, resolveDeep, timeout.Token);
+                    assembly, type, methodName, showBytes, showTokens, timeout.Token);
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

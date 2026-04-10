@@ -32,12 +32,11 @@ public sealed class DisassembleMethodTool
         [Description("Name of the method to disassemble")] string methodName,
         [Description("Show raw opcode byte sequences")] bool showBytes = false,
         [Description("Show metadata token numbers (e.g., /* 06000001 */)")] bool showTokens = false,
-        [Description("Expand generic parameters and show full type signatures for all operand references")] bool resolveDeep = false,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _useCase.ExecuteAsync(assemblyPath, typeName, methodName, showBytes, showTokens, resolveDeep, cancellationToken);
+            return await _useCase.ExecuteAsync(assemblyPath, typeName, methodName, showBytes, showTokens, cancellationToken);
         }
         catch (TypeNotFoundException ex)
         {

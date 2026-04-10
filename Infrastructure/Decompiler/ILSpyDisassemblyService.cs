@@ -8,7 +8,6 @@ using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Services;
 using Microsoft.Extensions.Logging;
 using System.Reflection.Metadata;
-using System.Text.RegularExpressions;
 using AssemblyPath = ILSpy.Mcp.Domain.Models.AssemblyPath;
 using TypeName = ILSpy.Mcp.Domain.Models.TypeName;
 
@@ -36,7 +35,6 @@ public sealed class ILSpyDisassemblyService : IDisassemblyService
         AssemblyPath assemblyPath,
         TypeName typeName,
         bool showTokens = false,
-        bool resolveDeep = false,
         CancellationToken cancellationToken = default)
     {
         return await Task.Run(() =>
@@ -91,8 +89,7 @@ public sealed class ILSpyDisassemblyService : IDisassemblyService
                     output.WriteLine();
                 }
 
-                var result = writer.ToString();
-                return resolveDeep ? ApplyDeepResolution(result) : result;
+                return writer.ToString();
             }
             catch (TypeNotFoundException)
             {
@@ -124,7 +121,6 @@ public sealed class ILSpyDisassemblyService : IDisassemblyService
         string methodName,
         bool showBytes = false,
         bool showTokens = false,
-        bool resolveDeep = false,
         CancellationToken cancellationToken = default)
     {
         return await Task.Run(() =>
@@ -170,8 +166,7 @@ public sealed class ILSpyDisassemblyService : IDisassemblyService
                 // D-03: Full IL body with .maxstack, IL_xxxx labels, resolved names
                 disassembler.DisassembleMethod(metadataFile, (MethodDefinitionHandle)method.MetadataToken);
 
-                var result = writer.ToString();
-                return resolveDeep ? ApplyDeepResolution(result) : result;
+                return writer.ToString();
             }
             catch (TypeNotFoundException)
             {
@@ -199,59 +194,5 @@ public sealed class ILSpyDisassemblyService : IDisassemblyService
                 throw new AssemblyLoadException(assemblyPath.Value, ex);
             }
         }, cancellationToken);
-    }
-
-    /// <summary>
-    /// Post-processes IL output to expand IL type abbreviations to fully-qualified .NET type names.
-    /// This helps AI agents understand types without needing follow-up resolution calls.
-    /// </summary>
-    private static string ApplyDeepResolution(string ilOutput)
-    {
-        // IL type abbreviation -> fully-qualified .NET type name mapping
-        // These are the built-in IL type keywords that ReflectionDisassembler emits
-        var typeExpansions = new (string pattern, string replacement)[]
-        {
-            // Order matters: longer patterns first to avoid partial matches
-            (@"(?<=\W|^)unsigned int64(?=\W|$)", "System.UInt64"),
-            (@"(?<=\W|^)unsigned int32(?=\W|$)", "System.UInt32"),
-            (@"(?<=\W|^)unsigned int16(?=\W|$)", "System.UInt16"),
-            (@"(?<=\W|^)unsigned int8(?=\W|$)", "System.Byte"),
-            (@"(?<=\W|^)float64(?=\W|$)", "System.Double"),
-            (@"(?<=\W|^)float32(?=\W|$)", "System.Single"),
-            (@"(?<=\W|^)int64(?=\W|$)", "System.Int64"),
-            (@"(?<=\W|^)int32(?=\W|$)", "System.Int32"),
-            (@"(?<=\W|^)int16(?=\W|$)", "System.Int16"),
-            (@"(?<=\W|^)int8(?=\W|$)", "System.SByte"),
-            (@"(?<=\W|^)bool(?=\W|$)", "System.Boolean"),
-            (@"(?<=\W|^)char(?=\W|$)", "System.Char"),
-            (@"(?<=\W|^)void(?=\W|$)", "System.Void"),
-        };
-
-        // Process line by line to only expand types in operand/signature contexts,
-        // not in opcode names or labels
-        var lines = ilOutput.Split('\n');
-        for (int i = 0; i < lines.Length; i++)
-        {
-            var line = lines[i];
-
-            // Skip comment lines (summary header)
-            if (line.TrimStart().StartsWith("//"))
-                continue;
-
-            // Apply 'string' -> 'System.String' and 'object' -> 'System.Object' carefully
-            // to avoid matching inside identifiers. These appear as standalone IL type keywords.
-            line = Regex.Replace(line, @"(?<=[\s\(\[,])string(?=[\s\)\],]|$)", "System.String");
-            line = Regex.Replace(line, @"(?<=[\s\(\[,])object(?=[\s\)\],]|$)", "System.Object");
-
-            // Apply other type expansions
-            foreach (var (pattern, replacement) in typeExpansions)
-            {
-                line = Regex.Replace(line, pattern, replacement);
-            }
-
-            lines[i] = line;
-        }
-
-        return string.Join('\n', lines);
     }
 }

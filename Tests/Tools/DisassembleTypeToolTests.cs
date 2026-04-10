@@ -24,7 +24,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         result.Should().Contain(".method");
         result.Should().Contain("GetGreeting");
@@ -44,7 +44,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         result.Should().Contain("// Type: ILSpy.Mcp.TestTargets.SimpleClass");
         result.Should().Contain("// Assembly:");
@@ -61,7 +61,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         result.Should().Contain(".field");
         result.Should().Contain("_id");
@@ -77,7 +77,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
             showTokens: true,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         // Token format like /* 06000001 */
         result.Should().MatchRegex(@"\/\*\s*[0-9A-Fa-f]+\s*\*\/");
@@ -93,7 +93,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "NonExistent.Type",
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().Be("TYPE_NOT_FOUND");
@@ -109,7 +109,7 @@ public class DisassembleTypeToolTests
             "nonexistent.dll",
             "SomeType",
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().BeOneOf("ASSEMBLY_LOAD_FAILED", "INTERNAL_ERROR");
@@ -125,47 +125,10 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.Animals.IAnimal",
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         result.Should().Contain(".method");
         // Interface methods have no body
-        result.Should().NotContain(".maxstack");
-    }
-
-    [Fact]
-    public async Task DisassembleType_ResolveDeep_ExpandsFieldTypes()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DisassembleTypeTool>();
-
-        // SimpleClass has string and int32 fields -- resolveDeep should expand them
-        var result = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath,
-            "ILSpy.Mcp.TestTargets.SimpleClass",
-            showTokens: false,
-            resolveDeep: true,
-            cancellationToken: CancellationToken.None);
-
-        // Deep resolution should expand IL type abbreviations in field/method signatures
-        result.Should().Contain("System.String");
-    }
-
-    [Fact]
-    public async Task DisassembleType_DefaultResolveDeep_BackwardCompatible()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DisassembleTypeTool>();
-
-        // Call with default resolveDeep (false) -- existing behavior preserved
-        var result = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath,
-            "ILSpy.Mcp.TestTargets.SimpleClass",
-            showTokens: false,
-            cancellationToken: CancellationToken.None);
-
-        result.Should().Contain(".method");
-        result.Should().Contain("GetGreeting");
-        result.Should().Contain("Calculate");
         result.Should().NotContain(".maxstack");
     }
 }

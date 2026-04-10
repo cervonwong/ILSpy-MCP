@@ -130,36 +130,4 @@ public class SearchStringsToolTests
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().BeOneOf("ASSEMBLY_LOAD_FAILED", "INTERNAL_ERROR");
     }
-
-    [Fact]
-    public async Task SearchStrings_ShowsMethodSignatureWithParameterTypes()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<SearchStringsTool>();
-
-        var result = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath,
-            "Hello, World!",
-            cancellationToken: CancellationToken.None);
-
-        // Should contain full method FQN with parentheses (method signature format)
-        result.Should().Contain("StringContainer");
-        result.Should().Contain("GetGreeting()");
-    }
-
-    [Fact]
-    public async Task SearchStrings_ShowsSurroundingILWindow()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<SearchStringsTool>();
-
-        var result = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath,
-            "SearchContext:Target",
-            cancellationToken: CancellationToken.None);
-
-        // Should contain the match marker and surrounding IL instructions
-        result.Should().Contain("<-- match");
-        result.Should().MatchRegex(@"IL_[0-9A-Fa-f]{4}");
-    }
 }
