@@ -50,6 +50,10 @@ public sealed record MethodInfo
     public bool IsAbstract { get; init; }
     public bool IsVirtual { get; init; }
     public bool IsExtensionMethod { get; init; }
+    public bool IsInherited { get; init; }
+    public bool IsSealed { get; init; }
+    public bool IsOverride { get; init; }
+    public IReadOnlyList<string> Attributes { get; init; } = Array.Empty<string>();
 }
 
 public sealed record ParameterInfo
@@ -65,6 +69,8 @@ public sealed record PropertyInfo
     public Accessibility Accessibility { get; init; }
     public bool HasGetter { get; init; }
     public bool HasSetter { get; init; }
+    public bool IsInherited { get; init; }
+    public IReadOnlyList<string> Attributes { get; init; } = Array.Empty<string>();
 }
 
 public sealed record FieldInfo
@@ -73,6 +79,8 @@ public sealed record FieldInfo
     public required string Type { get; init; }
     public Accessibility Accessibility { get; init; }
     public bool IsStatic { get; init; }
+    public bool IsInherited { get; init; }
+    public IReadOnlyList<string> Attributes { get; init; } = Array.Empty<string>();
 }
 
 public sealed record EventInfo
@@ -80,4 +88,6 @@ public sealed record EventInfo
     public required string Name { get; init; }
     public required string Type { get; init; }
     public Accessibility Accessibility { get; init; }
+    public bool IsInherited { get; init; }
+    public IReadOnlyList<string> Attributes { get; init; } = Array.Empty<string>();
 }

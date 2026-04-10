@@ -132,7 +132,7 @@ public sealed class ILSpyDecompilerService : IDecompilerService
                 if (type == null)
                     throw new TypeNotFoundException(typeName.FullName, assemblyPath.Value);
 
-                return MapToTypeInfo(type);
+                return MapToTypeInfoWithInheritance(type);
             }
             catch (TypeNotFoundException)
             {
@@ -200,17 +200,16 @@ public sealed class ILSpyDecompilerService : IDecompilerService
             {
                 var decompiler = new CSharpDecompiler(assemblyPath.Value, _settings);
                 var mainModule = decompiler.TypeSystem.MainModule;
-                var allPublicTypes = mainModule.TypeDefinitions
-                    .Where(t =>
+                var publicTypes = mainModule.TypeDefinitions
+                    .Where(t => 
                         // Only include types actually defined in this assembly (not type forwards)
                         t.ParentModule == mainModule &&
                         t.Accessibility == ICSharpCode.Decompiler.TypeSystem.Accessibility.Public)
                     .Select(MapToTypeInfo)
+                    .Take(100)
                     .ToList();
 
-                var publicTypes = allPublicTypes.Take(100).ToList();
-
-                var namespaceCounts = allPublicTypes
+                var namespaceCounts = publicTypes
                     .GroupBy(t => t.Namespace ?? "(global)")
                     .ToDictionary(g => g.Key, g => g.Count());
 
@@ -397,11 +396,11 @@ public sealed class ILSpyDecompilerService : IDecompilerService
             ShortName = type.Name,
             Kind = MapTypeKind(type.Kind),
             Accessibility = MapAccessibility(type.Accessibility),
-            Constructors = type.Methods.Where(m => m.IsConstructor).Select(MapToMethodInfo).ToList(),
-            Methods = type.Methods.Where(m => !m.IsConstructor).Select(MapToMethodInfo).ToList(),
-            Properties = type.Properties.Select(MapToPropertyInfo).ToList(),
-            Fields = type.Fields.Select(MapToFieldInfo).ToList(),
-            Events = type.Events.Select(MapToEventInfo).ToList(),
+            Constructors = type.Methods.Where(m => m.IsConstructor).Select(m => MapToMethodInfo(m)).ToList(),
+            Methods = type.Methods.Where(m => !m.IsConstructor).Select(m => MapToMethodInfo(m)).ToList(),
+            Properties = type.Properties.Select(p => MapToPropertyInfo(p)).ToList(),
+            Fields = type.Fields.Select(f => MapToFieldInfo(f)).ToList(),
+            Events = type.Events.Select(e => MapToEventInfo(e)).ToList(),
             DeclaringTypeFullName = type.DeclaringTypeDefinition?.FullName,
             BaseTypes = type.DirectBaseTypes
                 .Where(t => t.Kind == ICSharpCode.Decompiler.TypeSystem.TypeKind.Class && t.FullName != "System.Object")
@@ -414,7 +413,56 @@ public sealed class ILSpyDecompilerService : IDecompilerService
         };
     }
 
-    private static MethodInfo MapToMethodInfo(IMethod method)
+    private static TypeInfo MapToTypeInfoWithInheritance(ITypeDefinition type)
+    {
+        var declared = MapToTypeInfo(type);
+
+        var inheritedMethods = new List<MethodInfo>();
+        var inheritedProperties = new List<PropertyInfo>();
+        var inheritedFields = new List<FieldInfo>();
+        var inheritedEvents = new List<EventInfo>();
+
+        foreach (var baseType in type.DirectBaseTypes)
+        {
+            var baseDef = baseType.GetDefinition();
+            if (baseDef == null) continue;
+
+            foreach (var m in baseDef.Methods.Where(m => !m.IsConstructor && m.Accessibility != ICSharpCode.Decompiler.TypeSystem.Accessibility.Private))
+            {
+                if (type.Methods.Any(dm => dm.Name == m.Name && dm.Parameters.Count == m.Parameters.Count)) continue;
+                inheritedMethods.Add(MapToMethodInfo(m, isInherited: true));
+            }
+
+            foreach (var p in baseDef.Properties.Where(p => p.Accessibility != ICSharpCode.Decompiler.TypeSystem.Accessibility.Private))
+            {
+                if (type.Properties.Any(dp => dp.Name == p.Name)) continue;
+                inheritedProperties.Add(MapToPropertyInfo(p, isInherited: true));
+            }
+
+            foreach (var f in baseDef.Fields.Where(f => f.Accessibility != ICSharpCode.Decompiler.TypeSystem.Accessibility.Private))
+            {
+                if (type.Fields.Any(df => df.Name == f.Name)) continue;
+                inheritedFields.Add(MapToFieldInfo(f, isInherited: true));
+            }
+
+            foreach (var e in baseDef.Events.Where(e => e.Accessibility != ICSharpCode.Decompiler.TypeSystem.Accessibility.Private))
+            {
+                if (type.Events.Any(de => de.Name == e.Name)) continue;
+                inheritedEvents.Add(MapToEventInfo(e, isInherited: true));
+            }
+        }
+
+        return declared with
+        {
+            Constructors = declared.Constructors,
+            Methods = declared.Methods.Concat(inheritedMethods).ToList(),
+            Properties = declared.Properties.Concat(inheritedProperties).ToList(),
+            Fields = declared.Fields.Concat(inheritedFields).ToList(),
+            Events = declared.Events.Concat(inheritedEvents).ToList()
+        };
+    }
+
+    private static MethodInfo MapToMethodInfo(IMethod method, bool isInherited = false)
     {
         return new MethodInfo
         {
@@ -429,11 +477,15 @@ public sealed class ILSpyDecompilerService : IDecompilerService
             IsStatic = method.IsStatic,
             IsAbstract = method.IsAbstract,
             IsVirtual = method.IsVirtual,
-            IsExtensionMethod = method.IsExtensionMethod
+            IsExtensionMethod = method.IsExtensionMethod,
+            IsInherited = isInherited,
+            IsSealed = method.IsSealed,
+            IsOverride = method.IsOverride,
+            Attributes = ExtractAttributeNames(method.GetAttributes())
         };
     }
 
-    private static PropertyInfo MapToPropertyInfo(IProperty property)
+    private static PropertyInfo MapToPropertyInfo(IProperty property, bool isInherited = false)
     {
         return new PropertyInfo
         {
@@ -441,29 +493,44 @@ public sealed class ILSpyDecompilerService : IDecompilerService
             Type = property.ReturnType.Name,
             Accessibility = MapAccessibility(property.Accessibility),
             HasGetter = property.Getter != null,
-            HasSetter = property.Setter != null
+            HasSetter = property.Setter != null,
+            IsInherited = isInherited,
+            Attributes = ExtractAttributeNames(property.GetAttributes())
         };
     }
 
-    private static FieldInfo MapToFieldInfo(IField field)
+    private static FieldInfo MapToFieldInfo(IField field, bool isInherited = false)
     {
         return new FieldInfo
         {
             Name = field.Name,
             Type = field.Type.Name,
             Accessibility = MapAccessibility(field.Accessibility),
-            IsStatic = field.IsStatic
+            IsStatic = field.IsStatic,
+            IsInherited = isInherited,
+            Attributes = ExtractAttributeNames(field.GetAttributes())
         };
     }
 
-    private static EventInfo MapToEventInfo(IEvent evt)
+    private static EventInfo MapToEventInfo(IEvent evt, bool isInherited = false)
     {
         return new EventInfo
         {
             Name = evt.Name,
             Type = evt.ReturnType.Name,
-            Accessibility = MapAccessibility(evt.Accessibility)
+            Accessibility = MapAccessibility(evt.Accessibility),
+            IsInherited = isInherited,
+            Attributes = ExtractAttributeNames(evt.GetAttributes())
         };
+    }
+
+    private static IReadOnlyList<string> ExtractAttributeNames(IEnumerable<IAttribute> attributes)
+    {
+        return attributes
+            .Select(a => a.AttributeType.Name)
+            .Select(name => name.EndsWith("Attribute") ? name[..^"Attribute".Length] : name)
+            .Where(name => !string.IsNullOrEmpty(name))
+            .ToList();
     }
 
     private static Domain.Models.TypeKind MapTypeKind(ICSharpCode.Decompiler.TypeSystem.TypeKind kind) => kind switch
