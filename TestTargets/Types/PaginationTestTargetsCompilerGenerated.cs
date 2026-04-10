@@ -1,0 +1,115 @@
+// Phase 10 pagination fixture sibling file — CompilerGenerated scenario.
+// 105 async methods produce 105 compiler-generated async state machine types
+// so find_compiler_generated_types pagination can be exercised at the 100/105 boundary.
+
+namespace ILSpy.Mcp.TestTargets.Pagination.CompilerGenerated
+{
+    public sealed class CompilerGeneratedHost
+    {
+        public async System.Threading.Tasks.Task Async001() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async002() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async003() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async004() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async005() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async006() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async007() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async008() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async009() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async010() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async011() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async012() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async013() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async014() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async015() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async016() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async017() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async018() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async019() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async020() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async021() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async022() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async023() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async024() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async025() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async026() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async027() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async028() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async029() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async030() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async031() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async032() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async033() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async034() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async035() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async036() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async037() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async038() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async039() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async040() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async041() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async042() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async043() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async044() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async045() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async046() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async047() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async048() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async049() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async050() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async051() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async052() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async053() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async054() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async055() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async056() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async057() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async058() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async059() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async060() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async061() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async062() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async063() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async064() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async065() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async066() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async067() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async068() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async069() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async070() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async071() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async072() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async073() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async074() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async075() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async076() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async077() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async078() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async079() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async080() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async081() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async082() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async083() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async084() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async085() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async086() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async087() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async088() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async089() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async090() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async091() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async092() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async093() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async094() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async095() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async096() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async097() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async098() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async099() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async100() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async101() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async102() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async103() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async104() { await System.Threading.Tasks.Task.Yield(); }
+        public async System.Threading.Tasks.Task Async105() { await System.Threading.Tasks.Task.Yield(); }
+    }
+}

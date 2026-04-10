@@ -1,4 +1,5 @@
 using System.Text;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -31,6 +32,8 @@ public sealed class FindCompilerGeneratedTypesUseCase
 
     public async Task<string> ExecuteAsync(
         string assemblyPath,
+        int maxResults = 100,
+        int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try
@@ -43,7 +46,14 @@ public sealed class FindCompilerGeneratedTypesUseCase
             {
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var types = await _inspection.FindCompilerGeneratedTypesAsync(assembly, timeout.Token);
-                return FormatCompilerGeneratedTypes(types);
+
+                var sorted = types
+                    .OrderBy(t => t.ParentType ?? t.FullName, StringComparer.Ordinal)
+                    .ThenBy(t => t.FullName, StringComparer.Ordinal)
+                    .ToList();
+                var total = sorted.Count;
+                var page = sorted.Skip(offset).Take(maxResults).ToList();
+                return FormatCompilerGeneratedTypes(page, total, offset);
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -67,28 +77,40 @@ public sealed class FindCompilerGeneratedTypesUseCase
         }
     }
 
-    private static string FormatCompilerGeneratedTypes(IReadOnlyList<CompilerGeneratedTypeInfo> types)
+    private static string FormatCompilerGeneratedTypes(IReadOnlyList<CompilerGeneratedTypeInfo> page, int total, int offset)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"# Compiler-Generated Types ({types.Count})");
-        sb.AppendLine();
+        var returned = page.Count;
 
-        if (types.Count == 0)
+        if (total == 0)
         {
+            sb.AppendLine($"# Compiler-Generated Types (0)");
+            sb.AppendLine();
             sb.AppendLine("No compiler-generated types found.");
-            return sb.ToString();
         }
-
-        foreach (var type in types)
+        else
         {
-            sb.AppendLine($"- {type.FullName}");
-            sb.AppendLine($"  Kind: {type.GeneratedKind}");
-            if (type.ParentType != null)
-                sb.AppendLine($"  Parent Type: {type.ParentType}");
-            if (type.ParentMethod != null)
-                sb.AppendLine($"  Parent Method: {type.ParentMethod}");
+            if (returned == 0)
+            {
+                sb.AppendLine($"# Compiler-Generated Types ({total} total, offset {offset} is beyond last page)");
+            }
+            else
+            {
+                sb.AppendLine($"# Compiler-Generated Types ({total} total, showing {offset + 1}-{offset + returned})");
+            }
+            sb.AppendLine();
+            foreach (var type in page)
+            {
+                sb.AppendLine($"- {type.FullName}");
+                sb.AppendLine($"  Kind: {type.GeneratedKind}");
+                if (type.ParentType != null)
+                    sb.AppendLine($"  Parent Type: {type.ParentType}");
+                if (type.ParentMethod != null)
+                    sb.AppendLine($"  Parent Method: {type.ParentMethod}");
+            }
         }
 
+        PaginationEnvelope.AppendFooter(sb, total, returned, offset);
         return sb.ToString();
     }
 }
