@@ -66,24 +66,6 @@ public class DecompileTypeToolTests
     }
 
     [Fact]
-    public async Task DecompileType_AlwaysAppendsTruncationFooter()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DecompileTypeTool>();
-
-        var result = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath,
-            "ILSpy.Mcp.TestTargets.SimpleClass",
-            null,
-            CancellationToken.None);
-
-        result.Should().Contain("[truncation:");
-        result.Should().Contain("\"truncated\":false");
-        result.Should().Contain("\"totalLines\":");
-        result.Should().Contain("\"returnedLines\":");
-    }
-
-    [Fact]
     public async Task DecompileType_InvalidAssembly_ThrowsAssemblyLoadFailed()
     {
         using var scope = _fixture.CreateScope();

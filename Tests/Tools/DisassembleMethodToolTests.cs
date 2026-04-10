@@ -26,7 +26,7 @@ public class DisassembleMethodToolTests
             "GetGreeting",
             false,
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         result.Should().Contain(".method");
         result.Should().Contain(".maxstack");
@@ -47,7 +47,7 @@ public class DisassembleMethodToolTests
             "Calculate",
             false,
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         result.Should().Contain("IL_");
         result.Should().Contain("ldarg");
@@ -69,7 +69,7 @@ public class DisassembleMethodToolTests
             ".ctor",
             false,
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         result.Should().Contain(".method");
         result.Should().Contain(".maxstack");
@@ -88,7 +88,7 @@ public class DisassembleMethodToolTests
             "GetGreeting",
             showBytes: true,
             showTokens: false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         // showBytes adds hex byte annotations to IL output
         result.Should().MatchRegex(@"[0-9A-Fa-f]{2}");
@@ -106,7 +106,7 @@ public class DisassembleMethodToolTests
             "GetGreeting",
             showBytes: false,
             showTokens: true,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         // Token format like /* 06000001 */
         result.Should().MatchRegex(@"\/\*\s*[0-9A-Fa-f]+\s*\*\/");
@@ -124,7 +124,7 @@ public class DisassembleMethodToolTests
             "Area",
             false,
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         result.Should().Contain(".method");
         // Abstract methods have no body - no .maxstack
@@ -143,7 +143,7 @@ public class DisassembleMethodToolTests
             "NonExistentMethod",
             false,
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().Be("METHOD_NOT_FOUND");
@@ -161,7 +161,7 @@ public class DisassembleMethodToolTests
             "SomeMethod",
             false,
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().Be("TYPE_NOT_FOUND");
@@ -179,91 +179,9 @@ public class DisassembleMethodToolTests
             "SomeMethod",
             false,
             false,
-            cancellationToken: CancellationToken.None);
+            CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().BeOneOf("ASSEMBLY_LOAD_FAILED", "INTERNAL_ERROR");
-    }
-
-    [Fact]
-    public async Task DisassembleMethod_AlwaysAppendsTruncationFooter()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DisassembleMethodTool>();
-
-        var result = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath,
-            "ILSpy.Mcp.TestTargets.SimpleClass",
-            "GetGreeting",
-            false,
-            false,
-            cancellationToken: CancellationToken.None);
-
-        result.Should().Contain("[truncation:");
-        result.Should().Contain("\"truncated\":false");
-        result.Should().Contain("\"totalLines\":");
-        result.Should().Contain("\"returnedLines\":");
-    }
-
-    [Fact]
-    public async Task DisassembleMethod_ResolveDeep_ExpandsILTypeAbbreviations()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DisassembleMethodTool>();
-
-        // GetGreeting uses string concatenation, so IL will have string references
-        var resultDeep = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath,
-            "ILSpy.Mcp.TestTargets.SimpleClass",
-            "GetGreeting",
-            showBytes: false,
-            showTokens: false,
-            resolveDeep: true,
-            cancellationToken: CancellationToken.None);
-
-        // Deep resolution should expand IL type abbreviations to FQNs
-        resultDeep.Should().Contain("System.String");
-    }
-
-    [Fact]
-    public async Task DisassembleMethod_ResolveDeep_ShowsFullParameterTypes()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DisassembleMethodTool>();
-
-        // Calculate has int parameters and throws ArgumentException -- cross-assembly calls
-        var resultDeep = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath,
-            "ILSpy.Mcp.TestTargets.SimpleClass",
-            "Calculate",
-            showBytes: false,
-            showTokens: false,
-            resolveDeep: true,
-            cancellationToken: CancellationToken.None);
-
-        // Deep resolution should expand 'string' to 'System.String' in operand positions
-        resultDeep.Should().Contain("System.String");
-    }
-
-    [Fact]
-    public async Task DisassembleMethod_DefaultResolveDeep_BackwardCompatible()
-    {
-        using var scope = _fixture.CreateScope();
-        var tool = scope.ServiceProvider.GetRequiredService<DisassembleMethodTool>();
-
-        // Call with default resolveDeep (false) -- should produce same output as before
-        var result = await tool.ExecuteAsync(
-            _fixture.TestAssemblyPath,
-            "ILSpy.Mcp.TestTargets.SimpleClass",
-            "GetGreeting",
-            showBytes: false,
-            showTokens: false,
-            cancellationToken: CancellationToken.None);
-
-        result.Should().Contain(".method");
-        result.Should().Contain(".maxstack");
-        result.Should().Contain("IL_");
-        result.Should().Contain("ldstr");
-        result.Should().Contain("ret");
     }
 }

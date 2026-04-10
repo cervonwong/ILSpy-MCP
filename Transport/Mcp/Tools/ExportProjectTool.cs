@@ -25,12 +25,12 @@ public sealed class ExportProjectTool
     }
 
     [McpServerTool(Name = "export_project")]
-    [Description("Exports a .NET assembly as a complete C# project (.csproj + .cs files) to a target directory. The directory must be empty or non-existent.")]
+    [Description("Exports a .NET assembly as a complete C# project (.csproj + .cs files) to disk. Use this when you need to browse or search decompiled source across an entire assembly outside the MCP tool interface. The target directory must be empty or non-existent. Returns file listing with truncation metadata.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Target directory for the exported project. Must be empty or non-existent.")] string outputDirectory,
-        [Description("Optional namespace filter to limit export scope")] string? namespaceFilter = null,
-        [Description("Maximum number of types to export (default 500)")] int maxTypes = 500,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Target directory (must be empty or non-existent)")] string outputDirectory,
+        [Description("Limit export to types in this namespace")] string? namespaceFilter = null,
+        [Description("Maximum types to export (default 500)")] int maxTypes = 500,
         CancellationToken cancellationToken = default)
     {
         try

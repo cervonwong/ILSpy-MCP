@@ -25,17 +25,16 @@ public sealed class DisassembleTypeTool
     }
 
     [McpServerTool(Name = "disassemble_type")]
-    [Description("Get raw CIL/IL disassembly of a .NET type showing method signatures, fields, properties, and events in IL format. Use disassemble_method to drill into specific method IL bodies.")]
+    [Description("Disassembles a type to CIL/IL showing method signatures, fields, properties, and events in IL format. Use this when you need the raw IL structure of a type -- metadata layout, field offsets, or interface implementation table. For individual method IL bodies, use disassemble_method; for reconstructed C# source, use decompile_type. Returns IL text with truncation metadata.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full name of the type (e.g., 'System.String')")] string typeName,
-        [Description("Show metadata token numbers (e.g., /* 06000001 */)")] bool showTokens = false,
-        [Description("Expand generic parameters and show full type signatures for all operand references")] bool resolveDeep = false,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full type name (e.g., 'System.String')")] string typeName,
+        [Description("Include raw metadata token numbers (e.g., /* 06000001 */)")] bool showTokens = false,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _useCase.ExecuteAsync(assemblyPath, typeName, showTokens, resolveDeep, cancellationToken);
+            return await _useCase.ExecuteAsync(assemblyPath, typeName, showTokens, cancellationToken);
         }
         catch (TypeNotFoundException ex)
         {

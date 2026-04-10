@@ -22,10 +22,10 @@ public sealed class AnalyzeAssemblyTool
     }
 
     [McpServerTool(Name = "analyze_assembly")]
-    [Description("Use this when you just installed a NuGet library and need to understand its overall architecture and entry points before writing code. Provides high-level overview of main namespaces, key public types, and design patterns. Start here for unfamiliar libraries.")]
+    [Description("Summarizes an assembly's architecture: namespaces, key public types, design patterns, and entry points. Use this when starting analysis of an unfamiliar binary to decide which namespaces and types to investigate further. Returns a structured overview with truncation metadata.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("What aspects to analyze? (e.g., 'architecture overview', 'public API surface', 'design patterns')")] string? query = null,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Focus area for analysis (e.g., 'public API surface', 'design patterns', 'entry points')")] string? query = null,
         CancellationToken cancellationToken = default)
     {
         try

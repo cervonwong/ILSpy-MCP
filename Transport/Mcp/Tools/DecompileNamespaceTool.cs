@@ -25,11 +25,11 @@ public sealed class DecompileNamespaceTool
     }
 
     [McpServerTool(Name = "decompile_namespace")]
-    [Description("Lists all types in a namespace with full signatures, member counts, and public method signatures. Returns a summary -- use decompile_type to get full source for individual types.")]
+    [Description("Lists all types in a namespace with full signatures, member counts, and public method signatures. Use this when you know which namespace to investigate and want a detailed inventory before drilling into individual types. For a lighter assembly-wide listing by namespace (names only, no signatures), use list_assembly_types instead. Returns paginated type summaries.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full namespace name (e.g., 'System.Collections.Generic')")] string namespaceName,
-        [Description("Maximum number of types to return (default 200)")] int maxTypes = 200,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full namespace (e.g., 'System.Collections.Generic')")] string namespaceName,
+        [Description("Maximum types to return (default 200)")] int maxTypes = 200,
         CancellationToken cancellationToken = default)
     {
         try

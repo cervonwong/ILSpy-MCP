@@ -25,19 +25,18 @@ public sealed class DisassembleMethodTool
     }
 
     [McpServerTool(Name = "disassemble_method")]
-    [Description("Get raw CIL/IL disassembly of a specific .NET method showing the complete IL instruction listing with .maxstack, labels, and opcodes. Use show_bytes for raw opcode bytes.")]
+    [Description("Disassembles a single method to CIL/IL instruction listing with resolved operands. Use this when C# decompilation is misleading (compiler tricks, async state machines, generic specialization) and you need ground-truth IL behavior. For type-level IL structure, use disassemble_type; for reconstructed C# source, use decompile_method. Returns IL text with truncation metadata.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
         [Description("Full name of the type containing the method")] string typeName,
-        [Description("Name of the method to disassemble")] string methodName,
-        [Description("Show raw opcode byte sequences")] bool showBytes = false,
-        [Description("Show metadata token numbers (e.g., /* 06000001 */)")] bool showTokens = false,
-        [Description("Expand generic parameters and show full type signatures for all operand references")] bool resolveDeep = false,
+        [Description("Method name to disassemble")] string methodName,
+        [Description("Include raw opcode byte sequences")] bool showBytes = false,
+        [Description("Include raw metadata token numbers")] bool showTokens = false,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _useCase.ExecuteAsync(assemblyPath, typeName, methodName, showBytes, showTokens, resolveDeep, cancellationToken);
+            return await _useCase.ExecuteAsync(assemblyPath, typeName, methodName, showBytes, showTokens, cancellationToken);
         }
         catch (TypeNotFoundException ex)
         {

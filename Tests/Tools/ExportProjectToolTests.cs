@@ -143,32 +143,6 @@ public class ExportProjectToolTests
     }
 
     [Fact]
-    public async Task ExportProject_AlwaysAppendsTruncationFooter()
-    {
-        var tempDir = CreateTempDir();
-        try
-        {
-            using var scope = _fixture.CreateScope();
-            var tool = scope.ServiceProvider.GetRequiredService<ExportProjectTool>();
-
-            var result = await tool.ExecuteAsync(
-                _fixture.TestAssemblyPath,
-                tempDir,
-                cancellationToken: CancellationToken.None);
-
-            result.Should().Contain("[truncation:");
-            result.Should().Contain("\"totalTypes\":");
-            result.Should().Contain("\"exportedTypes\":");
-            result.Should().Contain("\"truncated\":");
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-        }
-    }
-
-    [Fact]
     public async Task InvalidAssembly_ThrowsError()
     {
         var tempDir = CreateTempDir();

@@ -25,11 +25,11 @@ public sealed class DecompileTypeTool
     }
 
     [McpServerTool(Name = "decompile_type")]
-    [Description("Use this when writing code that needs to interact with a NuGet library type but you don't know its structure. Decompiles a class/interface/struct to understand what methods, properties, and constructors are available. Returns AI-analyzed insights about usage patterns, not raw source code.")]
+    [Description("Decompiles a type to reconstructed C# source showing full implementation details. Use this when you need to read method bodies, understand control flow, or see how a class actually works inside a compiled binary. For a quick structural overview without source (cheaper), use get_type_members instead; for IL-level representation, use disassemble_type. Returns C# source with truncation metadata.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full name of the type to decompile (e.g., 'System.String')")] string typeName,
-        [Description("What specific information are you looking for? (e.g., 'method implementations', 'property definitions', 'overall structure')")] string? query = null,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full type name (e.g., 'System.String', 'MyApp.Services.OrderProcessor')")] string typeName,
+        [Description("Focus area (e.g., 'error handling', 'state mutations', 'dependency usage')")] string? query = null,
         CancellationToken cancellationToken = default)
     {
         try

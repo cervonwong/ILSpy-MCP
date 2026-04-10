@@ -22,12 +22,12 @@ public sealed class DecompileMethodTool
     }
 
     [McpServerTool(Name = "decompile_method")]
-    [Description("Use this when you need to call a specific library method but don't understand its parameters, behavior, or side effects. Analyzes the method's implementation to explain what it does, what arguments it expects, and how to use it correctly. Helpful for understanding undocumented APIs.")]
+    [Description("Decompiles a single method to reconstructed C# source. Use this when you need to understand a method's logic, parameters, and side effects in a compiled binary. For IL-level analysis (compiler tricks, async state machines), use disassemble_method instead. Returns C# source with truncation metadata.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
         [Description("Full name of the type containing the method")] string typeName,
-        [Description("Name of the method to decompile")] string methodName,
-        [Description("What aspect of the method are you interested in? (e.g., 'algorithm logic', 'error handling', 'performance')")] string? query = null,
+        [Description("Method name to decompile")] string methodName,
+        [Description("Focus area (e.g., 'algorithm logic', 'error handling', 'performance')")] string? query = null,
         CancellationToken cancellationToken = default)
     {
         try
