@@ -26,8 +26,8 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 
 - [ ] **Phase 8: Tech Debt Cleanup** - Normalize error codes, fix architecture violation, backfill SUMMARY frontmatter, runtime-verify Phase 7 tests
 - [ ] **Phase 9: Pagination Contract & Structural Cleanup** - Define uniform pagination contract once, drop `analyze_references` dispatcher, rename `decompile_namespace` to `list_namespace_types`, update README
-- [ ] **Phase 10: Find-Tool Pagination & Match Enrichment** - Apply pagination contract to all `find_*` tools and make match records self-describing (declaring type FQN, method signature, IL offset, kind grouping)
-- [ ] **Phase 11: List/Get/Search Pagination & Member Enrichment** - Apply pagination contract to `list_*`, `get_type_members`, `search_members_by_name`, and `list_namespace_types`; enrich `get_type_members` with inherited/declared distinction and modifier flags
+- [x] **Phase 10: Find-Tool Pagination & Match Enrichment** - Apply pagination contract to all `find_*` tools and make match records self-describing (declaring type FQN, method signature, IL offset, kind grouping) (completed 2026-04-10)
+- [x] **Phase 11: List/Get/Search Pagination & Member Enrichment** - Apply pagination contract to `list_*`, `get_type_members`, `search_members_by_name`, and `list_namespace_types`; enrich `get_type_members` with inherited/declared distinction and modifier flags (completed 2026-04-10)
 - [ ] **Phase 12: IL Token Resolution, Search Enrichment & Truncation Reporting** - Inline-resolve metadata tokens in IL disassembly, enrich search_strings/search_constants with context, report truncation on source-returning and bounded-output tools
 - [ ] **Phase 13: Scenario Description Sweep** - Rewrite all mechanical tool descriptions to "Use this when..." format and cross-reference overlapping tools
 
@@ -87,7 +87,9 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
   2. An agent calling `get_type_members` can paginate and always receives `(truncated, total)` metadata - verifiable by calling it against `System.String`
   3. An agent calling `search_members_by_name` can paginate and always receives `(truncated, total)` metadata - verifiable by calling it with a common search term in a large assembly
   4. A `get_type_members` response distinguishes inherited vs declared members, exposes virtual/abstract/sealed flags, and summarizes attributes per member - verifiable by calling it against a type with inheritance, virtual members, and annotated members
-**Plans**: TBD
+**Plans**: 2 plans
+- [x] 11-01-PLAN.md — PAGE-03 + PAGE-05: Add pagination to list_assembly_types, list_embedded_resources, and search_members_by_name (Wave 1)
+- [x] 11-02-PLAN.md — PAGE-04 + OUTPUT-05: Enrich domain models with inherited/modifier/attribute fields, update infrastructure mapper, add pagination + enriched formatting to get_type_members (Wave 1, parallel with 11-01)
 
 ### Phase 12: IL Token Resolution, Search Enrichment & Truncation Reporting
 **Milestone**: v1.2.0
@@ -101,7 +103,10 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
   4. A `search_constants` match tells the agent the constant value, the containing method FQN, and the IL offset - verifiable by calling against an assembly with known numeric constants
   5. `decompile_type`, `decompile_method`, `disassemble_type`, and `disassemble_method` report `(truncated, total_lines)` when output exceeds their line cap, making silent truncation visible - verifiable by calling against a type/method that exceeds the cap
   6. `export_project` and `analyze_assembly` report `truncated`/`total` metadata so silent cap truncation becomes observable - verifiable by calling `export_project` on an assembly exceeding the type cap and inspecting the result
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 12-01-PLAN.md — IL-01 + IL-02 + IL-03: Add resolveDeep flag to disassemble tools, verify/enhance inline metadata token resolution, implement deep resolution post-processing (Wave 1)
+- [ ] 12-02-PLAN.md — OUTPUT-06 + OUTPUT-07: Enrich search_strings with method FQN + surrounding IL window, enrich search_constants with method FQN (Wave 1, parallel with 12-01)
+- [ ] 12-03-PLAN.md — PAGE-07 + PAGE-08: Create TruncationEnvelope helper, apply structured truncation reporting to all 5 source-returning tools + export_project + analyze_assembly (Wave 2, depends on 12-01)
 
 ### Phase 13: Scenario Description Sweep
 **Milestone**: v1.2.0
@@ -127,7 +132,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 | 7. Bulk Operations & Documentation | v1.0 | 3/3 | Complete | 2026-04-08 |
 | 8. Tech Debt Cleanup | v1.2.0 | 0/? | Not started | - |
 | 9. Pagination Contract & Structural Cleanup | v1.2.0 | 0/? | Not started | - |
-| 10. Find-Tool Pagination & Match Enrichment | v1.2.0 | 1/5 | In Progress|  |
-| 11. List/Get/Search Pagination & Member Enrichment | v1.2.0 | 0/? | Not started | - |
-| 12. IL Token Resolution, Search Enrichment & Truncation Reporting | v1.2.0 | 0/? | Not started | - |
+| 10. Find-Tool Pagination & Match Enrichment | v1.2.0 | 5/5 | Complete    | 2026-04-10 |
+| 11. List/Get/Search Pagination & Member Enrichment | v1.2.0 | 2/2 | Complete    | 2026-04-10 |
+| 12. IL Token Resolution, Search Enrichment & Truncation Reporting | v1.2.0 | 0/3 | Planned | - |
 | 13. Scenario Description Sweep | v1.2.0 | 0/? | Not started | - |
