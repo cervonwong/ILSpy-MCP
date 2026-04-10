@@ -25,10 +25,10 @@ public sealed class GetTypeAttributesTool
     }
 
     [McpServerTool(Name = "get_type_attributes")]
-    [Description("List all custom attributes declared on a type with their constructor arguments and named properties")]
+    [Description("Lists all custom attributes on a type with their constructor arguments and named properties. Use this when checking serialization settings, ORM mappings, validation rules, or other metadata-driven behavior declared on a class, struct, or interface.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full name of the type (e.g., 'MyNamespace.MyClass')")] string typeName,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full type name (e.g., 'MyApp.Models.Order')")] string typeName,
         CancellationToken cancellationToken = default)
     {
         try

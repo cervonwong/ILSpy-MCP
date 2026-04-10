@@ -25,11 +25,11 @@ public sealed class FindUsagesTool
     }
 
     [McpServerTool(Name = "find_usages")]
-    [Description("Find all call sites, field accesses, and property usages of a specific member across an assembly. Use this to trace where a method is called, a field is read/written, or a property is accessed.")]
+    [Description("Finds all call sites, field reads, and property accesses of a specific member across an assembly. Use this when tracing how a method or field propagates through a binary, assessing impact before patching, or mapping data flow. Returns paginated matches with declaring type, method signature, and IL offset.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full name of the type containing the member (e.g., 'MyNamespace.MyClass')")] string typeName,
-        [Description("Name of the member to find usages of (method, field, or property name)")] string memberName,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full name of the type containing the member (e.g., 'MyApp.Services.OrderProcessor')")] string typeName,
+        [Description("Member to find usages of (method, field, or property name)")] string memberName,
         CancellationToken cancellationToken = default)
     {
         try

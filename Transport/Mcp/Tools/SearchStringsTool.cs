@@ -25,12 +25,12 @@ public sealed class SearchStringsTool
     }
 
     [McpServerTool(Name = "search_strings")]
-    [Description("Search for string literals in assembly IL bytecode matching a regex pattern. Scans all ldstr instructions and returns matches with containing method context.")]
+    [Description("Searches for string literals in assembly IL bytecode matching a regex pattern. Use this to find hardcoded URLs, connection strings, error messages, API keys, or other sensitive strings embedded in a compiled binary. Returns paginated matches with literal value, containing method FQN, IL offset, and surrounding IL context.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Regex pattern to match against string literals (e.g., 'https?://', 'password', 'Error.*')")] string pattern,
-        [Description("Maximum number of results to return (default: 100)")] int maxResults = 100,
-        [Description("Number of results to skip for pagination (default: 0)")] int offset = 0,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Regex pattern to match (e.g., 'https?://', 'password', 'Error.*')")] string pattern,
+        [Description("Maximum results to return (default 100)")] int maxResults = 100,
+        [Description("Results to skip for pagination (default 0)")] int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try

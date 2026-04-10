@@ -25,12 +25,12 @@ public sealed class FindInstantiationsTool
     }
 
     [McpServerTool(Name = "find_instantiations")]
-    [Description("Find all sites where a given type is instantiated (newobj) within an assembly. Shows which methods create instances of the target type.")]
+    [Description("Finds all sites where a type is instantiated (newobj) within an assembly. Use this when tracing object creation patterns, finding factory call sites, or identifying which code paths allocate a specific type. Returns paginated matches with containing type, method signature, and IL offset.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full name of the type to find instantiations of (e.g., 'MyNamespace.MyClass')")] string typeName,
-        [Description("Maximum number of results to return (default: 100)")] int maxResults = 100,
-        [Description("Number of results to skip for pagination (default: 0)")] int offset = 0,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full name of the type to find instantiations of (e.g., 'MyApp.Models.Order')")] string typeName,
+        [Description("Maximum results to return (default 100)")] int maxResults = 100,
+        [Description("Results to skip for pagination (default 0)")] int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try

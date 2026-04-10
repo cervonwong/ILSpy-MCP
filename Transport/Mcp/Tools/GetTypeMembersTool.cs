@@ -22,10 +22,10 @@ public sealed class GetTypeMembersTool
     }
 
     [McpServerTool(Name = "get_type_members")]
-    [Description("Use this when you know the class name but need to see what methods and properties you can call on it. Shows complete API surface (method signatures, properties, events) without implementation details. Faster than decompile_type when you just need to know 'what can I call?'")]
+    [Description("Lists a type's API surface: methods, properties, fields, and events with signatures, modifiers, and inheritance info. Use this when you need to know what you can call on a type without reading full source -- faster and cheaper than decompile_type. For full implementation details and method bodies, use decompile_type instead. Returns paginated member listing with declared/inherited distinction.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full name of the type to inspect")] string typeName,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full name of the type to inspect (e.g., 'System.String')")] string typeName,
         CancellationToken cancellationToken = default)
     {
         try

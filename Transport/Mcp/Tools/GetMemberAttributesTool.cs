@@ -25,11 +25,11 @@ public sealed class GetMemberAttributesTool
     }
 
     [McpServerTool(Name = "get_member_attributes")]
-    [Description("List all custom attributes on a type member (method, property, field, event) with their constructor arguments")]
+    [Description("Lists all custom attributes on a type member (method, property, field, event) with their constructor arguments. Use this when checking authorization rules, validation constraints, serialization hints, or other attribute-driven behavior on a specific member.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full name of the type (e.g., 'MyNamespace.MyClass')")] string typeName,
-        [Description("Name of the member (method, property, field, or event)")] string memberName,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full name of the type (e.g., 'MyApp.Models.Order')")] string typeName,
+        [Description("Member name (method, property, field, or event)")] string memberName,
         CancellationToken cancellationToken = default)
     {
         try

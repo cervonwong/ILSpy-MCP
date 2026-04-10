@@ -25,13 +25,13 @@ public sealed class FindDependenciesTool
     }
 
     [McpServerTool(Name = "find_dependencies")]
-    [Description("Find all outward dependencies (method calls, field accesses, type references) of a type or specific method. Shows what external members the code depends on.")]
+    [Description("Maps all outward dependencies of a type or method: method calls, field accesses, and type references. Use this when assessing what an unfamiliar method touches before trusting it, or scoping the blast radius of a change. Returns paginated results grouped by kind (calls, field reads, type refs) with FQN and defining assembly.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full name of the type to analyze (e.g., 'MyNamespace.MyClass')")] string typeName,
-        [Description("Optional method name to narrow analysis to a specific method")] string? methodName = null,
-        [Description("Maximum number of results to return (default: 100)")] int maxResults = 100,
-        [Description("Number of results to skip for pagination (default: 0)")] int offset = 0,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full name of the type to analyze (e.g., 'MyApp.Services.OrderProcessor')")] string typeName,
+        [Description("Narrow analysis to a specific method (optional)")] string? methodName = null,
+        [Description("Maximum results to return (default 100)")] int maxResults = 100,
+        [Description("Results to skip for pagination (default 0)")] int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try

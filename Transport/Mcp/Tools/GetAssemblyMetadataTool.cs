@@ -25,9 +25,9 @@ public sealed class GetAssemblyMetadataTool
     }
 
     [McpServerTool(Name = "get_assembly_metadata")]
-    [Description("Get assembly metadata including target framework, runtime version, PE bitness, strong name, entry point, and all referenced assemblies")]
+    [Description("Reads assembly-level metadata: target framework, runtime version, PE bitness, strong name, entry point, and referenced assemblies. Use this when you need to determine an assembly's runtime requirements, verify strong-name signing, or map its dependency graph before deeper analysis.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
         CancellationToken cancellationToken = default)
     {
         try

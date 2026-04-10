@@ -25,9 +25,9 @@ public sealed class GetAssemblyAttributesTool
     }
 
     [McpServerTool(Name = "get_assembly_attributes")]
-    [Description("List all custom attributes declared on an assembly with their constructor arguments and named properties")]
+    [Description("Lists all custom attributes declared at assembly level with their constructor arguments and named properties. Use this when investigating assembly-wide configuration like InternalsVisibleTo, CLSCompliant, or custom build metadata baked into a compiled binary.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
         CancellationToken cancellationToken = default)
     {
         try

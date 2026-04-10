@@ -25,12 +25,12 @@ public sealed class FindImplementorsTool
     }
 
     [McpServerTool(Name = "find_implementors")]
-    [Description("Find all types implementing a given interface or extending a given base class within an assembly. Returns type names with their relationship (implements/extends).")]
+    [Description("Finds all types implementing an interface or extending a base class within an assembly. Use this when mapping the concrete implementations behind an abstraction, identifying plugin points, or understanding a polymorphic dispatch target. Returns paginated matches with type name, assembly, and direct-vs-transitive relationship.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Full name of the interface or base class (e.g., 'MyNamespace.IMyInterface')")] string typeName,
-        [Description("Maximum number of results to return (default: 100)")] int maxResults = 100,
-        [Description("Number of results to skip for pagination (default: 0)")] int offset = 0,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Full name of the interface or base class (e.g., 'System.IDisposable')")] string typeName,
+        [Description("Maximum results to return (default 100)")] int maxResults = 100,
+        [Description("Results to skip for pagination (default 0)")] int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try

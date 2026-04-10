@@ -25,12 +25,12 @@ public sealed class SearchConstantsTool
     }
 
     [McpServerTool(Name = "search_constants")]
-    [Description("Search for numeric integer constants in assembly IL bytecode. Finds all ldc.i4 and ldc.i8 instructions loading the specified value. Returns matches with containing method context.")]
+    [Description("Searches for numeric integer constants in assembly IL bytecode. Use this to find magic numbers, status codes, buffer sizes, or cryptographic constants embedded in compiled IL when source is unavailable. Returns paginated matches with constant value, containing method FQN, and IL offset.")]
     public async Task<string> ExecuteAsync(
-        [Description("Path to the .NET assembly file")] string assemblyPath,
-        [Description("Exact numeric value to search for (integer)")] long value,
-        [Description("Maximum number of results to return (default: 100)")] int maxResults = 100,
-        [Description("Number of results to skip for pagination (default: 0)")] int offset = 0,
+        [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
+        [Description("Exact integer value to search for")] long value,
+        [Description("Maximum results to return (default 100)")] int maxResults = 100,
+        [Description("Results to skip for pagination (default 0)")] int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try
