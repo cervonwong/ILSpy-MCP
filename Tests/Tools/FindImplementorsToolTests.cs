@@ -23,7 +23,7 @@ public class FindImplementorsToolTests
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.CrossRef.IRepository",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("Implementors of");
         result.Should().Contain("FileRepository");
@@ -39,7 +39,7 @@ public class FindImplementorsToolTests
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.CrossRef.FileRepository",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("Implementors of");
         result.Should().Contain("CachedFileRepository");
@@ -54,7 +54,7 @@ public class FindImplementorsToolTests
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.CrossRef.DataService",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("0 found");
         result.Should().Contain("No implementors found");
@@ -69,7 +69,7 @@ public class FindImplementorsToolTests
         var act = () => tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
             "NonExistent.Type",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().Be("TYPE_NOT_FOUND");

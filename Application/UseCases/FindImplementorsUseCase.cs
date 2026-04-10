@@ -1,3 +1,5 @@
+using System.Text;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -31,6 +33,8 @@ public sealed class FindImplementorsUseCase
     public async Task<string> ExecuteAsync(
         string assemblyPath,
         string typeName,
+        int maxResults = 100,
+        int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try
@@ -45,7 +49,13 @@ public sealed class FindImplementorsUseCase
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var results = await _crossRef.FindImplementorsAsync(assembly, type, timeout.Token);
 
-                return FormatResults(typeName, results);
+                var sorted = results
+                    .OrderByDescending(r => r.IsDirect)
+                    .ThenBy(r => r.TypeFullName, StringComparer.Ordinal)
+                    .ToList();
+                var total = sorted.Count;
+                var page = sorted.Skip(offset).Take(maxResults).ToList();
+                return FormatResults(typeName, page, total, offset);
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -69,39 +79,42 @@ public sealed class FindImplementorsUseCase
         }
     }
 
-    private static string FormatResults(string typeName, IReadOnlyList<ImplementorResult> results)
+    private static string FormatResults(string typeName, IReadOnlyList<ImplementorResult> page, int total, int offset)
     {
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"Implementors of {typeName}: {results.Count} found");
+        var sb = new StringBuilder();
+        var returned = page.Count;
+
+        if (total == 0)
+        {
+            sb.AppendLine($"Implementors of {typeName}: 0 found");
+        }
+        else if (returned == 0)
+        {
+            sb.AppendLine($"Implementors of {typeName}: {total} found (offset {offset} is beyond last page)");
+        }
+        else
+        {
+            var rangeStart = offset + 1;
+            var rangeEnd = offset + returned;
+            sb.AppendLine($"Implementors of {typeName}: {total} found (showing {rangeStart}-{rangeEnd})");
+        }
+
         sb.AppendLine();
 
-        if (results.Count == 0)
+        if (total == 0)
         {
             sb.AppendLine("No implementors found in the assembly.");
-            return sb.ToString();
         }
-
-        var direct = results.Where(r => r.IsDirect).ToList();
-        var indirect = results.Where(r => !r.IsDirect).ToList();
-
-        if (direct.Count > 0)
+        else
         {
-            sb.AppendLine("Direct:");
-            foreach (var result in direct)
+            foreach (var result in page)
             {
-                sb.AppendLine($"  [{result.Kind}] {result.TypeFullName}");
+                var marker = result.IsDirect ? "direct" : "transitive";
+                sb.AppendLine($"  [{marker}] [{result.Kind}] {result.TypeFullName}");
             }
         }
 
-        if (indirect.Count > 0)
-        {
-            sb.AppendLine("Indirect:");
-            foreach (var result in indirect)
-            {
-                sb.AppendLine($"  [{result.Kind}] {result.TypeFullName}");
-            }
-        }
-
+        PaginationEnvelope.AppendFooter(sb, total, returned, offset);
         return sb.ToString();
     }
 }
