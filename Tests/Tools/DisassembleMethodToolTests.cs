@@ -186,6 +186,26 @@ public class DisassembleMethodToolTests
     }
 
     [Fact]
+    public async Task DisassembleMethod_AlwaysAppendsTruncationFooter()
+    {
+        using var scope = _fixture.CreateScope();
+        var tool = scope.ServiceProvider.GetRequiredService<DisassembleMethodTool>();
+
+        var result = await tool.ExecuteAsync(
+            _fixture.TestAssemblyPath,
+            "ILSpy.Mcp.TestTargets.SimpleClass",
+            "GetGreeting",
+            false,
+            false,
+            cancellationToken: CancellationToken.None);
+
+        result.Should().Contain("[truncation:");
+        result.Should().Contain("\"truncated\":false");
+        result.Should().Contain("\"totalLines\":");
+        result.Should().Contain("\"returnedLines\":");
+    }
+
+    [Fact]
     public async Task DisassembleMethod_ResolveDeep_ExpandsILTypeAbbreviations()
     {
         using var scope = _fixture.CreateScope();

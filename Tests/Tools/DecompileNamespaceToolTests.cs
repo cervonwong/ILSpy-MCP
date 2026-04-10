@@ -122,6 +122,24 @@ public class DecompileNamespaceToolTests
     }
 
     [Fact]
+    public async Task ListNamespaceTypes_AlwaysAppendsTruncationFooter()
+    {
+        using var scope = _fixture.CreateScope();
+        var tool = scope.ServiceProvider.GetRequiredService<DecompileNamespaceTool>();
+
+        var result = await tool.ExecuteAsync(
+            _fixture.TestAssemblyPath,
+            "ILSpy.Mcp.TestTargets",
+            cancellationToken: CancellationToken.None);
+
+        // Should always have truncation footer (even when not byte-truncated)
+        result.Should().Contain("[truncation:");
+        result.Should().Contain("\"truncated\":false");
+        result.Should().Contain("\"totalLines\":");
+        result.Should().Contain("\"returnedLines\":");
+    }
+
+    [Fact]
     public async Task InvalidAssembly_ThrowsError()
     {
         using var scope = _fixture.CreateScope();
