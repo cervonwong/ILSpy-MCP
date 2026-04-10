@@ -26,7 +26,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 
 - [ ] **Phase 8: Tech Debt Cleanup** - Normalize error codes, fix architecture violation, backfill SUMMARY frontmatter, runtime-verify Phase 7 tests
 - [ ] **Phase 9: Pagination Contract & Structural Cleanup** - Define uniform pagination contract once, drop `analyze_references` dispatcher, rename `decompile_namespace` to `list_namespace_types`, update README
-- [ ] **Phase 10: Find-Tool Pagination & Match Enrichment** - Apply pagination contract to all `find_*` tools and make match records self-describing (declaring type FQN, method signature, IL offset, kind grouping)
+- [x] **Phase 10: Find-Tool Pagination & Match Enrichment** - Apply pagination contract to all `find_*` tools and make match records self-describing (declaring type FQN, method signature, IL offset, kind grouping) (completed 2026-04-10)
 - [ ] **Phase 11: List/Get/Search Pagination & Member Enrichment** - Apply pagination contract to `list_*`, `get_type_members`, `search_members_by_name`, and `list_namespace_types`; enrich `get_type_members` with inherited/declared distinction and modifier flags
 - [ ] **Phase 12: IL Token Resolution, Search Enrichment & Truncation Reporting** - Inline-resolve metadata tokens in IL disassembly, enrich search_strings/search_constants with context, report truncation on source-returning and bounded-output tools
 - [ ] **Phase 13: Scenario Description Sweep** - Rewrite all mechanical tool descriptions to "Use this when..." format and cross-reference overlapping tools
@@ -127,7 +127,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 | 7. Bulk Operations & Documentation | v1.0 | 3/3 | Complete | 2026-04-08 |
 | 8. Tech Debt Cleanup | v1.2.0 | 0/? | Not started | - |
 | 9. Pagination Contract & Structural Cleanup | v1.2.0 | 0/? | Not started | - |
-| 10. Find-Tool Pagination & Match Enrichment | v1.2.0 | 1/5 | In Progress|  |
+| 10. Find-Tool Pagination & Match Enrichment | v1.2.0 | 5/5 | Complete    | 2026-04-10 |
 | 11. List/Get/Search Pagination & Member Enrichment | v1.2.0 | 0/? | Not started | - |
 | 12. IL Token Resolution, Search Enrichment & Truncation Reporting | v1.2.0 | 0/? | Not started | - |
 | 13. Scenario Description Sweep | v1.2.0 | 0/? | Not started | - |
