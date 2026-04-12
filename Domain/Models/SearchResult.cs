@@ -37,6 +37,14 @@ public sealed record StringSearchResult
 
     /// <summary>IL offset of the ldstr instruction.</summary>
     public int ILOffset { get; init; }
+
+    /// <summary>
+    /// Surrounding IL instructions rendered as "IL_XXXX: opcode [operand]" strings,
+    /// ordered by IL offset ascending. Includes up to N=3 instructions before and N=3
+    /// after the ldstr hit, bounded by the method body. The ldstr line itself is included
+    /// in the middle of the window (marker for the hit).
+    /// </summary>
+    public IReadOnlyList<string> SurroundingIL { get; init; } = Array.Empty<string>();
 }
 
 /// <summary>
