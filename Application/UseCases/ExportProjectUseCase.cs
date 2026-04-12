@@ -2,6 +2,7 @@ using System.Text;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp.ProjectDecompiler;
 using ICSharpCode.Decompiler.Metadata;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -133,7 +134,20 @@ public sealed class ExportProjectUseCase
                     allFiles.Length,
                     warnings);
 
-                return FormatOutput(result);
+                // Compute total types in assembly for canonical footer (PAGE-08 semantics).
+                // Re-read the metadata since peFile is disposed inside the Task.Run lambda.
+                int totalTypesInAssembly;
+                try
+                {
+                    using var peForCount = new PEFile(assembly.Value);
+                    totalTypesInAssembly = peForCount.Metadata.TypeDefinitions.Count;
+                }
+                catch
+                {
+                    totalTypesInAssembly = result.SourceFiles.Count;
+                }
+
+                return FormatOutput(result, totalTypesInAssembly);
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -158,7 +172,7 @@ public sealed class ExportProjectUseCase
         }
     }
 
-    private static string FormatOutput(ProjectExportResult result)
+    private static string FormatOutput(ProjectExportResult result, int totalTypesInAssembly)
     {
         var sb = new StringBuilder();
         sb.AppendLine($"Project exported to: {result.OutputDirectory}");
@@ -182,7 +196,10 @@ public sealed class ExportProjectUseCase
             }
         }
 
-        return sb.ToString().TrimEnd();
+        var body = sb.ToString().TrimEnd();
+        var output = new StringBuilder(body);
+        PaginationEnvelope.AppendFooter(output, total: totalTypesInAssembly, returned: result.SourceFiles.Count, offset: 0);
+        return output.ToString();
     }
 }
 
