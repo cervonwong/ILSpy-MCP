@@ -192,7 +192,6 @@ static void RegisterServices(IServiceCollection services)
     services.AddScoped<FindImplementorsTool>();
     services.AddScoped<FindDependenciesTool>();
     services.AddScoped<FindInstantiationsTool>();
-    services.AddScoped<AnalyzeReferencesTool>();
     services.AddScoped<GetAssemblyMetadataTool>();
     services.AddScoped<GetAssemblyAttributesTool>();
     services.AddScoped<GetTypeAttributesTool>();
