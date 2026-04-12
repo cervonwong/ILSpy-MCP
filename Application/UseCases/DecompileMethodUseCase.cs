@@ -1,4 +1,5 @@
 using ILSpy.Mcp.Application.Configuration;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -49,12 +50,15 @@ public sealed class DecompileMethodUseCase
             {
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var methodCode = await _decompiler.DecompileMethodAsync(assembly, type, methodName, timeout.Token);
-                if (methodCode.Length > _options.MaxDecompilationSize)
-                {
-                    methodCode = methodCode[.._options.MaxDecompilationSize]
-                        + $"\n\n[Output truncated at {_options.MaxDecompilationSize} bytes. The full output is {methodCode.Length} bytes.]";
-                }
-                return methodCode;
+                var totalBytes = methodCode.Length;
+                var maxBytes = _options.MaxDecompilationSize;
+                var truncated = totalBytes > maxBytes;
+                var body = truncated ? methodCode[..maxBytes] : methodCode;
+                var returnedBytes = body.Length;
+
+                var sb = new System.Text.StringBuilder(body);
+                PaginationEnvelope.AppendFooter(sb, totalBytes, returnedBytes, offset: 0);
+                return sb.ToString();
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

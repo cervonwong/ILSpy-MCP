@@ -137,7 +137,7 @@ public class SecurityAndRobustnessTests
             "ILSpy.Mcp.TestTargets.SimpleClass",
             cancellationToken: CancellationToken.None);
 
-        result.Should().Contain("[Output truncated at 100 bytes");
+        result.Should().Contain("[pagination:").And.Contain("\"truncated\":true");
     }
 
     /// <summary>

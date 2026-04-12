@@ -1,8 +1,11 @@
+using ILSpy.Mcp.Application.Configuration;
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
 using ILSpy.Mcp.Domain.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Text;
 
 namespace ILSpy.Mcp.Application.UseCases;
@@ -13,17 +16,20 @@ public sealed class AnalyzeAssemblyUseCase
     private readonly ITimeoutService _timeout;
     private readonly IConcurrencyLimiter _limiter;
     private readonly ILogger<AnalyzeAssemblyUseCase> _logger;
+    private readonly ILSpyOptions _options;
 
     public AnalyzeAssemblyUseCase(
         IDecompilerService decompiler,
         ITimeoutService timeout,
         IConcurrencyLimiter limiter,
-        ILogger<AnalyzeAssemblyUseCase> logger)
+        ILogger<AnalyzeAssemblyUseCase> logger,
+        IOptions<ILSpyOptions> options)
     {
         _decompiler = decompiler;
         _timeout = timeout;
         _limiter = limiter;
         _logger = logger;
+        _options = options.Value;
     }
 
     public async Task<string> ExecuteAsync(
@@ -68,7 +74,16 @@ public sealed class AnalyzeAssemblyUseCase
                     }
                 }
 
-                return result.ToString();
+                var raw = result.ToString();
+                var totalBytes = raw.Length;
+                var maxBytes = _options.MaxDecompilationSize;
+                var truncated = totalBytes > maxBytes;
+                var body = truncated ? raw[..maxBytes] : raw;
+                var returnedBytes = body.Length;
+
+                var sb = new StringBuilder(body);
+                PaginationEnvelope.AppendFooter(sb, totalBytes, returnedBytes, offset: 0);
+                return sb.ToString();
             }, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
