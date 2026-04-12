@@ -141,10 +141,10 @@ Plans:
   6. `disassemble_type` and `disassemble_method` expose a `resolveDeep` boolean flag that toggles full parameter-signature/generics resolution (IL-03)
   7. `VERIFICATION.md` exists for Phases 10, 11, and 12 and reflects post-gap-closure state; REQUIREMENTS.md traceability table shows every satisfied v1.2 requirement as `[x]` with accurate coverage count
 **Plans**: 6 plans
-- [ ] 14-01-PLAN.md — CLEAN-01 (delete AnalyzeReferencesTool) + PAGE-01/CLEAN-03 (recreate docs/PAGINATION.md) (Wave 1)
-- [ ] 14-02-PLAN.md — PAGE-03/04/05/06 + OUTPUT-05: rewire pagination on list_assembly_types, list_embedded_resources, get_type_members, search_members_by_name, list_namespace_types (Wave 1)
-- [ ] 14-03-PLAN.md — OUTPUT-06/07: canonical pagination footer for search_strings and search_constants (Wave 1)
-- [ ] 14-04-PLAN.md — PAGE-07/08: canonical truncation footer for decompile_*, disassemble_*, export_project, analyze_assembly (Wave 1)
+- [x] 14-01-PLAN.md — CLEAN-01 (delete AnalyzeReferencesTool) + PAGE-01/CLEAN-03 (recreate docs/PAGINATION.md) (Wave 1)
+- [x] 14-02-PLAN.md — PAGE-03/04/05/06 + OUTPUT-05: rewire pagination on list_assembly_types, list_embedded_resources, get_type_members, search_members_by_name, list_namespace_types (Wave 1)
+- [x] 14-03-PLAN.md — OUTPUT-06/07: canonical pagination footer for search_strings and search_constants (Wave 1)
+- [x] 14-04-PLAN.md — PAGE-07/08: canonical truncation footer for decompile_*, disassemble_*, export_project, analyze_assembly (Wave 1)
 - [ ] 14-05-PLAN.md — IL-03: add resolveDeep flag to disassemble_type and disassemble_method (Wave 1)
 - [ ] 14-06-PLAN.md — Retroactive VERIFICATION.md for Phases 10/11/12 + REQUIREMENTS.md/ROADMAP.md traceability sync (Wave 2, depends on 14-01..14-05)
 
@@ -165,4 +165,4 @@ Plans:
 | 11. List/Get/Search Pagination & Member Enrichment | v1.2.0 | 2/2 | Unwired (audit 2026-04-12)  | - |
 | 12. IL Token Resolution, Search Enrichment & Truncation Reporting | v1.2.0 | 3/3 | Partial (audit 2026-04-12)  | - |
 | 13. Scenario Description Sweep | v1.2.0 | 4/2 | Complete   | 2026-04-12 |
-| 14. v1.2.0 Gap Closure Sweep | v1.2.0 | 0/6 | Planned | - |
+| 14. v1.2.0 Gap Closure Sweep | v1.2.0 | 4/6 | In Progress|  |
