@@ -38,6 +38,7 @@ public sealed class DisassembleTypeUseCase
         string assemblyPath,
         string typeName,
         bool showTokens,
+        bool resolveDeep = false,
         CancellationToken cancellationToken = default)
     {
         try
@@ -50,7 +51,7 @@ public sealed class DisassembleTypeUseCase
             return await _limiter.ExecuteAsync(async () =>
             {
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
-                var raw = await _disassembly.DisassembleTypeAsync(assembly, type, showTokens, timeout.Token);
+                var raw = await _disassembly.DisassembleTypeAsync(assembly, type, showTokens, resolveDeep, timeout.Token);
                 var totalBytes = raw.Length;
                 var maxBytes = _options.MaxDecompilationSize;
                 var truncated = totalBytes > maxBytes;

@@ -51,7 +51,7 @@ public class NativeDllGuardTests
         var tool = scope.ServiceProvider.GetRequiredService<DisassembleTypeTool>();
 
         var act = () => tool.ExecuteAsync(
-            NativeDllPath, "SomeType", false, CancellationToken.None);
+            NativeDllPath, "SomeType", false, cancellationToken: CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().Be("ASSEMBLY_LOAD_FAILED");

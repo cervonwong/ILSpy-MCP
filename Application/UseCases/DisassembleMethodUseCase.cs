@@ -40,6 +40,7 @@ public sealed class DisassembleMethodUseCase
         string methodName,
         bool showBytes,
         bool showTokens,
+        bool resolveDeep = false,
         CancellationToken cancellationToken = default)
     {
         try
@@ -54,7 +55,7 @@ public sealed class DisassembleMethodUseCase
             {
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var raw = await _disassembly.DisassembleMethodAsync(
-                    assembly, type, methodName, showBytes, showTokens, timeout.Token);
+                    assembly, type, methodName, showBytes, showTokens, resolveDeep, timeout.Token);
                 var totalBytes = raw.Length;
                 var maxBytes = _options.MaxDecompilationSize;
                 var truncated = totalBytes > maxBytes;

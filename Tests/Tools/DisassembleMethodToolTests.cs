@@ -26,7 +26,7 @@ public class DisassembleMethodToolTests
             "GetGreeting",
             false,
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain(".method");
         result.Should().Contain(".maxstack");
@@ -47,7 +47,7 @@ public class DisassembleMethodToolTests
             "Calculate",
             false,
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("IL_");
         result.Should().Contain("ldarg");
@@ -69,7 +69,7 @@ public class DisassembleMethodToolTests
             ".ctor",
             false,
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain(".method");
         result.Should().Contain(".maxstack");
@@ -88,7 +88,7 @@ public class DisassembleMethodToolTests
             "GetGreeting",
             showBytes: true,
             showTokens: false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         // showBytes adds hex byte annotations to IL output
         result.Should().MatchRegex(@"[0-9A-Fa-f]{2}");
@@ -106,7 +106,7 @@ public class DisassembleMethodToolTests
             "GetGreeting",
             showBytes: false,
             showTokens: true,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         // Token format like /* 06000001 */
         result.Should().MatchRegex(@"\/\*\s*[0-9A-Fa-f]+\s*\*\/");
@@ -124,7 +124,7 @@ public class DisassembleMethodToolTests
             "Area",
             false,
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain(".method");
         // Abstract methods have no body - no .maxstack
@@ -143,7 +143,7 @@ public class DisassembleMethodToolTests
             "NonExistentMethod",
             false,
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().Be("METHOD_NOT_FOUND");
@@ -161,7 +161,7 @@ public class DisassembleMethodToolTests
             "SomeMethod",
             false,
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().Be("TYPE_NOT_FOUND");
@@ -179,7 +179,7 @@ public class DisassembleMethodToolTests
             "SomeMethod",
             false,
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().BeOneOf("ASSEMBLY_LOAD_FAILED", "INTERNAL_ERROR");

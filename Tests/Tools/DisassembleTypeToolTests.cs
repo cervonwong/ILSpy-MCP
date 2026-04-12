@@ -24,7 +24,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain(".method");
         result.Should().Contain("GetGreeting");
@@ -44,7 +44,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("// Type: ILSpy.Mcp.TestTargets.SimpleClass");
         result.Should().Contain("// Assembly:");
@@ -61,7 +61,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain(".field");
         result.Should().Contain("_id");
@@ -77,7 +77,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
             showTokens: true,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         // Token format like /* 06000001 */
         result.Should().MatchRegex(@"\/\*\s*[0-9A-Fa-f]+\s*\*\/");
@@ -93,7 +93,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "NonExistent.Type",
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().Be("TYPE_NOT_FOUND");
@@ -109,7 +109,7 @@ public class DisassembleTypeToolTests
             "nonexistent.dll",
             "SomeType",
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().BeOneOf("ASSEMBLY_LOAD_FAILED", "INTERNAL_ERROR");
@@ -125,7 +125,7 @@ public class DisassembleTypeToolTests
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.Animals.IAnimal",
             false,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain(".method");
         // Interface methods have no body
