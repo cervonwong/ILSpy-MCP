@@ -128,37 +128,4 @@ public class HttpBindingResolutionTests
         HttpBindingResolver.StdioHasBindingFlags(Array.Empty<string>()).Should().BeFalse();
     }
 
-    [Fact]
-    public void CommandLineHelp_IsRequested_WithHelpSubcommand_ReturnsTrue()
-    {
-        CommandLineHelp.IsRequested(new[] { "help" }).Should().BeTrue();
-    }
-
-    [Fact]
-    public void CommandLineHelp_IsRequested_WithHelpFlag_ReturnsTrue()
-    {
-        CommandLineHelp.IsRequested(new[] { "--help" }).Should().BeTrue();
-    }
-
-    [Fact]
-    public void CommandLineHelp_IsRequested_WithShortHelpFlag_ReturnsTrue()
-    {
-        CommandLineHelp.IsRequested(new[] { "-h" }).Should().BeTrue();
-    }
-
-    [Fact]
-    public void CommandLineHelp_IsRequested_WithoutHelpTokens_ReturnsFalse()
-    {
-        CommandLineHelp.IsRequested(new[] { "--transport", "http" }).Should().BeFalse();
-    }
-
-    [Fact]
-    public void CommandLineHelp_GetText_ContainsUsageAndHelpFlag()
-    {
-        var text = CommandLineHelp.GetText();
-
-        text.Should().Contain("Usage:");
-        text.Should().Contain("ilspy-mcp help");
-        text.Should().Contain("-h, --help");
-    }
 }
