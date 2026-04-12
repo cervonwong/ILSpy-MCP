@@ -441,6 +441,7 @@ Get raw CIL/IL disassembly of a .NET type showing method signatures, fields, pro
 | `assemblyPath` | string | Yes | Path to the .NET assembly file |
 | `typeName` | string | Yes | Full name of the type (e.g., `System.String`) |
 | `showTokens` | bool | No | Show metadata token numbers (e.g., `/* 06000001 */`) |
+| `resolveDeep` | bool | No | When true, expand full type signatures for parameters and generics inline (larger output). Default false preserves abbreviated form. |
 
 <details>
 <summary>Example</summary>
@@ -489,6 +490,7 @@ Get raw CIL/IL disassembly of a specific method with opcodes, labels, and stack 
 | `methodName` | string | Yes | Name of the method to disassemble |
 | `showBytes` | bool | No | Show raw opcode byte sequences |
 | `showTokens` | bool | No | Show metadata token numbers (e.g., `/* 06000001 */`) |
+| `resolveDeep` | bool | No | When true, expand full type signatures for parameters and generics inline (larger output). Default false preserves abbreviated form. |
 
 <details>
 <summary>Example</summary>
@@ -1164,16 +1166,25 @@ Search for string literals in assembly IL bytecode matching a regex pattern. Sca
 
 **Output (trimmed):**
 ```
-String matches for 'https?://': 3
+String search for 'https?://': 3 total matches (showing 1-3)
 
-  "https://api.example.com/v1"
-    in MyLibrary.Services.ApiClient..ctor
+  "https://api.example.com/v1" in MyLibrary.Services.ApiClient..ctor (IL_0012)
+    surrounding IL:
+      IL_000b: ldarg.0
+      IL_000c: ldarg.1
+      IL_000d: stfld string MyLibrary.Services.ApiClient::_baseUrl
+      IL_0012: ldstr "https://api.example.com/v1"
+      IL_0017: stloc.0
+      IL_0018: ldloc.0
+      IL_0019: ret
+  "http://localhost:5000" in MyLibrary.Tests.IntegrationTestBase.Setup (IL_0024)
+    surrounding IL:
+      ...
+  "https://cdn.example.com/assets" in MyLibrary.Services.AssetService.GetBaseUrl (IL_0008)
+    surrounding IL:
+      ...
 
-  "http://localhost:5000"
-    in MyLibrary.Tests.IntegrationTestBase.Setup
-
-  "https://cdn.example.com/assets"
-    in MyLibrary.Services.AssetService.GetBaseUrl
+[pagination:{total:3,returned:3,truncated:false,offset:0}]
 ```
 
 </details>
@@ -1204,13 +1215,12 @@ Search for numeric integer constants in assembly IL bytecode. Finds all `ldc.i4`
 
 **Output (trimmed):**
 ```
-Constant matches for 404: 2
+Constant search for 404: 2 total matches (showing 1-2)
 
-  404 (ldc.i4)
-    in MyLibrary.Controllers.UserController.GetUser
+  404 (ldc.i4) in MyLibrary.Controllers.UserController.GetUser (IL_0014)
+  404 (ldc.i4) in MyLibrary.Controllers.OrderController.GetOrder (IL_0021)
 
-  404 (ldc.i4)
-    in MyLibrary.Controllers.OrderController.GetOrder
+[pagination:{total:2,returned:2,truncated:false,offset:0}]
 ```
 
 </details>
