@@ -12,6 +12,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ModelContextProtocol.Server;
 
+if (CommandLineHelp.IsRequested(args))
+{
+    Console.WriteLine(CommandLineHelp.GetText());
+    return 0;
+}
+
 // Determine transport mode from args, env, or config (highest priority first)
 var transportMode = "stdio"; // default
 
@@ -222,5 +228,33 @@ public static class HttpBindingResolver
     public static bool StdioHasBindingFlags(string[] args)
     {
         return args.Contains("--host") || args.Contains("--port");
+    }
+}
+
+public static class CommandLineHelp
+{
+    public static bool IsRequested(string[] args)
+    {
+        return args.Any(static arg =>
+            string.Equals(arg, "--help", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(arg, "-h", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(arg, "help", StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static string GetText()
+    {
+        return """
+ILSpy MCP Server
+
+Usage:
+  ilspy-mcp [--transport <stdio|http>] [--host <value>] [--port <value>]
+  ilspy-mcp help
+
+Options:
+  --transport <stdio|http>  Transport mode (default: stdio)
+  --host <value>            HTTP bind host (HTTP transport only, default: 0.0.0.0)
+  --port <value>            HTTP bind port (HTTP transport only, default: 3001)
+  -h, --help                Show this help message and exit
+""";
     }
 }

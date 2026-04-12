@@ -1362,6 +1362,16 @@ See `.claude/skills/mcp-tool-design/SKILL.md` for the developer-facing version o
 
 For remote access (analysis VMs, build servers, containers), run in HTTP mode. See [Step 3](#step-3-configure-your-mcp-client) for client configuration.
 
+### CLI help
+
+Use the help command to see available startup flags:
+
+```bash
+ilspy-mcp help
+ilspy-mcp --help
+ilspy-mcp -h
+```
+
 ### Starting the HTTP server
 
 <details>
