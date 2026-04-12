@@ -117,6 +117,23 @@ public class SearchStringsToolTests
     }
 
     [Fact]
+    public async Task EmitsSurroundingILWindow()
+    {
+        using var scope = _fixture.CreateScope();
+        var tool = scope.ServiceProvider.GetRequiredService<SearchStringsTool>();
+
+        var result = await tool.ExecuteAsync(
+            _fixture.TestAssemblyPath,
+            "Hello, World!",
+            cancellationToken: CancellationToken.None);
+
+        result.Should().Contain("Hello, World!");
+        result.Should().Contain("surrounding IL:");
+        result.Should().MatchRegex(@"surrounding IL:\s*\r?\n\s+IL_[0-9A-F]{4}:");
+        result.Should().MatchRegex(@"IL_[0-9A-F]{4}:\s*ldstr");
+    }
+
+    [Fact]
     public async Task InvalidAssembly_ThrowsError()
     {
         using var scope = _fixture.CreateScope();

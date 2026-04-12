@@ -173,6 +173,9 @@ public sealed class ILSpySearchService : ISearchService
 
     // ---- Private IL scanning methods ----
 
+    // Window size: N=3 before/after (OUTPUT-06)
+    private const int SurroundingILWindowSize = 3;
+
     private static void ScanILForStrings(
         ref BlobReader ilReader,
         MetadataReader reader,
@@ -183,41 +186,174 @@ public sealed class ILSpySearchService : ISearchService
         ref int totalCount,
         int matchCap)
     {
+        // Phase 1: walk the method body once and render every instruction. Capture
+        // (offset, rendered, isLdstrHit, matchedValue) so Phase 2 can slice a window
+        // around each ldstr regex hit without re-reading the body.
+        var instructions = new List<(int offset, string rendered, bool isLdstrHit, string? ldstrValue)>();
+
         while (ilReader.RemainingBytes > 0)
         {
             int offset = ilReader.Offset;
             var opCode = ILParsingHelper.ReadILOpCode(ref ilReader);
+            string rendered = RenderInstruction(opCode, ref ilReader, reader, offset,
+                out bool isLdstrHit, out string? ldstrValue);
+            instructions.Add((offset, rendered, isLdstrHit, ldstrValue));
+        }
 
-            if (opCode == ILOpCode.Ldstr)
+        // Phase 2: locate each ldstr hit that matches the regex and build a window.
+        for (int i = 0; i < instructions.Count; i++)
+        {
+            var instr = instructions[i];
+            if (!instr.isLdstrHit)
+                continue;
+
+            string stringValue = instr.ldstrValue ?? string.Empty;
+            if (!regex.IsMatch(stringValue))
+                continue;
+
+            totalCount++;
+            if (results.Count >= matchCap)
+                continue;
+
+            int start = Math.Max(0, i - SurroundingILWindowSize);
+            int end = Math.Min(instructions.Count - 1, i + SurroundingILWindowSize);
+            var window = new List<string>(end - start + 1);
+            for (int j = start; j <= end; j++)
             {
-                int token = ilReader.ReadInt32();
+                window.Add(instructions[j].rendered);
+            }
+
+            results.Add(new StringSearchResult
+            {
+                MatchedValue = stringValue,
+                DeclaringType = scanType.FullName,
+                MethodName = method.Name,
+                MethodSignature = FormatMethodSignature(method),
+                ILOffset = instr.offset,
+                SurroundingIL = window
+            });
+        }
+    }
+
+    /// <summary>
+    /// Reads the operand for <paramref name="opCode"/> (advancing the reader) and
+    /// returns a rendered "IL_XXXX: opcode [operand]" line. When the opcode is ldstr
+    /// and the operand resolves to a user string, <paramref name="isLdstrHit"/> is set
+    /// true and <paramref name="ldstrValue"/> carries the literal for regex matching.
+    /// </summary>
+    private static string RenderInstruction(
+        ILOpCode opCode,
+        ref BlobReader reader,
+        MetadataReader metadataReader,
+        int instructionOffset,
+        out bool isLdstrHit,
+        out string? ldstrValue)
+    {
+        isLdstrHit = false;
+        ldstrValue = null;
+
+        string opName = opCode.ToString().ToLowerInvariant().Replace('_', '.');
+        string prefix = $"IL_{instructionOffset:X4}: ";
+
+        switch (opCode)
+        {
+            case ILOpCode.Ldstr:
+            {
+                int token = reader.ReadInt32();
                 var handle = MetadataTokens.UserStringHandle(token & 0x00FFFFFF);
-                var stringValue = reader.GetUserString(handle);
-
-                if (regex.IsMatch(stringValue))
+                string value;
+                try
                 {
-                    totalCount++;
-                    if (results.Count < matchCap)
-                    {
-                        results.Add(new StringSearchResult
-                        {
-                            MatchedValue = stringValue,
-                            DeclaringType = scanType.FullName,
-                            MethodName = method.Name,
-                            MethodSignature = FormatMethodSignature(method),
-                            ILOffset = offset
-                        });
-                    }
+                    value = metadataReader.GetUserString(handle);
                 }
+                catch
+                {
+                    value = string.Empty;
+                }
+                isLdstrHit = true;
+                ldstrValue = value;
+                string display = value.Length > 64 ? value.Substring(0, 64) + "..." : value;
+                return $"{prefix}ldstr \"{display}\"";
             }
-            else if (ILParsingHelper.IsTokenReferenceOpCode(opCode))
+            case ILOpCode.Ldc_i4:
+                return $"{prefix}ldc.i4 {reader.ReadInt32()}";
+            case ILOpCode.Ldc_i4_s:
+                return $"{prefix}ldc.i4.s {reader.ReadSByte()}";
+            case ILOpCode.Ldc_i8:
+                return $"{prefix}ldc.i8 {reader.ReadInt64()}";
+            case ILOpCode.Ldc_r4:
+                return $"{prefix}ldc.r4 {reader.ReadSingle()}";
+            case ILOpCode.Ldc_r8:
+                return $"{prefix}ldc.r8 {reader.ReadDouble()}";
+            // Short-form branches (1-byte signed offset)
+            case ILOpCode.Br_s:
+            case ILOpCode.Brfalse_s:
+            case ILOpCode.Brtrue_s:
+            case ILOpCode.Beq_s:
+            case ILOpCode.Bge_s:
+            case ILOpCode.Bgt_s:
+            case ILOpCode.Ble_s:
+            case ILOpCode.Blt_s:
+            case ILOpCode.Bne_un_s:
+            case ILOpCode.Bge_un_s:
+            case ILOpCode.Bgt_un_s:
+            case ILOpCode.Ble_un_s:
+            case ILOpCode.Blt_un_s:
+            case ILOpCode.Leave_s:
             {
-                ilReader.ReadInt32(); // Skip token
+                sbyte rel = reader.ReadSByte();
+                int target = reader.Offset + rel;
+                return $"{prefix}{opName} IL_{target:X4}";
             }
-            else
+            // Long-form branches (4-byte signed offset)
+            case ILOpCode.Br:
+            case ILOpCode.Brfalse:
+            case ILOpCode.Brtrue:
+            case ILOpCode.Beq:
+            case ILOpCode.Bge:
+            case ILOpCode.Bgt:
+            case ILOpCode.Ble:
+            case ILOpCode.Blt:
+            case ILOpCode.Bne_un:
+            case ILOpCode.Bge_un:
+            case ILOpCode.Bgt_un:
+            case ILOpCode.Ble_un:
+            case ILOpCode.Blt_un:
+            case ILOpCode.Leave:
             {
-                ILParsingHelper.SkipOperand(ref ilReader, opCode);
+                int rel = reader.ReadInt32();
+                int target = reader.Offset + rel;
+                return $"{prefix}{opName} IL_{target:X4}";
             }
+            default:
+                if (ILParsingHelper.IsTokenReferenceOpCode(opCode))
+                {
+                    int token = reader.ReadInt32();
+                    return $"{prefix}{opName} token:0x{token:X8}";
+                }
+                // Render with any numeric operand hint based on size
+                switch (ILParsingHelper.GetOperandSize(opCode))
+                {
+                    case 0:
+                        return $"{prefix}{opName}";
+                    case 1:
+                        return $"{prefix}{opName} {reader.ReadByte()}";
+                    case 2:
+                        return $"{prefix}{opName} {reader.ReadInt16()}";
+                    case 4:
+                        return $"{prefix}{opName} {reader.ReadInt32()}";
+                    case 8:
+                        return $"{prefix}{opName} {reader.ReadInt64()}";
+                    case -1: // switch
+                    {
+                        int count = reader.ReadInt32();
+                        for (int i = 0; i < count; i++)
+                            reader.ReadInt32();
+                        return $"{prefix}{opName} (switch[{count}])";
+                    }
+                    default:
+                        return $"{prefix}{opName}";
+                }
         }
     }
 

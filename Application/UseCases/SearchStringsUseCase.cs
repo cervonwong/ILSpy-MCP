@@ -109,6 +109,14 @@ public sealed class SearchStringsUseCase
             foreach (var result in results.Results)
             {
                 sb.AppendLine($"  \"{result.MatchedValue}\" in {result.DeclaringType}.{result.MethodName} (IL_{result.ILOffset:X4})");
+                if (result.SurroundingIL.Count > 0)
+                {
+                    sb.AppendLine("    surrounding IL:");
+                    foreach (var ilLine in result.SurroundingIL)
+                    {
+                        sb.AppendLine($"      {ilLine}");
+                    }
+                }
             }
         }
 
