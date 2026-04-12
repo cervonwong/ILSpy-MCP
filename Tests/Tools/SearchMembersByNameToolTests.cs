@@ -24,7 +24,7 @@ public class SearchMembersByNameToolTests
             _fixture.TestAssemblyPath,
             "Calculate",
             null,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("Search results for 'Calculate'");
         result.Should().Contain("Calculate");
@@ -41,7 +41,7 @@ public class SearchMembersByNameToolTests
             _fixture.TestAssemblyPath,
             "Name",
             "property",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("Search results for 'Name'");
         result.Should().Contain("Name");
@@ -57,7 +57,7 @@ public class SearchMembersByNameToolTests
             _fixture.TestAssemblyPath,
             "ZzzNonExistentMember",
             null,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("Found 0 matching members");
     }
@@ -72,7 +72,7 @@ public class SearchMembersByNameToolTests
             @"C:\NonExistent\Assembly.dll",
             "ToString",
             null,
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().Be("INTERNAL_ERROR");

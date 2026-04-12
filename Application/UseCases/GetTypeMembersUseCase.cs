@@ -1,3 +1,4 @@
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -28,6 +29,8 @@ public sealed class GetTypeMembersUseCase
     public async Task<string> ExecuteAsync(
         string assemblyPath,
         string typeName,
+        int maxResults = 100,
+        int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try
@@ -42,32 +45,14 @@ public sealed class GetTypeMembersUseCase
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var typeInfo = await _decompiler.GetTypeInfoAsync(assembly, type, timeout.Token);
 
-                var result = new System.Text.StringBuilder();
-            result.AppendLine($"╔═══ Type Members: {typeInfo.FullName}");
-            result.AppendLine($"║ Assembly: {assembly.FileName}");
-            result.AppendLine($"║ Kind: {typeInfo.Kind}");
-            result.AppendLine($"║ Namespace: {typeInfo.Namespace ?? "(global)"}");
-            result.AppendLine($"╚═══");
-            result.AppendLine();
-
-            if (typeInfo.Constructors.Any())
-            {
-                result.AppendLine("Constructors:");
+                var allMembers = new List<(string Section, string Line)>();
                 foreach (var ctor in typeInfo.Constructors)
                 {
                     var accessibility = ctor.Accessibility.ToString().ToLower();
-                    var modifiers = new List<string>();
-                    if (ctor.IsStatic) modifiers.Add("static");
+                    var modifiers = ctor.IsStatic ? "static " : "";
                     var parameters = string.Join(", ", ctor.Parameters.Select(p => $"{p.Type} {p.Name}"));
-                    var mods = modifiers.Any() ? string.Join(" ", modifiers) + " " : "";
-                    result.AppendLine($"  {accessibility} {mods}{ctor.Name}({parameters})");
+                    allMembers.Add(("Constructors", $"  {accessibility} {modifiers}{ctor.Name}({parameters})"));
                 }
-                result.AppendLine();
-            }
-
-            if (typeInfo.Methods.Any())
-            {
-                result.AppendLine("Methods:");
                 foreach (var method in typeInfo.Methods)
                 {
                     var accessibility = method.Accessibility.ToString().ToLower();
@@ -75,49 +60,60 @@ public sealed class GetTypeMembersUseCase
                     if (method.IsStatic) modifiers.Add("static");
                     if (method.IsAbstract) modifiers.Add("abstract");
                     if (method.IsVirtual) modifiers.Add("virtual");
-                    
                     var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
                     var mods = modifiers.Any() ? string.Join(" ", modifiers) + " " : "";
-                    result.AppendLine($"  {accessibility} {mods}{method.ReturnType} {method.Name}({parameters})");
+                    allMembers.Add(("Methods", $"  {accessibility} {mods}{method.ReturnType} {method.Name}({parameters})"));
                 }
-                result.AppendLine();
-            }
-
-            if (typeInfo.Properties.Any())
-            {
-                result.AppendLine("Properties:");
                 foreach (var prop in typeInfo.Properties)
                 {
                     var accessibility = prop.Accessibility.ToString().ToLower();
                     var getter = prop.HasGetter ? "get;" : "";
                     var setter = prop.HasSetter ? "set;" : "";
-                    result.AppendLine($"  {accessibility} {prop.Type} {prop.Name} {{ {getter} {setter} }}");
+                    allMembers.Add(("Properties", $"  {accessibility} {prop.Type} {prop.Name} {{ {getter} {setter} }}"));
                 }
-                result.AppendLine();
-            }
-
-            if (typeInfo.Fields.Any())
-            {
-                result.AppendLine("Fields:");
                 foreach (var field in typeInfo.Fields)
                 {
                     var accessibility = field.Accessibility.ToString().ToLower();
                     var modifiers = field.IsStatic ? "static " : "";
-                    result.AppendLine($"  {accessibility} {modifiers}{field.Type} {field.Name}");
+                    allMembers.Add(("Fields", $"  {accessibility} {modifiers}{field.Type} {field.Name}"));
                 }
-                result.AppendLine();
-            }
-
-            if (typeInfo.Events.Any())
-            {
-                result.AppendLine("Events:");
                 foreach (var evt in typeInfo.Events)
                 {
                     var accessibility = evt.Accessibility.ToString().ToLower();
-                    result.AppendLine($"  {accessibility} event {evt.Type} {evt.Name}");
+                    allMembers.Add(("Events", $"  {accessibility} event {evt.Type} {evt.Name}"));
                 }
-            }
 
+                var total = allMembers.Count;
+                var page = allMembers.Skip(offset).Take(maxResults).ToList();
+                var returned = page.Count;
+
+                var result = new System.Text.StringBuilder();
+                result.AppendLine($"╔═══ Type Members: {typeInfo.FullName}");
+                result.AppendLine($"║ Assembly: {assembly.FileName}");
+                result.AppendLine($"║ Kind: {typeInfo.Kind}");
+                result.AppendLine($"║ Namespace: {typeInfo.Namespace ?? "(global)"}");
+                if (total > 0)
+                {
+                    var rangeStart = offset + 1;
+                    var rangeEnd = offset + returned;
+                    result.AppendLine($"║ Members: {total} (showing {rangeStart}-{rangeEnd})");
+                }
+                result.AppendLine($"╚═══");
+                result.AppendLine();
+
+                string? currentSection = null;
+                foreach (var (section, line) in page)
+                {
+                    if (section != currentSection)
+                    {
+                        if (currentSection != null) result.AppendLine();
+                        result.AppendLine($"{section}:");
+                        currentSection = section;
+                    }
+                    result.AppendLine(line);
+                }
+
+                PaginationEnvelope.AppendFooter(result, total, returned, offset);
                 return result.ToString();
             }, cancellationToken);
         }

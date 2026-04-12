@@ -23,7 +23,7 @@ public class GetTypeMembersToolTests
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("Type Members:");
         result.Should().Contain("Methods:");
@@ -42,7 +42,7 @@ public class GetTypeMembersToolTests
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.Animals.IAnimal",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("Type Members:");
         result.Should().Contain("Speak");
@@ -59,7 +59,7 @@ public class GetTypeMembersToolTests
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.Generics.Repository`1",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("Type Members:");
         result.Should().Contain("Add");
@@ -76,7 +76,7 @@ public class GetTypeMembersToolTests
         var act = () => tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
             "NonExistent.Type",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         var ex = await act.Should().ThrowAsync<McpToolException>();
         ex.Which.ErrorCode.Should().Be("TYPE_NOT_FOUND");
@@ -91,7 +91,7 @@ public class GetTypeMembersToolTests
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         result.Should().Contain("Constructors:");
         result.Should().Contain(".ctor");
@@ -106,7 +106,7 @@ public class GetTypeMembersToolTests
         var result = await tool.ExecuteAsync(
             _fixture.TestAssemblyPath,
             "ILSpy.Mcp.TestTargets.SimpleClass",
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         var ctorIndex = result.IndexOf("Constructors:");
         var methodIndex = result.IndexOf("Methods:");

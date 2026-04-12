@@ -26,12 +26,26 @@ public sealed class GetTypeMembersTool
     public async Task<string> ExecuteAsync(
         [Description("Path to the .NET assembly (.dll/.exe)")] string assemblyPath,
         [Description("Full name of the type to inspect (e.g., 'System.String')")] string typeName,
+        [Description("Maximum results to return (default 100)")] int maxResults = 100,
+        [Description("Results to skip for pagination (default 0)")] int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _useCase.ExecuteAsync(assemblyPath, typeName, cancellationToken);
+            if (maxResults > 500)
+            {
+                throw new McpToolException("INVALID_PARAMETER",
+                    "maxResults cannot exceed 500. Use offset to paginate.");
+            }
+            if (maxResults <= 0)
+            {
+                throw new McpToolException("INVALID_PARAMETER",
+                    "maxResults must be >= 1.");
+            }
+
+            return await _useCase.ExecuteAsync(assemblyPath, typeName, maxResults, offset, cancellationToken);
         }
+        catch (McpToolException) { throw; }
         catch (TypeNotFoundException ex)
         {
             _logger.LogWarning("Type not found: {TypeName} in {Assembly}", ex.TypeName, ex.AssemblyPath);

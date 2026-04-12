@@ -1,3 +1,4 @@
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -29,6 +30,8 @@ public sealed class SearchMembersByNameUseCase
         string assemblyPath,
         string searchTerm,
         string? memberKind,
+        int maxResults = 100,
+        int offset = 0,
         CancellationToken cancellationToken = default)
     {
         try
@@ -43,14 +46,26 @@ public sealed class SearchMembersByNameUseCase
                 using var timeout = _timeout.CreateTimeoutToken(cancellationToken);
                 var results = await _decompiler.SearchMembersAsync(assembly, searchTerm, memberKind, timeout.Token);
 
+                var total = results.Count;
+                var page = results.Skip(offset).Take(maxResults).ToList();
+                var returned = page.Count;
+
                 var result = new System.Text.StringBuilder();
                 result.AppendLine($"Search results for '{searchTerm}' in {assembly.FileName}");
                 result.AppendLine();
-
-                result.AppendLine($"Found {results.Count} matching members:");
+                if (total == 0)
+                {
+                    result.AppendLine("Found 0 matching members.");
+                }
+                else
+                {
+                    var rangeStart = offset + 1;
+                    var rangeEnd = offset + returned;
+                    result.AppendLine($"Found {total} matching members (showing {rangeStart}-{rangeEnd}):");
+                }
                 result.AppendLine();
 
-                var grouped = results.GroupBy(m => m.TypeFullName);
+                var grouped = page.GroupBy(m => m.TypeFullName);
                 foreach (var group in grouped)
                 {
                     result.AppendLine($"In type: {group.Key}");
@@ -61,6 +76,7 @@ public sealed class SearchMembersByNameUseCase
                     result.AppendLine();
                 }
 
+                PaginationEnvelope.AppendFooter(result, total, returned, offset);
                 return result.ToString();
             }, cancellationToken);
         }
