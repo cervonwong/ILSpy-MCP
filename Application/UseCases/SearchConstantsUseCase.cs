@@ -1,3 +1,4 @@
+using ILSpy.Mcp.Application.Pagination;
 using ILSpy.Mcp.Application.Services;
 using ILSpy.Mcp.Domain.Errors;
 using ILSpy.Mcp.Domain.Models;
@@ -75,29 +76,34 @@ public sealed class SearchConstantsUseCase
     private static string FormatResults(long value, SearchResults<ConstantSearchResult> results)
     {
         var sb = new System.Text.StringBuilder();
+        var total = results.TotalCount;
+        var offset = results.Offset;
+        var returned = results.Results.Count;
 
-        int rangeEnd = Math.Min(results.Offset + results.Results.Count, results.TotalCount);
-        if (results.TotalCount == 0)
+        int rangeEnd = Math.Min(offset + returned, total);
+        if (total == 0)
         {
             sb.AppendLine($"Constant search for {value}: 0 total matches");
         }
         else
         {
-            sb.AppendLine($"Constant search for {value}: {results.TotalCount} total matches (showing {results.Offset + 1}-{rangeEnd})");
+            sb.AppendLine($"Constant search for {value}: {total} total matches (showing {offset + 1}-{rangeEnd})");
         }
         sb.AppendLine();
 
-        if (results.Results.Count == 0)
+        if (returned == 0)
         {
             sb.AppendLine("No matching constants found in the assembly.");
-            return sb.ToString();
         }
-
-        foreach (var result in results.Results)
+        else
         {
-            sb.AppendLine($"  {result.MatchedValue} ({result.ConstantType}) in {result.DeclaringType}.{result.MethodName} (IL_{result.ILOffset:X4})");
+            foreach (var result in results.Results)
+            {
+                sb.AppendLine($"  {result.MatchedValue} ({result.ConstantType}) in {result.DeclaringType}.{result.MethodName} (IL_{result.ILOffset:X4})");
+            }
         }
 
+        PaginationEnvelope.AppendFooter(sb, total, returned, offset);
         return sb.ToString();
     }
 }
