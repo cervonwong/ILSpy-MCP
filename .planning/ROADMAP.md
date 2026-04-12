@@ -3,7 +3,7 @@
 ## Milestones
 
 - [x] **v1.0 Feature Parity** - Phases 1-7 (shipped 2026-04-08)
-- [ ] **v1.2.0 Tool Polish** - Phases 8-14 (started 2026-04-09; gap closure added 2026-04-12)
+- [ ] **v1.2.0 Tool Polish** - Phases 8-15 (started 2026-04-09; gap closure added 2026-04-12; iteration-2 gap closure added 2026-04-12)
 
 ## Phases
 
@@ -22,7 +22,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 
 </details>
 
-### v1.2.0 Tool Polish (Phases 8-14)
+### v1.2.0 Tool Polish (Phases 8-15)
 
 - [ ] **Phase 8: Tech Debt Cleanup** - Normalize error codes, fix architecture violation, backfill SUMMARY frontmatter, runtime-verify Phase 7 tests
 - [ ] **Phase 9: Pagination Contract & Structural Cleanup** - Define uniform pagination contract once, drop `analyze_references` dispatcher, rename `decompile_namespace` to `list_namespace_types`, update README *(audit 2026-04-12: REGRESSED — CLEAN-01 undone, docs/PAGINATION.md missing; closed by Phase 14)*
@@ -31,6 +31,8 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 - [x] **Phase 12: IL Token Resolution, Search Enrichment & Truncation Reporting** - Inline-resolve metadata tokens in IL disassembly, enrich search_strings/search_constants with context, report truncation on source-returning and bounded-output tools *(audit 2026-04-12: PARTIAL — closed by Phase 14; 12-VERIFICATION.md PASS 2026-04-12 post-14-05 resolveDeep wiring)*
 - [x] **Phase 13: Scenario Description Sweep** - Rewrite all mechanical tool descriptions to "Use this when..." format and cross-reference overlapping tools (completed 2026-04-12)
 - [x] **Phase 14: v1.2.0 Gap Closure Sweep** - Close all gaps identified by the 2026-04-12 milestone audit: CLEAN-01 regression fix, restore docs/PAGINATION.md, wire Phase 11 pagination, canonical pagination footer for search/source/bounded-output tools, `resolveDeep` flag on disassemble tools, retroactive VERIFICATION.md for Phases 10/11/12, REQUIREMENTS.md traceability sync (completed 2026-04-12)
+
+- [ ] **Phase 15: v1.2.0 Audit Iteration-2 Gap Closure** - Close remaining gaps from 2026-04-12 re-audit: implement OUTPUT-06 surrounding IL window in `search_strings` (domain field + infra population + formatter + test), fix CLEAN-03 stale README competitor comparison table row (28 → 27)
 
 ## Phase Details
 
@@ -148,6 +150,20 @@ Plans:
 - [x] 14-05-PLAN.md — IL-03: add resolveDeep flag to disassemble_type and disassemble_method (Wave 2)
 - [x] 14-06-PLAN.md — Retroactive VERIFICATION.md for Phases 10/11/12 + REQUIREMENTS.md/ROADMAP.md traceability sync (Wave 2, depends on 14-01..14-05)
 
+### Phase 15: v1.2.0 Audit Iteration-2 Gap Closure
+**Milestone**: v1.2.0
+**Goal**: Close the two gaps surviving Phase 14 that block v1.2.0 ship — OUTPUT-06 (`search_strings` must emit a window of surrounding IL instructions, not just method FQN + offset) and CLEAN-03 (`README.md` competitor comparison table must reflect the 27-tool runtime surface, not the stale 28).
+**Depends on**: Phase 14 (all prior gap closure in place; iteration-2 re-audit drove this phase)
+**Requirements** (gap closure): OUTPUT-06, CLEAN-03
+**Gap Closure**: Closes remaining gaps from `.planning/v1.2.0-MILESTONE-AUDIT.md` iteration 2 (1 unsatisfied + 1 partial requirement, 2 integration gaps, 1 broken flow: "Search enrichment (OUTPUT-06/07)")
+**Success Criteria** (what must be TRUE):
+  1. `StringSearchResult` in `Domain/Models/SearchResult.cs` exposes a surrounding-IL window field (e.g. `IList<string> SurroundingIL` or equivalent) — verifiable by reading the model
+  2. `Infrastructure/Metadata/StringSearchService` (or the `ldstr` scan site) populates the window with N instructions before and after each hit — verifiable by reading the service and by test
+  3. `SearchStringsUseCase.cs` formatter emits the window under each match in the tool output so the `SearchStringsTool` `[Description]` promise ("...IL offset, and surrounding IL context") is fulfilled — verifiable by a test that calls `search_strings` against a known assembly and asserts the window appears
+  4. `README.md:1501` competitor comparison table row reads `| **Tools** | 27 |` (not 28) — verifiable by grep
+  5. `search_strings` tool description remains consistent with emitted shape (no false promises remain) — verifiable by reading `SearchStringsTool.cs:28`
+**Plans**: TBD (to be produced by `/gsd-plan-phase 15`)
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -166,3 +182,4 @@ Plans:
 | 12. IL Token Resolution, Search Enrichment & Truncation Reporting | v1.2.0 | 3/3 | Complete (verified 2026-04-12 post-14-05) | 2026-04-12 |
 | 13. Scenario Description Sweep | v1.2.0 | 4/2 | Complete   | 2026-04-12 |
 | 14. v1.2.0 Gap Closure Sweep | v1.2.0 | 6/6 | Complete    | 2026-04-12 |
+| 15. v1.2.0 Audit Iteration-2 Gap Closure | v1.2.0 | 0/? | Not started | - |

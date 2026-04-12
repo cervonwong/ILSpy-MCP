@@ -45,14 +45,14 @@ Self-describing match records so the agent doesn't need follow-up calls to under
 - [x] **OUTPUT-03**: `find_implementors` matches include full type name, assembly, direct-vs-transitive relationship marker
 - [x] **OUTPUT-04**: `find_instantiations` matches include containing type FQN, containing method signature, IL offset
 - [x] **OUTPUT-05**: `get_type_members` distinguishes inherited vs declared, exposes virtual/abstract/sealed flags, includes attribute summary per member
-- [x] **OUTPUT-06**: `search_strings` matches include literal value, containing method FQN, IL offset, and a window of surrounding IL instructions
+- [ ] **OUTPUT-06**: `search_strings` matches include literal value, containing method FQN, IL offset, and a window of surrounding IL instructions
 - [x] **OUTPUT-07**: `search_constants` matches include constant value, containing method FQN, IL offset
 
 ### Structural Cleanup
 
 - [x] **CLEAN-01**: `analyze_references` dispatcher tool removed; four `find_*` tools become the sole cross-reference entry points (tool count: 28 → 27)
 - [x] **CLEAN-02**: `decompile_namespace` renamed to `list_namespace_types` — surface matches actual behavior (enumerates types with signatures; it is not a decompile operation)
-- [x] **CLEAN-03**: README.md and any cross-references updated to match the new surface (27 tools, renamed namespace tool, no dispatcher)
+- [ ] **CLEAN-03**: README.md and any cross-references updated to match the new surface (27 tools, renamed namespace tool, no dispatcher)
 
 ### v1.0 Tech Debt
 
@@ -102,7 +102,7 @@ Which phases cover which requirements.
 | PAGE-01 | Phase 14 (gap closure) | Complete |
 | CLEAN-01 | Phase 14 (gap closure) | Complete |
 | CLEAN-02 | Phase 9 / Phase 14 verification | Complete |
-| CLEAN-03 | Phase 14 (gap closure) | Complete |
+| CLEAN-03 | Phase 15 (iteration-2 gap closure) | Pending |
 | PAGE-02 | Phase 10 / Phase 14 verification | Complete |
 | OUTPUT-01 | Phase 10 / Phase 14 verification | Complete |
 | OUTPUT-02 | Phase 10 / Phase 14 verification | Complete |
@@ -116,7 +116,7 @@ Which phases cover which requirements.
 | IL-01 | Phase 12 / Phase 14 verification | Complete |
 | IL-02 | Phase 12 / Phase 14 verification | Complete |
 | IL-03 | Phase 14 (gap closure) | Complete |
-| OUTPUT-06 | Phase 14 (gap closure) | Complete |
+| OUTPUT-06 | Phase 15 (iteration-2 gap closure) | Pending |
 | OUTPUT-07 | Phase 14 (gap closure) | Complete |
 | PAGE-07 | Phase 14 (gap closure) | Complete |
 | PAGE-08 | Phase 14 (gap closure) | Complete |
@@ -127,8 +127,8 @@ Which phases cover which requirements.
 - v1.2 requirements: 27 total
 - Mapped to phases: 27
 - Unmapped: 0 ✓
-- Satisfied (verified): 27 / 27 (DEBT-01..04, DESC-01/02, PAGE-01..08, IL-01/02/03, OUTPUT-01..07, CLEAN-01..03)
-- Pending: 0 / 27
+- Satisfied (verified): 25 / 27 (DEBT-01..04, DESC-01/02, PAGE-01..08, IL-01/02/03, OUTPUT-01..05, OUTPUT-07, CLEAN-01, CLEAN-02)
+- Pending: 2 / 27 (OUTPUT-06, CLEAN-03 — reopened by iteration-2 re-audit 2026-04-12; closed by Phase 15)
 
 ---
 *Requirements defined: 2026-04-09*
