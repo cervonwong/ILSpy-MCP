@@ -1,4 +1,5 @@
 using FluentAssertions;
+using ILSpy.Mcp.Transport.Cli;
 using Xunit;
 
 namespace ILSpy.Mcp.Tests.Program;
@@ -27,6 +28,18 @@ public class CommandLineHelpTests
     public void IsRequested_WithoutHelpTokens_ReturnsFalse()
     {
         CommandLineHelp.IsRequested(new[] { "--transport", "http" }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsRequested_WithEmptyArgs_ReturnsFalse()
+    {
+        CommandLineHelp.IsRequested(Array.Empty<string>()).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsRequested_WithHelpAsValue_ReturnsFalse()
+    {
+        CommandLineHelp.IsRequested(new[] { "--transport", "help" }).Should().BeFalse();
     }
 
     [Fact]

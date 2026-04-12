@@ -127,5 +127,4 @@ public class HttpBindingResolutionTests
     {
         HttpBindingResolver.StdioHasBindingFlags(Array.Empty<string>()).Should().BeFalse();
     }
-
 }
