@@ -251,6 +251,45 @@ Consult your client's documentation for how to add MCP servers.
 
 </details>
 
+## Uninstall
+
+1. **Remove the MCP client registration:**
+
+   <details>
+   <summary><b>Claude Code</b></summary>
+
+   ```bash
+   claude mcp remove ilspy-mcp --scope user
+   ```
+
+   </details>
+
+   <details>
+   <summary><b>Cursor / Claude Desktop / others</b></summary>
+
+   Delete the `"ilspy-mcp"` entry from your client's MCP settings JSON (`claude_desktop_config.json`, Cursor MCP settings, etc.) and restart the client.
+
+   </details>
+
+2. **Delete the extracted directory:**
+
+   **Windows (PowerShell):**
+   ```powershell
+   Remove-Item -Recurse -Force C:\path\to\ilspy-mcp
+   ```
+
+   **Linux / macOS:**
+   ```bash
+   rm -rf /path/to/ilspy-mcp
+   ```
+
+3. **(Built from source only)** Delete the cloned repo:
+   ```bash
+   rm -rf ILSpy-MCP
+   ```
+
+The server stores no config, cache, or state outside its own directory, so no other cleanup is needed.
+
 ## How it works
 
 You don't interact with ILSpy MCP directly. Your MCP client (Claude Code, Cursor, etc.) launches and communicates with it automatically in the background.
