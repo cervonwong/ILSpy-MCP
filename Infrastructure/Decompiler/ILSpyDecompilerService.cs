@@ -254,8 +254,7 @@ public sealed class ILSpyDecompilerService : IDecompilerService
                     .Where(t => 
                         // Only include types actually defined in this assembly
                         t.ParentModule == mainModule &&
-                        t.IsStatic && 
-                        t.Accessibility == ICSharpCode.Decompiler.TypeSystem.Accessibility.Public))
+                        t.IsStatic))
                 {
                     foreach (var method in type.Methods.Where(m => m.IsExtensionMethod))
                     {
@@ -307,8 +306,7 @@ public sealed class ILSpyDecompilerService : IDecompilerService
                 foreach (var type in mainModule.TypeDefinitions
                     .Where(t => 
                         // Only include types actually defined in this assembly
-                        t.ParentModule == mainModule &&
-                        t.Accessibility == ICSharpCode.Decompiler.TypeSystem.Accessibility.Public))
+                        t.ParentModule == mainModule))
                 {
                     if (string.IsNullOrEmpty(memberKind) || memberKind.Equals("method", StringComparison.OrdinalIgnoreCase))
                     {
