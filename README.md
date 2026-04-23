@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.png" alt="ILSpy MCP Server Banner" />
+  <img src="docs/banner2.png" alt="ILSpy MCP Server Banner" />
 </p>
 
 <p align="center">
