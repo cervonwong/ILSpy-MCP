@@ -19,6 +19,9 @@ if (CommandLineHelp.IsRequested(args))
     return 0;
 }
 
+// Disable watching the working dir, which is often the project dir
+Environment.SetEnvironmentVariable("DOTNET_hostBuilder__reloadConfigOnChange", "false");
+
 // Determine transport mode from args, env, or config (highest priority first)
 var transportMode = "stdio"; // default
 
