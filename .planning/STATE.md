@@ -4,8 +4,8 @@ milestone: v1.2.0
 milestone_name: Tool Polish
 status: executing
 stopped_at: Completed 13-04-PLAN.md (gap closure)
-last_updated: "2026-04-12T12:34:04.890Z"
-last_activity: 2026-04-12
+last_updated: "2026-08-06T13:10:08.833Z"
+last_activity: 2026-08-06
 progress:
   total_phases: 6
   completed_phases: 2
@@ -117,6 +117,7 @@ All v1.0 decisions archived in PROJECT.md Key Decisions table.
 | 260409 | Add tests for security and robustness fixes | 2026-04-09 | 5941b12 |
 | 260410 | Audit MCP tools for AI-effectiveness and document design principles | 2026-04-09 | b32eed8 |
 | 260411 | Add --host and --port CLI flags for HTTP transport | 2026-04-09 | 28acfcd |
+| 260806-teg | Prepare and publish v1.2.1 patch release | 2026-08-06 | 531a5c9 |
 
 ## Session Continuity
 
