@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-08-06
+
+### Fixed
+
+- **Search tools ignored non-public types**: `find_extension_methods` and `search_members_by_name` filtered results to `public` types only, silently omitting `internal`/`private` types. Both tools now search all types defined in the assembly (#2)
+- **Config file watching caused CPU spikes**: the .NET host watched the working directory (often the agent's project directory) for configuration changes, producing notification floods and CPU spikes during compilation. Config reload-on-change is now disabled via `DOTNET_hostBuilder__reloadConfigOnChange` (#3)
+
 ## [1.2.0] - 2026-04-12
 
 ### Added
@@ -54,5 +61,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configurable timeouts and operation limits
 - Comprehensive README with tool reference and usage examples
 
+[1.2.1]: https://github.com/cervonwong/ILSpy-MCP/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/cervonwong/ILSpy-MCP/compare/v1.0.0...v1.2.0
 [1.0.0]: https://github.com/cervonwong/ILSpy-MCP/releases/tag/v1.0.0
